@@ -1,45 +1,52 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Panel recovery UX + reliable Admin Setup Code reset/apply unlock",
+  "title": "Update splash screen company name font and add color styling",
   "requirements": [
     {
-      "id": "REQ-21",
-      "summary": "Improve Admin Panel recovery UI with clear, actionable English error messaging for failed Admin Setup Code resets (including sign-out/sign-in guidance).",
+      "id": "REQ-41",
+      "summary": "Apply a stylized display font to the splash screen company name text without changing copy or behavior.",
       "acceptanceCriteria": [
-        "If the reset call traps/throws, the Access Denied recovery card shows an English error message that includes the reason returned from the canister when available.",
-        "The UI text refers to \"Admin Setup Code\" (not \"password\") while still addressing the user’s intent (resetting admin access)."
+        "On the splash screen, the company name text renders with a clearly different font style than the current default (e.g., a display/branding font feel).",
+        "The company name text remains exactly: \"STAR MAHARASHTRA GALAXY INTERNET\" (spelling/case/wording unchanged).",
+        "The splash screen continues to auto-transition, fade out, and allow skipping as before."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Adjust how reset/apply errors are surfaced to the Access Denied recovery UI so the message reliably includes the underlying thrown/trapped reason when available (preserve the raw message and avoid replacing it with generic text). Ensure user-facing wording consistently says \"Admin Setup Code\". Verify the component's usage instructions before implementing."
+          "description": "Load a chosen display/branding webfont (e.g., via hosted font stylesheet links in <head>) so the splash company name can reliably render in a non-default stylized font while keeping all text English-only and preserving existing splash behavior."
         },
         {
-          "path": "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+          "path": "frontend/tailwind.config.js",
           "operation": "modify",
-          "description": "Enhance the reset-failure UI: when reset fails, show clear English guidance explaining likely cause (signed in with the wrong Internet Identity), and provide actionable steps: sign out, sign back in with the correct admin Internet Identity, then retry resetting the Admin Setup Code. Keep terminology as \"Admin Setup Code\" throughout. Use existing shadcn-ui composed components (Alert/Card/Button/Input) for messaging layout. Verify the component's usage instructions before implementing."
+          "description": "Extend Tailwind fontFamily with a dedicated display font stack (e.g., fontFamily.display) that uses the newly loaded webfont with sensible fallbacks, enabling consistent styling for the splash company name."
+        },
+        {
+          "path": "frontend/src/components/SplashScreen.tsx",
+          "operation": "modify",
+          "description": "Update the company name <h1> styling to use the new Tailwind display font class (keeping the rendered text exactly \"STAR MAHARASHTRA GALAXY INTERNET\") and ensure no changes to the existing auto-transition, fade-out, or skip interactions."
         }
       ]
     },
     {
-      "id": "REQ-22",
-      "summary": "Make the reset success path automatically apply the new Admin Setup Code and refresh admin access/React Query state so the Admin Panel unlocks without manual refresh.",
+      "id": "REQ-42",
+      "summary": "Add clearly noticeable multi-color/gradient styling to the splash screen company name while leaving the tagline unchanged and honoring reduced-motion behavior.",
       "acceptanceCriteria": [
-        "After a successful reset, the app automatically applies the new code and the Admin Panel transitions from the Access Denied recovery UI to the authorized admin view without requiring a manual browser refresh.",
-        "After reset+auto-apply, `isAdmin` becomes true and registrations queries can load (subject to having data)."
+        "The company name text displays visible color styling (multi-color or gradient) across the words, and the result is clearly noticeable.",
+        "The tagline remains exactly: \"Connect to the Future with Internet at Light Speed.\" and remains readable against the background.",
+        "In reduced-motion mode (`prefers-reduced-motion: reduce`), the new font and color styling still apply, and animations remain disabled as currently implemented."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Ensure the reset success flow is fully sequenced and reliable: (1) store the generated code under sessionStorage key `caffeineAdminToken` (via existing session helper), (2) re-initialize access control by calling the actor’s secret initialization function, and only then (3) refresh admin-related React Query state by invalidating and explicitly refetching `isAdmin`, `userRole`, and `registrations` so the UI unlocks immediately. Also ensure the manual apply path follows the same pattern (store -> initialize -> refresh). Verify the component's usage instructions before implementing."
+          "description": "Add CSS rules for the existing splash word span classes (e.g., .splash-word-star/.splash-word-maharashtra/.splash-word-galaxy/.splash-word-internet) to apply multi-color styling (per-word colors or a text gradient effect) that remains readable on the splash background; ensure reduced-motion media query continues to disable animations while still applying the new font/color styling."
         },
         {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "path": "frontend/src/components/SplashScreen.tsx",
           "operation": "modify",
-          "description": "Update post-reset/post-apply handling to rely on the hook’s immediate query refresh rather than time-based delays where possible, so the Admin Panel transitions from Access Denied to the authorized view promptly after success. Ensure any remaining success UI state is cleared only after queries have refreshed. Verify the component's usage instructions before implementing."
+          "description": "Adjust company-name markup/classes only as needed to support the new multi-color/gradient styling (e.g., ensure span classes are retained/used and do not affect the tagline); keep existing reduced-motion logic and the splash timing/transition/skip behavior unchanged."
         }
       ]
     }

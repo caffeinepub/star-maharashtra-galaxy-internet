@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 11,
+  "projectStateVersion": 29,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
-    "Add an Admin Panel for viewing saved registrations, restricted to a single admin user (access control mechanism TBD)."
+    "Add an Admin Panel for viewing saved registrations, restricted to a single admin user (access control mechanism TBD).",
+    "Add an animated splash screen shown on app launch before navigating to the main registration flow/admin panel.",
+    "Splash/intro screen should remove the logo and instead display the company name in stylized/design lettering (text-based branding).",
+    "Splash screen company name text (no logo) should use an updated font and include color styling."
   ],
-  "known_issues": [
-    "Admin Panel/admin access flow is not opening for the user; they receive an error message and cannot log in.",
-    "Admin password/setup code reset flow is not working; user still cannot regain admin access after attempting reset."
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
@@ -147,6 +147,166 @@
         "REQ-22"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-an-animated-splash-intro-screen-that-appears-before-the-main-app-ui-and-displays-the-exact-text-star-maharashtra-galaxy-internet-the-splash-must-automatically-transition-to-the-existing-app-registration-admin-views-after-a-short-delay-and-it-must-not-require-any-backend-changes",
+      "title": "Add an animated splash/intro screen that appears before the main app UI and displays the exact text “STAR MAHARASHTRA GALAXY INTERNET”. The splash must automatically transition to the existing app (Registration/Admin views) after a short delay, and it must not require any backend changes.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-splash-animation-respects-accessibility-preferences-and-does-not-block-usage-if-the-user-has-reduced-motion-enabled-show-a-minimal-non-animated-version-and-still-transition-quickly-to-the-main-ui",
+      "title": "Ensure the splash animation respects accessibility preferences and does not block usage: if the user has reduced-motion enabled, show a minimal/non-animated version and still transition quickly to the main UI.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-intro-screen-to-remove-the-previous-animated-company-name-text-currently-rendered-as-star-maharashtra-and-galaxy-internet-and-instead-display-the-company-logo-and-the-exact-tagline-text-connect-to-the-future-with-internet-at-light-speed",
+      "title": "Update the splash/intro screen to remove the previous animated company name text (currently rendered as “STAR MAHARASHTRA” and “GALAXY INTERNET”) and instead display the company logo and the exact tagline text: “Connect to the Future with Internet at Light Speed.”",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-uploaded-logo-image-to-the-frontend-as-a-static-asset-and-render-it-on-the-splash-screen-do-not-serve-images-from-the-backend",
+      "title": "Add the uploaded logo image to the frontend as a static asset and render it on the splash screen (do not serve images from the backend).",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-splash-screen-styling-animation-so-it-focuses-on-the-logo-tagline-presentation-and-not-the-old-title-subtitle-animations-while-keeping-the-existing-behavior-auto-transition-after-a-short-delay-fade-out-on-completion-and-user-ability-to-skip",
+      "title": "Adjust splash screen styling/animation so it focuses on the logo + tagline presentation (and not the old title/subtitle animations), while keeping the existing behavior: auto-transition after a short delay, fade-out on completion, and user ability to skip.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-updated-splash-experience-continues-to-respect-reduced-motion-accessibility-preferences-by-showing-a-minimal-non-animated-variant-when-prefers-reduced-motion-is-enabled-while-still-transitioning-quickly-to-the-main-ui",
+      "title": "Ensure the updated splash experience continues to respect reduced-motion accessibility preferences by showing a minimal/non-animated variant when prefers-reduced-motion is enabled, while still transitioning quickly to the main UI.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-correct-company-logo-image-the-one-previously-provided-by-the-user-to-the-frontend-as-a-static-asset-under-frontend-public-assets-generated-and-update-the-splash-screen-to-render-that-corrected-logo-image-instead-of-the-currently-referenced-incorrect-logo-file",
+      "title": "Add the correct company logo image (the one previously provided by the user) to the frontend as a static asset under `frontend/public/assets/generated/`, and update the splash screen to render that corrected logo image instead of the currently referenced (incorrect) logo file.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-splash-screen-displays-the-exact-tagline-text-connect-to-the-future-with-internet-at-light-speed-matching-punctuation-and-capitalization-exactly",
+      "title": "Ensure the splash screen displays the exact tagline text: \"Connect to the Future with Internet at Light Speed.\" (matching punctuation and capitalization exactly).",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-correct-company-logo-image-as-a-static-frontend-asset-under-frontend-public-assets-generated-and-ensure-the-splashscreen-can-load-it-from-assets-generated-smgi-logo-corrected-dim-512x512-png",
+      "title": "Add the correct company logo image as a static frontend asset under `frontend/public/assets/generated/` and ensure the SplashScreen can load it from `/assets/generated/smgi-logo-corrected.dim_512x512.png`.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-screen-layout-so-the-tagline-text-is-clearly-placed-directly-beneath-the-company-logo-logo-on-top-tagline-underneath-across-all-responsive-breakpoints-with-a-visually-appropriate-vertical-spacing-that-reads-as-a-single-logo-tagline-unit-keep-the-tagline-text-exactly-connect-to-the-future-with-internet-at-light-speed",
+      "title": "Update the Splash Screen layout so the tagline text is clearly placed directly beneath the company logo (logo on top, tagline underneath) across all responsive breakpoints, with a visually appropriate vertical spacing that reads as a single logo+tagline unit. Keep the tagline text exactly: \"Connect to the Future with Internet at Light Speed.\"",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-splash-screen-loads-and-displays-the-correct-company-logo-by-adding-the-logo-image-file-as-a-static-frontend-asset-at-exactly-frontend-public-assets-generated-smgi-logo-corrected-dim-512x512-png-or-update-the-splashscreen-image-src-to-match-the-actual-asset-filename-path-that-is-added",
+      "title": "Ensure the splash screen loads and displays the correct company logo by adding the logo image file as a static frontend asset at exactly `frontend/public/assets/generated/smgi-logo-corrected.dim_512x512.png` (or update the SplashScreen image `src` to match the actual asset filename/path that is added).",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-safe-fallback-behavior-in-frontend-src-components-splashscreen-tsx-so-that-if-the-logo-image-fails-to-load-404-or-other-error-the-ui-shows-a-clear-english-message-e-g-logo-failed-to-load-instead-of-silently-showing-a-broken-wrong-image",
+      "title": "Add a safe fallback behavior in `frontend/src/components/SplashScreen.tsx` so that if the logo image fails to load (404 or other error), the UI shows a clear English message (e.g., \"Logo failed to load.\") instead of silently showing a broken/wrong image.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-newly-uploaded-company-logo-image-from-the-user-upload-whatsapp-image-2026-02-12-at-11-30-25-4-jpeg-to-the-frontend-as-a-static-asset-under-frontend-public-assets-generated-using-the-filename-smgi-logo-uploaded-2026-02-12-dim-512x512-png-512-512",
+      "title": "Add the newly uploaded company logo image (from the user upload “WhatsApp Image 2026-02-12 at 11.30.25-4.jpeg”) to the frontend as a static asset under `frontend/public/assets/generated/` using the filename `smgi-logo-uploaded-2026-02-12.dim_512x512.png` (512×512).",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-src-components-splashscreen-tsx-to-render-the-newly-uploaded-logo-image-by-changing-the-img-src-to-assets-generated-smgi-logo-uploaded-2026-02-12-dim-512x512-png-and-update-the-console-error-message-in-handleimageerror-to-reference-the-same-new-path",
+      "title": "Update `frontend/src/components/SplashScreen.tsx` to render the newly uploaded logo image by changing the `<img>` `src` to `/assets/generated/smgi-logo-uploaded-2026-02-12.dim_512x512.png`, and update the `console.error` message in `handleImageError` to reference the same new path.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-keep-the-splash-screen-tagline-text-exactly-as-connect-to-the-future-with-internet-at-light-speed-and-ensure-the-layout-remains-logo-on-top-with-the-tagline-directly-beneath-it-across-responsive-breakpoints",
+      "title": "Keep the splash screen tagline text exactly as: \"Connect to the Future with Internet at Light Speed.\" and ensure the layout remains logo on top with the tagline directly beneath it across responsive breakpoints.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-intro-screen-component-frontend-src-components-splashscreen-tsx-to-remove-the-company-logo-image-entirely-and-instead-display-the-company-name-as-stylized-design-lettering-text-star-maharashtra-galaxy-internet",
+      "title": "Update the splash/intro screen component (`frontend/src/components/SplashScreen.tsx`) to remove the company logo image entirely and instead display the company name as stylized/design lettering text: \"STAR MAHARASHTRA GALAXY INTERNET\".",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-logo-specific-error-handling-from-the-splash-screen-since-the-logo-is-no-longer-displayed-including-removing-the-logo-failed-to-load-fallback-ui-and-any-logo-load-console-error-messages",
+      "title": "Remove logo-specific error handling from the splash screen since the logo is no longer displayed, including removing the \"Logo failed to load.\" fallback UI and any logo-load console error messages.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-preserve-existing-splash-behavior-auto-transition-after-a-short-delay-fade-out-on-completion-user-ability-to-skip-and-respect-for-reduced-motion-accessibility-preferences",
+      "title": "Preserve existing splash behavior: auto-transition after a short delay, fade-out on completion, user ability to skip, and respect for reduced-motion accessibility preferences.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-screen-company-name-styling-in-frontend-src-components-splashscreen-tsx-to-use-a-different-more-stylized-display-font-different-from-the-default-sans-for-the-text-star-maharashtra-galaxy-internet",
+      "title": "Update the splash screen company name styling in `frontend/src/components/SplashScreen.tsx` to use a different, more stylized display font (different from the default sans) for the text \"STAR MAHARASHTRA GALAXY INTERNET\".",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-color-styling-to-the-splash-screen-company-name-text-so-it-is-no-longer-a-single-flat-color-e-g-multi-color-per-word-or-a-gradient-effect-while-keeping-the-tagline-text-unchanged",
+      "title": "Add color styling to the splash screen company name text so it is no longer a single flat color (e.g., multi-color per word or a gradient effect), while keeping the tagline text unchanged.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -224,6 +384,24 @@
       "reqIds": [
         "REQ-20"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Add an animated splash/intro screen that displays “STAR MAHARASHTRA GALAXY INTERNET” before the app starts/loads the main UI.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Update splash/intro screen to remove the logo and instead display the company name in stylized/design lettering (text-based branding).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Update splash screen company name styling: change font and add color to the displayed company name text (stylized lettering).",
+      "reqIds": [],
       "status": "pending"
     }
   ],

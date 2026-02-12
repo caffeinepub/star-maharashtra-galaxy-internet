@@ -24,6 +24,12 @@ export default {
                     'Segoe UI',
                     'Roboto',
                     'sans-serif'
+                ],
+                display: [
+                    'Orbitron',
+                    'Inter',
+                    'system-ui',
+                    'sans-serif'
                 ]
             },
             colors: {

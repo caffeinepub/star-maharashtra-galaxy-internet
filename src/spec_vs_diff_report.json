@@ -1,52 +1,58 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T05:14:10.390Z",
-  "summary": "The diff shows significant frontend work around applying an Admin Setup Code (sessionStorage persistence + React Query invalidation/refetch) and a recovery card with troubleshooting text, but it does not provide evidence that the backend `resetAdminSetupCode()` authorization/rotation behavior was fixed, nor that the frontend implements a reset flow (call + success/error handling) as required. The diff also appears to introduce unrelated registration-flow UI changes (Admin Panel navigation) that were not requested and may violate the stated non-goal.",
+  "generatedAt": "2026-02-12T06:33:36.282Z",
+  "summary": "REQ-41 and REQ-42 are largely implemented: SplashScreen company name is split into words with a new display font class (font-display) and multi-color styling per word via new CSS classes. However, the diff also introduces broader theme/style changes and additional splash animations, and it is not clearly shown that reduced-motion mode disables animations while keeping the new font/color styling.",
   "missing_requirements": [
     {
-      "id": "REQ-20",
-      "requirement": "Fix backend `resetAdminSetupCode()` so the configured admin principal can reset even when not currently recognized as admin by permission checks, while non-admin principals are blocked with a clear English error, and the code is rotated to a new generated value.",
-      "reason": "The shown/truncated backend diff does not include any implementation or modification of `resetAdminSetupCode()` or logic demonstrating: (a) admin-principal-based authorization independent of current admin permission checks, (b) clear English error for non-admin principals, or (c) setup code rotation to a newly generated value.",
+      "id": "REQ-42",
+      "requirement": "In reduced-motion mode (prefers-reduced-motion: reduce), the new font and color styling still apply, and animations remain disabled as currently implemented.",
+      "reason": "The diff adds multiple splash animations (e.g., shimmer, entrance, fade-in) but the provided CSS does not show any @media (prefers-reduced-motion: reduce) overrides to disable these animations. SplashScreen.tsx reads the preference, but only uses it to shorten the auto-complete duration, not to disable CSS animations.",
       "evidence": [
-        "backend/main.mo (truncated excerpt shows registrations/OTP/admin permission checks, but no `resetAdminSetupCode()` implementation or changes are visible)"
+        "frontend/src/index.css",
+        "frontend/src/components/SplashScreen.tsx"
       ]
     },
     {
-      "id": "REQ-21",
-      "requirement": "Update the Admin Panel recovery UI specifically for Admin Setup Code *reset* failures to show clear, actionable English messaging (including sign out / sign in with correct admin Internet Identity and retry), and include the canister error reason when available.",
-      "reason": "The diff shows an AdminAccessRecoveryCard for applying an existing code and generic troubleshooting, but it does not show a reset action/UI, nor error handling tied to a reset call that includes the canister-provided reason.",
+      "id": "REQ-41",
+      "requirement": "The splash screen continues to auto-transition, fade out, and allow skipping as before (preserve existing behavior).",
+      "reason": "SplashScreen.tsx changes the auto-complete timing based on reduced-motion (2000ms vs 4000ms). If the prior behavior was a fixed duration, this is a behavior change; the diff does not provide evidence that this matches the previous behavior.",
       "evidence": [
-        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx (shows apply-code UI; no reset action is visible in the provided excerpt)",
-        "frontend/src/features/admin/hooks/useAdminSetupCode.ts (only applies a provided code via `_initializeAccessControlWithSecret`; no call to `resetAdminSetupCode()`)"
-      ]
-    },
-    {
-      "id": "REQ-22",
-      "requirement": "On successful Admin Setup Code reset, automatically apply the new code by storing it under `sessionStorage` key `caffeineAdminToken`, re-initializing access control, and refreshing admin-related React Query state so the Admin Panel unlocks without manual refresh.",
-      "reason": "The diff implements persistence and query invalidation/refetch for applying a code the user enters, but there is no evidence of a successful *reset* returning a newly generated code and then auto-applying that returned value to unlock the admin panel.",
-      "evidence": [
-        "frontend/src/features/admin/hooks/useAdminSetupCode.ts (stores provided code; no reset+auto-apply flow)",
-        "frontend/src/features/admin/AdminPanel.tsx (references `reset: resetCodeMutation` which appears to be mutation-state reset, not canister setup-code reset; no reset success path shown)"
+        "frontend/src/components/SplashScreen.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/changed customer registration flow UI to include an Admin Panel navigation button in the registration header.",
-      "reason": "The BuildRequest explicitly lists as a non-goal changing the customer registration flow behavior unrelated to admin access recovery; adding navigation in the registration flow is not requested by REQ-20/21/22.",
+      "description": "Global theme/token changes (OKLCH color system variables) beyond splash company name styling.",
+      "reason": "The request is limited to splash company name font/color styling and explicitly avoids changing the overall app theme outside that scope. index.css shows extensive changes to :root and .dark CSS variables (primary/accent/etc.) which affect the whole app.",
       "evidence": [
-        "frontend-file-summaries.txt (\"RegistrationFlow.tsx\": \"added Admin Panel navigation button in the header\")"
+        "frontend/src/index.css"
+      ]
+    },
+    {
+      "description": "Added/expanded splash animations (text shimmer, glow effects, multiple keyframes) beyond the requested font and color styling.",
+      "reason": "REQ-41/42 ask for font and color styling while preserving existing behavior; the diff adds new keyframes and applies new animations to company name and tagline.",
+      "evidence": [
+        "frontend/src/index.css"
+      ]
+    },
+    {
+      "description": "Unrequested unrelated feature summaries/state updates mentioning admin panel and other functionality.",
+      "reason": "The build request is only about splash screen styling, but the modified summary/state files describe admin panel/navigation features unrelated to the request.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "project_state.json"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.66,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/admin/AdminPanel.tsx",
-    "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-    "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
+    "frontend/index.html",
+    "frontend/src/components/SplashScreen.tsx",
+    "frontend/src/index.css",
+    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

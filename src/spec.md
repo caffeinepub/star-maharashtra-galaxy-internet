@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Admin Setup Code reset flow so the legitimate configured admin can recover admin access, while preventing unauthorized resets, and ensure the Admin Panel unlocks automatically after a successful reset.
+**Goal:** Refresh the splash screen company name appearance by applying a more stylized display font and noticeable color styling, without changing any existing splash behavior.
 
 **Planned changes:**
-- Update backend `resetAdminSetupCode()` to allow the configured admin Internet Identity to reset and rotate the Admin Setup Code even if current admin permission checks fail due to missing/invalid code.
-- Keep unauthorized users blocked from resetting the Admin Setup Code, returning a clear English error and not rotating the code.
-- Update Admin Panel recovery UI to show clear English error messaging on reset failure, including guidance to sign out and sign back in with the correct admin Internet Identity, and refer to “Admin Setup Code” (not “password”).
-- Make reset success automatically apply the new Admin Setup Code by storing it in `sessionStorage` as `caffeineAdminToken`, re-initializing access control, and refreshing admin React Query state so the Admin Panel unlocks without a manual refresh.
+- Update `frontend/src/components/SplashScreen.tsx` to render the company name "STAR MAHARASHTRA GALAXY INTERNET" using a clearly different, more stylized display font than the current default.
+- Add visible color styling to the company name text (e.g., multi-color per word or a gradient), while keeping the tagline text unchanged and readable.
+- Preserve existing splash screen behavior (auto-transition, fade out, and skip), and ensure reduced-motion mode still disables animations while keeping the new font/color styling.
 
-**User-visible outcome:** The configured admin can successfully reset the Admin Setup Code to regain access; if signed in as the wrong identity, the app shows clear instructions and an error reason; after a successful reset, the Admin Panel becomes authorized automatically without reloading the page.
+**User-visible outcome:** The splash screen shows the same company name and tagline, but the company name appears with a new stylized font and noticeable color styling, while all existing transitions/skip behavior remain the same.

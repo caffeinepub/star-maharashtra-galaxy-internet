@@ -1,63 +1,58 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T20:33:30.767Z",
-  "summary": "Diff adds a reusable DocumentImagePreview component and updates admin registration detail/edit components, but the truncated diff does not provide enough evidence that all edit-flow ACs (Back/Cancel behavior + Save gating/feedback) and all document-preview ACs (Aadhaar/PAN/receipt with required empty/error states) are fully implemented end-to-end. Backend changes also include unrelated admin credential defaults.",
+  "generatedAt": "2026-02-12T20:56:12.705Z",
+  "summary": "Diff adds a new admin-side DocumentImagePreview component with retry/error handling and updates admin queries to fetch registrations more defensively. Backend changes include adding a migration module and introducing an access-control mixin setup. However, based on the visible diff summary, backend support specifically ensuring admin-authorized document blob retrieval (without loosening non-admin access) is not clearly demonstrated, and several admin-panel capabilities appear added beyond the requested document-preview fix.",
   "missing_requirements": [
     {
-      "id": "REQ-84",
-      "requirement": "Provide a clear Back/Cancel action in edit mode that exits without saving, returns to read-only details for the same selected registration, and discards unsaved edits without calling the update mutation.",
-      "reason": "The edit form now accepts an `onCancel` prop, but the provided truncated diff does not show an actual Back/Cancel button wired to `onCancel`, nor does it show parent logic ensuring the same selected registration remains selected and that cancelling never triggers the update mutation.",
+      "id": "REQ-89",
+      "requirement": "Ensure backend blob/document access used by the Admin Panel is compatible with admin-only registration viewing, so document images can be fetched/rendered when the caller is an authorized admin (without relaxing permissions for non-admins).",
+      "reason": "The diff summary shows new access-control initialization and a storage mixin, but does not show the admin-only registration APIs (`getRegistration`, `getRegistrationWithReceiptInfo`, blob fetch/authorization pathways) being updated to guarantee that an authorized admin can retrieve/render stored document blobs while preventing non-admin access. The relevant functions are not present in the provided `backend/main.mo` snippet (truncated).",
       "evidence": [
-        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx (truncated)",
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated)",
-        "frontend/src/features/admin/AdminPanel.tsx (not shown; only referenced in frontend-file-summaries.txt)"
-      ]
-    },
-    {
-      "id": "REQ-85",
-      "requirement": "Edit form must have an explicit Save action that is disabled until changes are made; show English loading/error feedback; prevent double submit; on success return to updated read-only details view.",
-      "reason": "The form computes `hasChanges` and supports `isSaving/error/success` props, but the truncated diff does not show the Save button implementation (disabled state tied to `hasChanges`, loading state, double-submit prevention) nor the success/failure UI behavior (error message, returning to read-only view).",
-      "evidence": [
-        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx (truncated)",
-        "frontend/src/features/admin/AdminPanel.tsx (not shown; only referenced in frontend-file-summaries.txt)"
-      ]
-    },
-    {
-      "id": "REQ-86",
-      "requirement": "Show visible image previews for Aadhaar, PAN, and optional Payment Receipt in the admin Registration Details view with English labels; show an explicit 'No receipt uploaded' state when absent; show per-document fallback when missing/cannot load; ensure backend/admin query returns enough data to render images.",
-      "reason": "A preview component and placeholder are added, and the detail panel imports them, but the truncated diff does not show the actual rendering logic mapping registration blobs to (Aadhaar, PAN, Receipt) slots with required labels and the required 'No receipt uploaded' empty state. It also does not show the admin query layer returning/constructing the needed blob objects for these previews.",
-      "evidence": [
-        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated)",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts (not included in diff; only referenced in frontend-file-summaries.txt)",
         "backend/main.mo (truncated)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Hardcoded default admin login credentials added/maintained in backend state.",
-      "reason": "BuildRequest focuses on admin edit navigation and document preview display; it does not request changing or introducing default admin credentials.",
+      "description": "Added a persistent-state migration module and wired migration into the actor.",
+      "reason": "The BuildRequest is focused on fixing admin document preview rendering and admin-compatible blob access; it does not request introducing/altering canister state migration infrastructure.",
       "evidence": [
-        "backend/main.mo (truncated) — `adminLoginCredentials` default values"
+        "backend/migration.mo",
+        "backend/main.mo (with migration = Migration.run)"
       ]
     },
     {
-      "description": "Login attempt tracking / basic rate limiting state in backend.",
-      "reason": "Not requested by REQ-84/85/86 and appears unrelated to the admin edit flow/document previews.",
+      "description": "Hard-coded default admin credentials in backend state.",
+      "reason": "Not requested by REQ-87/88/89 and potentially unrelated to fixing admin document image rendering.",
       "evidence": [
-        "backend/main.mo (truncated) — `loginAttempts` map"
+        "backend/main.mo (adminLoginCredentials default username/password)"
+      ]
+    },
+    {
+      "description": "Admin claim flow mutation appears to succeed without calling any backend authorization/claim API.",
+      "reason": "REQ-87/88/89 do not ask to change admin-claim behavior; returning `true` without a canister call may be an unrequested behavior change and could affect security semantics.",
+      "evidence": [
+        "frontend/src/features/admin/hooks/useAdminQueries.ts (claimAdminMutation mutationFn returns true)"
+      ]
+    },
+    {
+      "description": "Expanded Admin Panel capabilities like edit/delete flows and other UI behavior beyond document preview rendering.",
+      "reason": "Non-goals include not changing the registration step UI/flow unless needed for persistence/display; while this is admin-side, the BuildRequest only targets fixing document previews and diagnostics, not broader admin editing/deletion features.",
+      "evidence": [
+        "frontend-file-summaries.txt (mentions integrated edit mode, delete functionality)",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated shows many additional actions/icons)"
       ]
     }
   ],
-  "confidence": 0.54,
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-    "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
     "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+    "frontend/src/features/admin/hooks/useAdminQueries.ts",
     "project_state.json"
   ]
 }

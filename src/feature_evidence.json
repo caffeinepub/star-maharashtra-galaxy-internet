@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-admin-panel-edit-flow-so-that-when-an-admin-clicks-edit-details-they-can-exit-edit-mode-without-saving-by-using-a-clear-back-cancel-action-that-returns-to-the-read-only-registration-details-view-for-the-currently-selected-registration",
-      "featureTitle": "Update the Admin Panel edit flow so that when an admin clicks “Edit Details”, they can exit edit mode without saving by using a clear Back/Cancel action that returns to the read-only Registration Details view for the currently selected registration.",
+      "featureId": "feature-fix-the-admin-panel-registration-details-view-so-that-when-a-customer-has-uploaded-aadhaar-card-and-pan-card-photos-during-registration-those-document-images-reliably-render-under-the-verification-documents-section-for-that-registration-and-the-optional-receipt-image-renders-when-present",
+      "featureTitle": "Fix the Admin Panel Registration Details view so that, when a customer has uploaded Aadhaar Card and PAN Card photos during registration, those document images reliably render under the “Verification Documents” section for that registration (and the optional receipt image renders when present).",
       "files": [
-        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
+        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -17,33 +19,13 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-84"
+        "REQ-87"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-admin-panel-edit-form-provides-an-explicit-save-action-and-only-enables-saving-when-changes-have-been-made-with-clear-english-loading-and-error-feedback",
-      "featureTitle": "Ensure the Admin Panel edit form provides an explicit Save action and only enables saving when changes have been made, with clear English loading and error feedback.",
-      "files": [
-        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-85"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-display-uploaded-verification-document-photos-aadhaar-card-pan-card-and-the-optional-payment-receipt-photo-when-present-in-the-admin-panel-registration-detail-view-so-the-admin-can-visually-inspect-the-images",
-      "featureTitle": "Display uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) in the Admin Panel registration detail view so the admin can visually inspect the images.",
+      "featureId": "feature-add-defensive-handling-and-diagnostics-for-document-preview-failures-so-admins-can-understand-why-an-uploaded-document-is-not-visible-e-g-failed-url-generation-unauthorized-fetch-missing-blob-corrupted-blob-without-exposing-sensitive-data",
+      "featureTitle": "Add defensive handling and diagnostics for document preview failures so admins can understand why an uploaded document is not visible (e.g., failed URL generation, unauthorized fetch, missing blob, corrupted blob) without exposing sensitive data.",
       "files": [
         "frontend/src/features/admin/components/DocumentImagePreview.tsx",
         "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
@@ -58,7 +40,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-86"
+        "REQ-88"
       ],
       "confidence": "high"
     }

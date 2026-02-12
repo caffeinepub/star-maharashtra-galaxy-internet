@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 59,
+  "projectStateVersion": 61,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -595,6 +595,22 @@
         "REQ-86"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-registration-details-view-so-that-when-a-customer-has-uploaded-aadhaar-card-and-pan-card-photos-during-registration-those-document-images-reliably-render-under-the-verification-documents-section-for-that-registration-and-the-optional-receipt-image-renders-when-present",
+      "title": "Fix the Admin Panel Registration Details view so that, when a customer has uploaded Aadhaar Card and PAN Card photos during registration, those document images reliably render under the “Verification Documents” section for that registration (and the optional receipt image renders when present).",
+      "reqIds": [
+        "REQ-87"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-defensive-handling-and-diagnostics-for-document-preview-failures-so-admins-can-understand-why-an-uploaded-document-is-not-visible-e-g-failed-url-generation-unauthorized-fetch-missing-blob-corrupted-blob-without-exposing-sensitive-data",
+      "title": "Add defensive handling and diagnostics for document preview failures so admins can understand why an uploaded document is not visible (e.g., failed URL generation, unauthorized fetch, missing blob, corrupted blob) without exposing sensitive data.",
+      "reqIds": [
+        "REQ-88"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -830,6 +846,14 @@
       "id": "AR-42",
       "summary": "Admin Panel: Display uploaded document photos (Aadhaar/PAN and any receipt if applicable) in the registration detail view so admin can view the images.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Ensure backend blob/document access used by the Admin Panel is compatible with admin-only registration viewing, so document images can be fetched/rendered when the caller is an authorized admin.",
+      "reqIds": [
+        "REQ-89"
+      ],
       "status": "pending"
     }
   ],

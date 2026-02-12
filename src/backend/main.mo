@@ -3,21 +3,19 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import VarArray "mo:core/VarArray";
-import Array "mo:core/Array";
-import Iter "mo:core/Iter";
-import Blob "mo:core/Blob";
-import Nat8 "mo:core/Nat8";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-// Apply persistent state migration
+// Improved persistent state migration
+(with migration = Migration.run)
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+
   include MixinStorage();
 
   public type UserProfile = {

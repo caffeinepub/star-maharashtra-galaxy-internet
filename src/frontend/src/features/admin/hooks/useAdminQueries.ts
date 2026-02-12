@@ -62,8 +62,19 @@ export function useAdminQueries() {
         try {
           // Try the primary method first
           const [registration, hasReceipt] = await actor.getRegistrationWithReceiptInfo(id);
+          
+          // Log document structure for debugging
+          console.log('[useAdminQueries] Registration fetched:', {
+            id,
+            hasDocuments: !!registration.documents,
+            documentCount: registration.documents?.length || 0,
+            hasReceipt: !!registration.receipt,
+          });
+          
           return { registration, hasReceipt };
         } catch (primaryError) {
+          console.error('[useAdminQueries] Primary fetch failed, trying fallback:', primaryError);
+          
           // If primary method fails, try fallback: fetch basic registration
           try {
             const registration = await actor.getRegistration(id);
@@ -71,6 +82,14 @@ export function useAdminQueries() {
               // Try to check receipt separately
               try {
                 const hasReceipt = await actor.hasReceipt(id);
+                
+                console.log('[useAdminQueries] Fallback fetch succeeded:', {
+                  id,
+                  hasDocuments: !!registration.documents,
+                  documentCount: registration.documents?.length || 0,
+                  hasReceipt,
+                });
+                
                 return { 
                   registration, 
                   hasReceipt,
@@ -78,6 +97,12 @@ export function useAdminQueries() {
                 };
               } catch {
                 // If receipt check fails, assume no receipt
+                console.log('[useAdminQueries] Fallback fetch succeeded (no receipt check):', {
+                  id,
+                  hasDocuments: !!registration.documents,
+                  documentCount: registration.documents?.length || 0,
+                });
+                
                 return { 
                   registration, 
                   hasReceipt: false,
@@ -88,14 +113,16 @@ export function useAdminQueries() {
               throw new Error('Registration not found');
             }
           } catch (fallbackError) {
+            console.error('[useAdminQueries] All fetch methods failed:', fallbackError);
             // If all methods fail, throw the original error
             throw primaryError;
           }
         }
       },
       enabled: !!actor && !actorFetching && !!id && isAdminQuery.data === true,
-      retry: 1, // Retry once on failure
+      retry: 2, // Retry twice on failure for better reliability
       staleTime: 0, // Always fetch fresh data when selection changes
+      gcTime: 0, // Don't cache old registration data
     });
   };
 

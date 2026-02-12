@@ -1,42 +1,33 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T20:33:30.771Z",
+  "generatedAt": "2026-02-12T20:56:12.710Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-84",
-        "summary": "Update the Admin Panel edit flow so that when an admin clicks “Edit Details”, they can exit edit mode without saving by using a clear Back/Cancel action that returns to the read-only Registration Details view for the currently selected registration.",
+        "id": "REQ-87",
+        "summary": "Fix the Admin Panel Registration Details view so that, when a customer has uploaded Aadhaar Card and PAN Card photos during registration, those document images reliably render under the “Verification Documents” section for that registration (and the optional receipt image renders when present).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "frontend/src/features/admin/AdminPanel.tsx"
+          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "frontend/src/features/admin/hooks/useAdminQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
+          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "frontend/src/features/admin/hooks/useAdminQueries.ts"
         ]
       },
       {
-        "id": "REQ-85",
-        "summary": "Ensure the Admin Panel edit form provides an explicit Save action and only enables saving when changes have been made, with clear English loading and error feedback.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "frontend/src/features/admin/AdminPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
-        ]
-      },
-      {
-        "id": "REQ-86",
-        "summary": "Display uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) in the Admin Panel registration detail view so the admin can visually inspect the images.",
+        "id": "REQ-88",
+        "summary": "Add defensive handling and diagnostics for document preview failures so admins can understand why an uploaded document is not visible (e.g., failed URL generation, unauthorized fetch, missing blob, corrupted blob) without exposing sensitive data.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/admin/components/DocumentImagePreview.tsx",
@@ -46,18 +37,26 @@
           "frontend/src/features/admin/components/DocumentImagePreview.tsx",
           "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ]
+      },
+      {
+        "id": "REQ-89",
+        "summary": "Ensure backend blob/document access used by the Admin Panel is compatible with admin-only registration viewing, so document images can be fetched/rendered when the caller is an authorized admin.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-    "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
     "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+    "frontend/src/features/admin/hooks/useAdminQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

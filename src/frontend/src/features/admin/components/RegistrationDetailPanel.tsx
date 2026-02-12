@@ -337,6 +337,21 @@ export function RegistrationDetailPanel({
     return value;
   };
 
+  // Safely extract documents with defensive checks
+  const documents = registration.documents || [];
+  const aadhaarDoc = documents.length > 0 ? documents[0] : null;
+  const panDoc = documents.length > 1 ? documents[1] : null;
+  const receiptDoc = registration.receipt || null;
+
+  // Log document availability for debugging
+  console.log('[RegistrationDetailPanel] Document availability:', {
+    registrationId: selectedRegistrationId,
+    totalDocuments: documents.length,
+    hasAadhaar: !!aadhaarDoc,
+    hasPAN: !!panDoc,
+    hasReceipt: !!receiptDoc,
+  });
+
   // Success state - show registration details with defensive rendering
   return (
     <Card className="shadow-lg">
@@ -429,157 +444,134 @@ export function RegistrationDetailPanel({
           </Alert>
         )}
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[520px] pr-4">
-          <div className="space-y-6">
-            {/* Customer Information */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Customer Information
-              </h3>
-              <div className="space-y-3 pl-6">
-                <div>
-                  <p className="text-sm text-muted-foreground">Name</p>
-                  <p className="font-medium">{safeValue(registration.name)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium">{safeValue(registration.phone)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Category</p>
-                  <Badge variant="secondary">{safeValue(registration.category)}</Badge>
-                </div>
-              </div>
+      <ScrollArea className="h-[calc(100vh-16rem)]">
+        <CardContent className="space-y-6 pb-6">
+          {/* Customer Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Customer Information</h3>
             </div>
-
-            <Separator />
-
-            {/* Payment Information */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <CreditCard className="w-4 h-4" />
-                Payment Information
-              </h3>
-              <div className="space-y-3 pl-6">
-                <div>
-                  <p className="text-sm text-muted-foreground">Payment Method</p>
-                  <p className="font-medium">{safeValue(registration.paymentMethod)}</p>
-                </div>
+            <div className="grid gap-3 pl-7">
+              <div>
+                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="font-medium">{safeValue(registration.name)}</p>
               </div>
-            </div>
-
-            <Separator />
-
-            {/* Router Information */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <Wifi className="w-4 h-4" />
-                Router Information
-              </h3>
-              <div className="space-y-3 pl-6">
-                <div>
-                  <p className="text-sm text-muted-foreground">Router</p>
-                  <p className="font-medium">{safeValue(registration.router)}</p>
-                </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Phone</p>
+                <p className="font-medium">{safeValue(registration.phone)}</p>
               </div>
-            </div>
-
-            <Separator />
-
-            {/* Documents */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4" />
-                Verification Documents
-              </h3>
-              <div className="space-y-4 pl-6">
-                {registration.documents && registration.documents.length >= 2 ? (
-                  <>
-                    <DocumentImagePreview 
-                      blob={registration.documents[0]} 
-                      label="Aadhaar Card"
-                    />
-                    <DocumentImagePreview 
-                      blob={registration.documents[1]} 
-                      label="PAN Card"
-                    />
-                  </>
-                ) : registration.documents && registration.documents.length === 1 ? (
-                  <>
-                    <DocumentImagePreview 
-                      blob={registration.documents[0]} 
-                      label="Aadhaar Card"
-                    />
-                    <DocumentImagePreviewPlaceholder 
-                      label="PAN Card"
-                      message="Document not available"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <DocumentImagePreviewPlaceholder 
-                      label="Aadhaar Card"
-                      message="Document not available"
-                    />
-                    <DocumentImagePreviewPlaceholder 
-                      label="PAN Card"
-                      message="Document not available"
-                    />
-                  </>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Payment Receipt */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <Receipt className="w-4 h-4" />
-                Payment Receipt
-              </h3>
-              <div className="space-y-3 pl-6">
-                {registration.receipt ? (
-                  <DocumentImagePreview 
-                    blob={registration.receipt} 
-                    label="Payment Receipt"
-                  />
-                ) : (
-                  <DocumentImagePreviewPlaceholder 
-                    label="Payment Receipt"
-                    message="No receipt uploaded"
-                  />
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Terms Acceptance */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Terms & Conditions
-              </h3>
-              <div className="space-y-3 pl-6">
-                <div>
-                  <p className="text-sm text-muted-foreground">Acceptance Status</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-green-600 font-medium">Accepted</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Accepted At</p>
-                  <p className="font-medium">{formatTimestamp(registration.termsAcceptedAt)}</p>
-                </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Category</p>
+                <Badge variant="outline" className="mt-1">
+                  {safeValue(registration.category)}
+                </Badge>
               </div>
             </div>
           </div>
-        </ScrollArea>
-      </CardContent>
+
+          <Separator />
+
+          {/* Payment Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Payment Information</h3>
+            </div>
+            <div className="grid gap-3 pl-7">
+              <div>
+                <p className="text-sm text-muted-foreground">Payment Method</p>
+                <p className="font-medium">{safeValue(registration.paymentMethod)}</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Router Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Wifi className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Router Information</h3>
+            </div>
+            <div className="grid gap-3 pl-7">
+              <div>
+                <p className="text-sm text-muted-foreground">Router</p>
+                <p className="font-medium">{safeValue(registration.router)}</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Verification Documents */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Verification Documents</h3>
+            </div>
+            <div className="grid gap-4 pl-7">
+              {/* Aadhaar Card */}
+              <DocumentImagePreview
+                blob={aadhaarDoc}
+                label="Aadhaar Card"
+                documentType="Aadhaar"
+              />
+
+              {/* PAN Card */}
+              <DocumentImagePreview
+                blob={panDoc}
+                label="PAN Card"
+                documentType="PAN"
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Payment Receipt (if applicable) */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Payment Receipt</h3>
+            </div>
+            <div className="pl-7">
+              {receiptDoc ? (
+                <DocumentImagePreview
+                  blob={receiptDoc}
+                  label="Payment Receipt (PhonePe/Google Pay)"
+                  documentType="Receipt"
+                />
+              ) : (
+                <DocumentImagePreviewPlaceholder
+                  label="Payment Receipt"
+                  message="No receipt provided"
+                />
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Terms Acceptance */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Terms & Conditions</h3>
+            </div>
+            <div className="grid gap-3 pl-7">
+              <div>
+                <p className="text-sm text-muted-foreground">Accepted At</p>
+                <p className="font-medium">
+                  {registration.termsAcceptedAt
+                    ? formatTimestamp(registration.termsAcceptedAt)
+                    : 'Not available'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </ScrollArea>
     </Card>
   );
 }

@@ -1,69 +1,52 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Panel: Back/Cancel navigation in edit flow and document image previews in registration details",
+  "title": "Admin Panel: Fix and harden Aadhaar/PAN/Receipt document image previews in Registration Details",
   "requirements": [
     {
-      "id": "REQ-84",
-      "summary": "Add a clear Back/Cancel action in edit mode that exits without saving and returns to the read-only details view for the same selected registration.",
+      "id": "REQ-87",
+      "summary": "Ensure Aadhaar/PAN (and optional receipt) images reliably render as previews in the Admin Registration Details 'Verification Documents' section, including for legacy/previously stored registrations, with clear English fallbacks.",
       "acceptanceCriteria": [
-        "When “Edit Details” is clicked, the edit form shows a clearly labeled action (English) such as “Back” or “Cancel” that exits edit mode without persisting any changes.",
-        "Using the Back/Cancel action returns to the read-only Registration Details panel for the same selected registration id (selection does not change).",
-        "If the admin made unsaved changes, exiting edit mode via Back/Cancel does not call the update mutation and discards the unsaved edits (returning to the original values shown in details)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "operation": "modify",
-          "description": "Update the edit form actions to include a clearly labeled Back/Cancel control (English) that calls onCancel and does not submit; ensure copy and placement make it obvious it returns to details without saving."
-        },
-        {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "modify",
-          "description": "Ensure the edit-mode cancel handler only exits edit mode (no selection changes) and does not trigger the update flow; confirm the UI returns to the read-only RegistrationDetailPanel for the currently selected registration."
-        }
-      ]
-    },
-    {
-      "id": "REQ-85",
-      "summary": "Provide an explicit Save action in the edit form that only enables when changes exist, with English loading and error feedback and safe single-submit behavior.",
-      "acceptanceCriteria": [
-        "In edit mode, a “Save” (or “Save Changes”) button is present and triggers the existing update flow for the selected registration.",
-        "The Save button is disabled when there are no changes, and enabled when at least one editable field differs from the current registration values.",
-        "While saving, the Save button shows a loading state and prevents double submission; on success, the UI returns to the updated read-only Registration Details view; on failure, an error message is shown in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "operation": "modify",
-          "description": "Confirm the Save button is explicit, disabled when no changes exist, and shows an English loading state while isSaving is true; prevent double-submission by disabling inputs/buttons during save."
-        },
-        {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "modify",
-          "description": "Wire edit form props to the existing update mutation (isSaving, success, and English error messages); on success, exit edit mode back to the read-only details view for the same selected registration."
-        }
-      ]
-    },
-    {
-      "id": "REQ-86",
-      "summary": "Render admin-visible image previews for Aadhaar, PAN, and optional Payment Receipt blobs in the Registration Details view with clear labels and fallback states.",
-      "acceptanceCriteria": [
-        "When a registration contains stored document blobs for Aadhaar and PAN, the Registration Details view renders visible image previews (thumbnails) for each document with clear English labels (e.g., “Aadhaar Card”, “PAN Card”).",
-        "When a registration has an uploaded payment receipt, the Registration Details view renders a visible image preview labeled “Payment Receipt”. When there is no receipt, show a clear English ‘No receipt uploaded’ (or equivalent) state for that slot.",
-        "If any document blob is missing/cannot be decoded/loaded, the UI shows a clear English fallback message for that document (not a blank area).",
-        "The backend and/or admin query layer returns enough data for the frontend to render these images for an admin (no placeholder-only UI)."
+        "Given an existing registration that contains stored Aadhaar and PAN document blobs, the Admin Panel detail view shows both images (Aadhaar + PAN) as visible previews (not just placeholders).",
+        "If a registration includes a receipt blob, the receipt image preview is also shown; if it does not, the UI clearly indicates it is not provided (in English).",
+        "The fix works for previously submitted registrations already stored in the canister (not only newly created ones).",
+        "No blank panel/crash occurs if a document is missing or in an unexpected format; the UI shows a readable English fallback message per missing/invalid document."
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "operation": "create",
-          "description": "Create a small reusable preview component for an ExternalBlob image that renders a thumbnail using a direct URL, shows a labeled fallback on missing/failed load, and supports a simple loading/error state. Use the blob-storage component's ExternalBlob capability (getDirectURL) to display blobs efficiently. Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Harden preview rendering by safely generating a display URL from the provided blob (wrap URL generation in try/catch, validate that a usable URL exists, and avoid crashes when the blob is missing/invalid). Use the blob-storage ExternalBlob capability (getDirectURL) to generate preview URLs when available. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
           "operation": "modify",
-          "description": "Replace the current documents 'count only' UI with labeled image preview slots for Aadhaar Card and PAN Card (using the documents array in the expected order), plus a Payment Receipt slot that renders an image when registration.receipt is present and otherwise shows an English 'No receipt uploaded' state; use DocumentImagePreview and provide explicit English fallback messages when any blob is missing or fails to load. Use the blob-storage component's ExternalBlob capability (getDirectURL) to display blobs. Verify the component's usage instructions before implementing."
+          "description": "Update the 'Verification Documents' and receipt sections to render Aadhaar and PAN previews more defensively for legacy registrations (handle missing/short documents arrays; handle unexpected blob shapes without crashing; show clear English placeholders per missing/invalid document). Ensure the receipt preview is shown only when present; otherwise display an English 'not provided' message."
+        },
+        {
+          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
+          "operation": "modify",
+          "description": "Ensure the selected registration detail query is invalidated/refetched in a way that supports reliable document rendering for previously stored registrations (e.g., avoid stale cached detail data when switching registrations or after a retry), without changing authentication behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-88",
+      "summary": "Add defensive handling, retry behavior, and developer-only diagnostics for admin document preview failures without exposing sensitive data.",
+      "acceptanceCriteria": [
+        "If a document preview fails to load, the Admin Panel shows an English error state for that document (existing ‘Failed to load image’ is acceptable) and provides a visible ‘Retry’ action or re-attempt behavior without requiring a full page refresh.",
+        "Console logging (developer-only) clearly indicates which document type failed (Aadhaar/PAN/Receipt) and includes the failure reason (e.g., image load error), without logging the raw image bytes."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "operation": "modify",
+          "description": "Add per-document retry support (e.g., a 'Retry' button that re-attempts URL generation and forces the <img> to reload), plus developer-only console diagnostics indicating the failing document label/type and high-level reason (URL generation failure, image load error, fetch not ok) while never logging raw bytes. Use the blob-storage ExternalBlob capability (getDirectURL) as part of retries when applicable. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "operation": "modify",
+          "description": "Wire the document-type context (Aadhaar/PAN/Receipt) into each DocumentImagePreview instance so diagnostics clearly identify which document failed, and ensure missing/invalid states show readable English messages without breaking the rest of the detail panel."
         }
       ]
     }

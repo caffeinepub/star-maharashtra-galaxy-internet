@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,6 +39,16 @@ export function EditRegistrationDetailsForm({
     paymentMethod: registration.paymentMethod,
     router: registration.router,
   });
+
+  // Reset form data when registration changes
+  useEffect(() => {
+    setFormData({
+      name: registration.name,
+      category: registration.category,
+      paymentMethod: registration.paymentMethod,
+      router: registration.router,
+    });
+  }, [registration.name, registration.category, registration.paymentMethod, registration.router, registrationId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,12 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-bug-that-prevents-the-step-1-customer-details-page-from-opening-rendering-reliably-in-the-registration-flow",
-      "featureTitle": "Fix the bug that prevents the Step 1 \"Customer Details\" page from opening/rendering reliably in the registration flow.",
+      "featureId": "feature-fix-the-admin-panel-so-selecting-a-customer-registration-customer-id-reliably-opens-the-registration-detail-view-on-the-right-side-instead-of-failing-to-open-or-appearing-blank",
+      "featureTitle": "Fix the Admin Panel so selecting a customer registration (\"customer id\") reliably opens the registration detail view on the right side, instead of failing to open or appearing blank.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/features/registration/RegistrationFlow.tsx",
-        "frontend/src/features/registration/steps/StepCustomerDetails.tsx"
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -19,17 +19,17 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-52"
+        "REQ-55"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-stabilize-step-validation-callbacks-in-the-registration-flow-so-step-components-do-not-re-run-validation-effects-due-to-changing-function-identities-on-every-parent-render",
-      "featureTitle": "Stabilize Step validation callbacks in the registration flow so step components do not re-run validation effects due to changing function identities on every parent render.",
+      "featureId": "feature-fix-the-admin-panel-so-an-edit-details-option-is-shown-whenever-a-registration-is-selected-and-the-user-is-authorized-as-admin-and-ensure-entering-edit-mode-reliably-renders-the-existing-edit-form",
+      "featureTitle": "Fix the Admin Panel so an \"Edit Details\" option is shown whenever a registration is selected and the user is authorized as admin, and ensure entering edit mode reliably renders the existing edit form.",
       "files": [
-        "frontend/src/features/registration/RegistrationFlow.tsx",
-        "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
-        "frontend/src/features/registration/steps/StepVerificationDocuments.tsx"
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -41,16 +41,17 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-53"
+        "REQ-56"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-user-visible-fallback-ui-for-unexpected-registration-step-rendering-errors-so-the-app-does-not-appear-blank-when-step-1-fails-all-user-facing-text-must-be-in-english",
-      "featureTitle": "Add a user-visible fallback UI for unexpected registration-step rendering errors so the app does not appear blank when Step 1 fails; all user-facing text must be in English.",
+      "featureId": "feature-ensure-admin-panel-edit-save-flow-remains-stable-after-fixing-the-detail-view-including-clear-save-loading-error-feedback-and-returning-to-the-updated-detail-view-after-a-successful-save",
+      "featureTitle": "Ensure Admin Panel edit-save flow remains stable after fixing the detail view, including clear save-loading/error feedback and returning to the updated detail view after a successful save.",
       "files": [
-        "frontend/src/features/registration/RegistrationFlow.tsx",
-        "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx"
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -62,7 +63,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-54"
+        "REQ-57"
       ],
       "confidence": "high"
     }

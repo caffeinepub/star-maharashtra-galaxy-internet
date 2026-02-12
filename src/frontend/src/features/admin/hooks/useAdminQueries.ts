@@ -28,17 +28,13 @@ export function useAdminQueries() {
     retry: false,
   });
 
-  // Claim admin access (triggers re-initialization of actor with admin token)
-  // The actual admin assignment happens in useActor.ts via _initializeAccessControlWithSecret
+  // Claim admin access
   const claimAdminMutation = useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // Simply trigger a refresh - the admin initialization happens automatically
-      // in useActor.ts when the actor is created with the caffeineAdminToken
       return true;
     },
     onSuccess: () => {
-      // Invalidate admin status and user role queries to trigger refresh
       queryClient.invalidateQueries({ queryKey: ['isAdmin'] });
       queryClient.invalidateQueries({ queryKey: ['userRole'] });
       queryClient.invalidateQueries({ queryKey: ['registrations'] });
@@ -66,6 +62,7 @@ export function useAdminQueries() {
       },
       enabled: !!actor && !actorFetching && !!id && isAdminQuery.data === true,
       retry: false,
+      staleTime: 0, // Always fetch fresh data when selection changes
     });
   };
 

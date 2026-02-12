@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the registration flow so Step 1 (“Customer Details”) reliably opens/renders, remains responsive during typing, and shows a clear English fallback UI if an unexpected error occurs.
+**Goal:** Fix the Admin Panel Customer Registrations detail panel so selecting a registration reliably shows details (with proper loading/error/empty states) and restore a dependable “Edit Details” + save flow for admins.
 
 **Planned changes:**
-- Fix the bug causing the Step 1 “Customer Details” page to sometimes not open/render after splash and when switching between Admin Panel and Registration.
-- Stabilize the `onValidationChange` callback behavior so step validation effects don’t re-run due to changing function identities, avoiding render loops/freezes and keeping inputs responsive.
-- Add an English error fallback UI for unexpected registration-step render failures, including at least a Refresh action to recover without showing a blank screen.
+- Make selecting any item in the “Customer Registrations” list consistently load and render the selected registration’s details in the right-side panel.
+- Add explicit right-panel UI states: placeholder when nothing is selected, loading state while details are fetching, and a clear English error with a retry action if fetching fails.
+- Ensure an “Edit Details” button appears for authorized admins when a registration is selected (and not currently editing), and that entering edit mode always renders the existing `EditRegistrationDetailsForm` pre-filled with current values.
+- Stabilize edit-save UX: show an in-progress saving state to prevent double submissions, show English save errors while staying in edit mode, and refresh list/detail after successful save via React Query invalidation.
 
-**User-visible outcome:** The app consistently lands on a working registration view with Step 1 visible after splash, Step 1 opens and remains usable when navigating back from Admin Panel, typing does not freeze/lag, and any unexpected Step 1 load failure shows an English error message with a Refresh option instead of a blank screen.
+**User-visible outcome:** Admins can click any customer registration and always see its details on the right (never blank), can enter edit mode via “Edit Details,” and can save changes with clear loading/error feedback and see updated details afterward.

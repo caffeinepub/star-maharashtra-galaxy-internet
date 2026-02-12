@@ -1,50 +1,17 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T07:28:25.820Z",
-  "summary": "REQ-53 and REQ-54 appear implemented via referentially-stable validation callbacks (useCallback in RegistrationFlow and ref-based callback usage in step components) and a new RegistrationStepErrorBoundary with English error text + Refresh action. REQ-52 appears partially addressed by forcing a RegistrationFlow remount when navigating back from Admin to Registration and guarding step range, but the diff is truncated so full confirmation of Step 1 always rendering after splash is limited. The diff also introduces multiple unrequested functional changes (notably a new conditional payment receipt requirement in Step 2 and substantial Admin/print/CSS/Tailwind changes).",
+  "generatedAt": "2026-02-12T17:39:50.311Z",
+  "summary": "Diff adds a new RegistrationDetailPanel with explicit no-selection, loading, error+retry, and not-found states, and updates AdminPanel/useAdminQueries/EditRegistrationDetailsForm to support reliable selection-based detail rendering and edit/save flow with React Query invalidation.",
   "missing_requirements": [],
-  "hallucinated_features": [
-    {
-      "description": "Changed registration requirements by adding a conditionally required “payment receipt” upload when UPI is selected in Step 2.",
-      "reason": "Non-goal explicitly says not to change registration form fields/requirements or add steps; BuildRequest did not request adding any new document requirement.",
-      "evidence": [
-        "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
-        "frontend-file-summaries.txt (mentions: \"conditionally required payment receipt upload ... when UPI payment option is selected\")",
-        "frontend/src/features/registration/hooks/useRegistrationMutations.ts (summary mentions optional payment receipt blob handling)",
-        "frontend/src/features/registration/types.ts (summary mentions documents data now includes optional paymentReceipt)"
-      ]
-    },
-    {
-      "description": "Added a print/proof-generation feature in Step 3 (Print/Save Proof button opening browser print dialog with terms + customer details + timestamp).",
-      "reason": "Not requested by REQ-52/53/54 and appears to add new behavior to the registration flow beyond fixing Step 1 rendering and callback stability.",
-      "evidence": [
-        "frontend-file-summaries.txt (StepTermsAndConditions description)"
-      ]
-    },
-    {
-      "description": "Substantial Admin Panel expansion including new queries/mutations and edit mode for updating customer registration details.",
-      "reason": "Not requested (scope is registration Step 1 rendering reliability, validation callback stability, and error fallback UI). Also potentially conflicts with the constraint to avoid backend/API changes unless necessary for Step 1 opening issue.",
-      "evidence": [
-        "frontend-file-summaries.txt (mentions: useAdminQueries new mutation for updating customer registration details; AdminPanel dual-pane UI and edit mode; AdminAccessRecoveryCard enhancements)"
-      ]
-    },
-    {
-      "description": "Global styling and Tailwind theme changes unrelated to the registration Step 1 opening bug (OKLCH color system, splash animations, new fonts, comprehensive print media queries).",
-      "reason": "Not requested by the BuildRequest and goes beyond the targeted fix.",
-      "evidence": [
-        "frontend-file-summaries.txt (mentions: frontend/src/index.css and frontend/tailwind.config.js changes)"
-      ]
-    }
-  ],
-  "confidence": 0.72,
+  "hallucinated_features": [],
+  "confidence": 0.78,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/features/registration/RegistrationFlow.tsx",
-    "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
-    "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
-    "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
+    "frontend/src/features/admin/AdminPanel.tsx",
+    "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+    "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+    "frontend/src/features/admin/hooks/useAdminQueries.ts",
     "project_state.json"
   ]
 }

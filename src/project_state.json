@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 39,
+  "projectStateVersion": 41,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -13,7 +13,8 @@
     "Splash/intro screen animation background should use a space/galaxy blue color theme."
   ],
   "known_issues": [
-    "Customer Details page is not opening (user reports it 'again' not opening)."
+    "Customer Details page is not opening (user reports it 'again' not opening).",
+    "Admin Panel: customer details/registration detail (\"customer id\") page is not opening and the \"Edit\" option is not appearing."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -398,6 +399,30 @@
       "title": "Add a user-visible fallback UI for unexpected registration-step rendering errors so the app does not appear blank when Step 1 fails; all user-facing text must be in English.",
       "reqIds": [
         "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-so-selecting-a-customer-registration-customer-id-reliably-opens-the-registration-detail-view-on-the-right-side-instead-of-failing-to-open-or-appearing-blank",
+      "title": "Fix the Admin Panel so selecting a customer registration (\"customer id\") reliably opens the registration detail view on the right side, instead of failing to open or appearing blank.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-so-an-edit-details-option-is-shown-whenever-a-registration-is-selected-and-the-user-is-authorized-as-admin-and-ensure-entering-edit-mode-reliably-renders-the-existing-edit-form",
+      "title": "Fix the Admin Panel so an \"Edit Details\" option is shown whenever a registration is selected and the user is authorized as admin, and ensure entering edit mode reliably renders the existing edit form.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-admin-panel-edit-save-flow-remains-stable-after-fixing-the-detail-view-including-clear-save-loading-error-feedback-and-returning-to-the-updated-detail-view-after-a-successful-save",
+      "title": "Ensure Admin Panel edit-save flow remains stable after fixing the detail view, including clear save-loading/error feedback and returning to the updated detail view after a successful save.",
+      "reqIds": [
+        "REQ-57"
       ],
       "version": 1
     }

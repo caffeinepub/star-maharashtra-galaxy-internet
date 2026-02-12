@@ -4,10 +4,10 @@ import { useAdminQueries } from './hooks/useAdminQueries';
 import { useAdminSetupCode } from './hooks/useAdminSetupCode';
 import { AdminAccessRecoveryCard } from './components/AdminAccessRecoveryCard';
 import { EditRegistrationDetailsForm } from './components/EditRegistrationDetailsForm';
+import { RegistrationDetailPanel } from './components/RegistrationDetailPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
@@ -16,15 +16,9 @@ import {
   AlertCircle, 
   Loader2, 
   User, 
-  Phone, 
-  CreditCard, 
-  Wifi,
+  Phone,
   FileText,
-  CheckCircle2,
-  Receipt,
-  Edit
 } from 'lucide-react';
-import type { Registration } from '../../backend';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface AdminPanelProps {
@@ -64,10 +58,8 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   const isLoggingIn = loginStatus === 'logging-in';
   const isAdmin = isAdminQuery.data === true;
   const isGuest = userRoleQuery.data === 'guest';
-  const principalString = identity?.getPrincipal().toString() || '';
 
   // Check if we should show the claim UI
-  // Show claim UI only if authenticated, not admin, and is guest
   useEffect(() => {
     if (isAuthenticated && !isAdminQuery.isLoading && !userRoleQuery.isLoading) {
       setShowClaimUI(isGuest && !isAdmin);
@@ -77,7 +69,6 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   // When admin setup code is successfully applied, wait for queries to refresh
   useEffect(() => {
     if (codeAppliedSuccess) {
-      // Reset the mutation state after a brief moment to allow UI to show success
       const timer = setTimeout(() => {
         resetCodeMutation();
       }, 1000);
@@ -108,12 +99,10 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
     return date.toLocaleString();
   };
 
-  // Handle claim admin - this will trigger a re-login to initialize admin
+  // Handle claim admin
   const handleClaimAdmin = async () => {
     try {
-      // Clear current session and re-login to trigger admin initialization
       await clear();
-      // Small delay to ensure cleanup
       setTimeout(() => {
         login();
       }, 500);
@@ -149,7 +138,7 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
     paymentMethod: string;
     router: string;
   }) => {
-    if (!selectedRegistrationId) return;
+    if (!selectedRegistrationId || updateRegistrationMutation.isPending) return;
 
     setUpdateError(null);
     setUpdateSuccess(false);
@@ -169,6 +158,7 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update registration';
       setUpdateError(errorMessage);
       setUpdateSuccess(false);
+      // Keep edit mode open on error so user can retry
     }
   };
 
@@ -496,28 +486,24 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
                       <button
                         key={id}
                         onClick={() => setSelectedRegistrationId(id)}
-                        className={`w-full text-left p-4 hover:bg-accent/50 transition-colors ${
+                        className={`w-full text-left px-6 py-4 hover:bg-accent/50 transition-colors ${
                           selectedRegistrationId === id ? 'bg-accent' : ''
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold truncate">{registration.name}</p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                              <Phone className="w-3 h-3" />
-                              {registration.phone}
-                            </p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                              <p className="font-medium truncate">{registration.name}</p>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Phone className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{registration.phone}</span>
+                            </div>
                           </div>
-                          <Badge variant={registration.category === 'Residential' ? 'default' : 'secondary'}>
+                          <Badge variant="outline" className="flex-shrink-0">
                             {registration.category}
                           </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                          <CreditCard className="w-3 h-3" />
-                          {registration.paymentMethod}
-                          <span>•</span>
-                          <Wifi className="w-3 h-3" />
-                          {registration.router}
                         </div>
                       </button>
                     ))}
@@ -528,10 +514,10 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
           </Card>
 
           {/* Right Panel: Registration Details or Edit Form */}
-          {isEditMode && selectedRegistration && selectedRegistrationId ? (
+          {isEditMode && selectedRegistration ? (
             <EditRegistrationDetailsForm
               registration={selectedRegistration}
-              registrationId={selectedRegistrationId}
+              registrationId={selectedRegistrationId!}
               onSave={handleSaveChanges}
               onCancel={handleCancelEdit}
               isSaving={updateRegistrationMutation.isPending}
@@ -539,111 +525,20 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
               success={updateSuccess}
             />
           ) : (
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Registration Details</CardTitle>
-                <CardDescription>
-                  {selectedRegistration ? 'View customer registration information' : 'Select a registration to view details'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {selectedRegistrationQuery.isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                  </div>
-                ) : !selectedRegistration ? (
-                  <div className="text-center py-12">
-                    <User className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-                    <p className="text-muted-foreground">No registration selected</p>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Edit button */}
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={handleEditClick}
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <Edit className="w-4 h-4" />
-                        Edit Details
-                      </Button>
-                    </div>
-
-                    <Separator />
-
-                    {/* Customer Information */}
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Customer Name</p>
-                        <p className="font-medium flex items-center gap-2">
-                          <User className="w-4 h-4 text-muted-foreground" />
-                          {selectedRegistration.name}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Phone Number</p>
-                        <p className="font-medium flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-muted-foreground" />
-                          {selectedRegistration.phone}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Category</p>
-                        <Badge variant={selectedRegistration.category === 'Residential' ? 'default' : 'secondary'}>
-                          {selectedRegistration.category}
-                        </Badge>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Payment Method</p>
-                        <p className="font-medium flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-muted-foreground" />
-                          {selectedRegistration.paymentMethod}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Router</p>
-                        <p className="font-medium flex items-center gap-2">
-                          <Wifi className="w-4 h-4 text-muted-foreground" />
-                          {selectedRegistration.router}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Payment Receipt</p>
-                        <div className="flex items-center gap-2">
-                          <Receipt className="w-4 h-4 text-muted-foreground" />
-                          <Badge variant={hasReceipt ? 'default' : 'secondary'}>
-                            {hasReceipt ? 'Yes' : 'No'}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Terms Accepted At</p>
-                        <p className="font-medium flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          {formatTimestamp(selectedRegistration.termsAcceptedAt)}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Documents Uploaded</p>
-                        <p className="font-medium flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-muted-foreground" />
-                          {selectedRegistration.documents.length} document(s)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <RegistrationDetailPanel
+              selectedRegistrationId={selectedRegistrationId}
+              isLoading={selectedRegistrationQuery.isLoading}
+              isFetching={selectedRegistrationQuery.isFetching}
+              isError={selectedRegistrationQuery.isError}
+              error={selectedRegistrationQuery.error}
+              registration={selectedRegistration}
+              hasReceipt={hasReceipt}
+              isAdmin={isAdmin}
+              isEditMode={isEditMode}
+              onEditClick={handleEditClick}
+              onRefetch={selectedRegistrationQuery.refetch}
+              formatTimestamp={formatTimestamp}
+            />
           )}
         </div>
       </main>

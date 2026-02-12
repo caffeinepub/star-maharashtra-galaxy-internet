@@ -1,78 +1,85 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Stabilize registration Step 1 rendering and validation callbacks",
+  "title": "Admin Panel: stabilize registration detail + edit option rendering",
   "requirements": [
     {
-      "id": "REQ-52",
-      "summary": "Fix unreliable rendering/opening of Step 1 (Customer Details) in the registration flow, including when returning from the Admin Panel.",
+      "id": "REQ-55",
+      "summary": "Make registration selection reliably render a non-blank right-side detail panel with placeholder, loading, and error+retry states.",
       "acceptanceCriteria": [
-        "Launching the app always renders the registration view with Step 1 (Customer Details) visible after the splash completes.",
-        "Switching between Admin Panel and Registration always returns the user to a working registration view where Step 1 can be opened and used.",
-        "No infinite render loops or UI freezes occur when StepCustomerDetails calls onValidationChange as the user types."
+        "When the admin clicks any item in the \"Customer Registrations\" list, the right panel shows the selected registration’s details.",
+        "The UI must not appear blank; it must render an explicit loading state while the registration detail query is in-flight.",
+        "If the registration detail fetch fails (e.g., canister error, not found, unauthorized), show a clear English error message in the right panel with a retry action.",
+        "If no registration is selected yet, show a clear English placeholder message instructing the admin to select a registration from the list."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Ensure returning from the Admin Panel reliably remounts the registration flow (e.g., via a key/reset signal) so Step 1 always initializes and renders after the splash completes."
-        },
-        {
-          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
-          "operation": "modify",
-          "description": "Add defensive guards for step selection (avoid out-of-range step indices) and ensure the flow initializes to Step 1 on mount/reset; also prepare wiring for stable validation callback handling and error fallback wrapper (see REQ-53/REQ-54)."
-        },
-        {
-          "path": "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
-          "operation": "modify",
-          "description": "Prevent Step 1 from triggering parent state churn during typing by reducing redundant validation updates and avoiding effect re-triggers tied to changing callback identities."
-        }
-      ]
-    },
-    {
-      "id": "REQ-53",
-      "summary": "Make registration step validation callbacks referentially stable (or make step effects resilient) to prevent repeated validation effects and input lag/freezing.",
-      "acceptanceCriteria": [
-        "The callback passed as onValidationChange to step components is referentially stable across renders (or each step safely avoids depending on a changing callback reference).",
-        "Step 1 validation state updates do not trigger repeated unnecessary effects when formData is unchanged.",
-        "The Step 1 page remains responsive while typing in any field (no input lag/freezing)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
-          "operation": "modify",
-          "description": "Replace the inline onValidationChange handler with memoized, step-aware callbacks (e.g., useCallback) so the function identity is stable across renders and does not retrigger child validation effects unnecessarily."
-        },
-        {
-          "path": "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
-          "operation": "modify",
-          "description": "Stabilize validation side-effects by (a) not depending on a changing onValidationChange reference (e.g., store latest callback in a ref), and (b) only calling onValidationChange when computed validity/data meaningfully changes to avoid repeated effects when formData is unchanged."
-        },
-        {
-          "path": "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
-          "operation": "modify",
-          "description": "Apply the same callback-stability pattern used in Step 1 (avoid effect dependency on changing callbacks and avoid redundant onValidationChange calls) to prevent similar render/validation churn in later steps."
-        }
-      ]
-    },
-    {
-      "id": "REQ-54",
-      "summary": "Add an English fallback UI for unexpected registration step rendering errors with a clear recovery action (Refresh).",
-      "acceptanceCriteria": [
-        "If an unexpected error occurs while rendering the registration flow/Step 1, the UI shows an English error message (e.g., \"Customer Details page failed to load. Please refresh the page.\") instead of a blank screen.",
-        "The fallback UI provides a clear recovery action (at minimum: a Refresh button that reloads the page).",
-        "Normal behavior is unchanged when no error occurs."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
+          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
           "operation": "create",
-          "description": "Create a registration-scoped React Error Boundary that renders an English error message and a Refresh button (reloads the page) when a step throws during render."
+          "description": "Create a dedicated right-side panel component that renders: (1) an English placeholder when no registration is selected, (2) an explicit loading state when the selected registration query is in-flight, and (3) an English error state with a retry action that calls the provided React Query refetch. Use existing shadcn-ui building blocks (Card/Alert/Button/Separator/ScrollArea) for consistent layout. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
           "operation": "modify",
-          "description": "Wrap the step renderer (including Step 1) with the new RegistrationStepErrorBoundary so unexpected step rendering errors show the English fallback UI instead of a blank screen."
+          "description": "Wire the new RegistrationDetailPanel into the admin two-column layout and ensure list item clicks always set selectedRegistrationId (and visually indicate selection). Pass selectedRegistrationId plus selectedRegistrationQuery state (isLoading/isFetching/isError/error/refetch/data) into the panel so the right side never renders blank. Ensure any newly introduced/changed user-facing text in these states is English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
+          "operation": "modify",
+          "description": "Harden the single-registration query behavior to avoid 'blank' UI states (e.g., keep prior data while fetching a newly-selected id and ensure query state clearly reflects loading vs disabled). Ensure the query remains disabled when id is null, but provides predictable states to the UI when id changes. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-56",
+      "summary": "Show an authorized-only \"Edit Details\" action when a registration is selected, and ensure entering edit mode always renders the existing edit form with current values.",
+      "acceptanceCriteria": [
+        "When a registration is selected and the admin is not currently editing, an \"Edit Details\" button is visible in the registration detail view.",
+        "Clicking \"Edit Details\" always opens the edit form (using the existing EditRegistrationDetailsForm) populated with the selected registration’s current values.",
+        "If the selected registration detail is still loading, the \"Edit Details\" button is hidden or disabled (no broken/empty edit screen).",
+        "All user-facing text introduced/changed for this fix is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "modify",
+          "description": "Ensure the detail view shows an \"Edit Details\" button only when: a registration is selected, admin is authorized (isAdminQuery true), the detail query has resolved successfully, and isEditMode is false. Hide/disable the button while the selected registration is loading or when an error is shown. Wire the button to the existing handleEditClick so edit mode reliably activates without showing an empty form. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+          "operation": "modify",
+          "description": "Fix form state initialization so the form is always populated with the currently selected registration values: reset internal form state whenever registrationId or registration fields change (e.g., via an effect). This prevents stale/blank edit screens when switching selections or re-entering edit mode. Keep all text English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "operation": "modify",
+          "description": "Within the detail panel, render the \"Edit Details\" action in the non-editing state (when allowed) and ensure it is not shown during loading/error/empty-selection states. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-57",
+      "summary": "Stabilize edit-save flow with clear save loading/error feedback and returning to the updated detail view after successful save.",
+      "acceptanceCriteria": [
+        "Saving changes shows a clear in-progress state (no double submissions).",
+        "After a successful save, the detail view reflects the updated data (list and detail are refreshed via React Query invalidation).",
+        "If save fails, an English error message is shown and the admin remains in edit mode so they can retry or cancel."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "modify",
+          "description": "Use updateRegistrationMutation.isPending as the single source of truth for save-in-progress UI. Guard handleSaveChanges against double submissions while pending. After a successful save, immediately exit edit mode and ensure the updated detail is shown (rely on existing React Query invalidation in useAdminQueries and optionally trigger a refetch of the selected registration query). On save failure, keep isEditMode true and show a clear English error message. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+          "operation": "modify",
+          "description": "Ensure save feedback is unambiguous: disable inputs and primary action while isSaving is true; keep the existing English error/success alerts visible and ensure they reflect the passed-in props without requiring remounts. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
+          "operation": "modify",
+          "description": "Confirm mutation-side cache refresh covers both list and detail; align query keys used by the UI components so invalidation reliably refreshes the selected detail and the registrations list after save. Verify the component's usage instructions before implementing."
         }
       ]
     }

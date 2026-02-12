@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 73,
+  "projectStateVersion": 77,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -27,6 +27,7 @@
     "Admin Panel: Uploaded document photos (Aadhaar/PAN/receipt) are not visible in the registration detail view (user reports they cannot see the document photos)."
   ],
   "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Galaxy background image (smgi-galaxy-name-bg.dim_1920x1080.png)",
   "existing_features": [
     {
       "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
@@ -667,6 +668,38 @@
         "REQ-96"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-screen-company-name-lettering-in-frontend-src-components-splashscreen-tsx-to-slightly-change-the-font-design-styling-and-slightly-reduce-the-displayed-text-size-across-responsive-breakpoints-while-keeping-the-company-name-text-exactly-as-star-maharashtra-galaxy-internet-and-preserving-existing-splash-behavior-auto-transition-timing-fade-out-click-tap-to-skip-and-reduced-motion-support",
+      "title": "Update the Splash Screen company name lettering in `frontend/src/components/SplashScreen.tsx` to slightly change the font/design styling and slightly reduce the displayed text size across responsive breakpoints, while keeping the company name text exactly as \"Star Maharashtra Galaxy Internet\" and preserving existing splash behavior (auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support).",
+      "reqIds": [
+        "REQ-97"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-intro-screen-company-name-text-in-frontend-src-components-splashscreen-tsx-to-display-exactly-galaxy-internet-replace-the-current-star-maharashtra-galaxy-internet-text",
+      "title": "Update the splash/intro screen company name text in `frontend/src/components/SplashScreen.tsx` to display exactly: \"GALAXY INTERNET\" (replace the current \"Star Maharashtra Galaxy Internet\" text).",
+      "reqIds": [
+        "REQ-98"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-galaxy-themed-background-image-behind-the-splash-screen-company-name-area-the-text-block-containing-the-galaxy-internet-headline-using-a-static-frontend-asset-under-frontend-public-assets-generated-and-style-it-so-the-headline-remains-readable-with-sufficient-contrast-across-breakpoints",
+      "title": "Add a galaxy-themed background image behind the splash screen company name area (the text block containing the \"GALAXY INTERNET\" headline), using a static frontend asset under `frontend/public/assets/generated/`, and style it so the headline remains readable with sufficient contrast across breakpoints.",
+      "reqIds": [
+        "REQ-99"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-splash-screen-styling-in-frontend-src-index-css-and-or-tailwind-classes-in-frontend-src-components-splashscreen-tsx-to-integrate-the-galaxy-image-background-behind-the-name-area-while-keeping-existing-splash-layout-fade-out-behavior-and-skip-button-behavior-unchanged",
+      "title": "Update splash screen styling (in `frontend/src/index.css` and/or Tailwind classes in `frontend/src/components/SplashScreen.tsx`) to integrate the galaxy image background behind the name area while keeping existing splash layout, fade-out behavior, and Skip button behavior unchanged.",
+      "reqIds": [
+        "REQ-100"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -921,6 +954,24 @@
     {
       "id": "AR-47",
       "summary": "Revert the splash/intro animation page to the previous/earlier version (“pahele jaise tha vaise”).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Adjust splash screen company-name text styling: change the lettering/font design and slightly reduce the text size.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Update the splash/intro screen company name text to display exactly \"GALAXY INTERNET\" (instead of \"Star Maharashtra Galaxy Internet\").",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-50",
+      "summary": "Update the splash/intro screen so the background behind the company name uses a galaxy image (galaxy-themed image background for the name area).",
       "reqIds": [],
       "status": "pending"
     }

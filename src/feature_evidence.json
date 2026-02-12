@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-app-start-splash-intro-animation-screen-to-display-the-company-name-text-exactly-as-star-maharashtra-galaxy-internet-replace-the-current-smgi-network-solutions-branding-text-preserve-existing-splash-behavior-auto-transition-timing-fade-out-click-tap-to-skip-and-reduced-motion-support",
-      "featureTitle": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
+      "featureId": "feature-update-the-splash-intro-screen-company-name-text-in-frontend-src-components-splashscreen-tsx-to-display-exactly-galaxy-internet-replace-the-current-star-maharashtra-galaxy-internet-text",
+      "featureTitle": "Update the splash/intro screen company name text in `frontend/src/components/SplashScreen.tsx` to display exactly: \"GALAXY INTERNET\" (replace the current \"Star Maharashtra Galaxy Internet\" text).",
       "files": [
         "frontend/src/components/SplashScreen.tsx"
       ],
@@ -17,7 +17,48 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-96"
+        "REQ-98"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-galaxy-themed-background-image-behind-the-splash-screen-company-name-area-the-text-block-containing-the-galaxy-internet-headline-using-a-static-frontend-asset-under-frontend-public-assets-generated-and-style-it-so-the-headline-remains-readable-with-sufficient-contrast-across-breakpoints",
+      "featureTitle": "Add a galaxy-themed background image behind the splash screen company name area (the text block containing the \"GALAXY INTERNET\" headline), using a static frontend asset under `frontend/public/assets/generated/`, and style it so the headline remains readable with sufficient contrast across breakpoints.",
+      "files": [
+        "frontend/src/components/SplashScreen.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-99"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-splash-screen-styling-in-frontend-src-index-css-and-or-tailwind-classes-in-frontend-src-components-splashscreen-tsx-to-integrate-the-galaxy-image-background-behind-the-name-area-while-keeping-existing-splash-layout-fade-out-behavior-and-skip-button-behavior-unchanged",
+      "featureTitle": "Update splash screen styling (in `frontend/src/index.css` and/or Tailwind classes in `frontend/src/components/SplashScreen.tsx`) to integrate the galaxy image background behind the name area while keeping existing splash layout, fade-out behavior, and Skip button behavior unchanged.",
+      "files": [
+        "frontend/src/components/SplashScreen.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-100"
       ],
       "confidence": "high"
     }

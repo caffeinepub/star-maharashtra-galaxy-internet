@@ -1,46 +1,48 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T21:44:02.940Z",
-  "summary": "REQ-96 is partially implemented: the splash screen component now renders the company name string, retains click-to-skip, fade-out, auto-timeout, and reduced-motion handling. However, the rendered text is forced to uppercase via CSS (so it will not display with the exact capitalization required), and the diff introduces additional UI/visual elements (Skip button, decorative circles) that were not requested and may violate the non-goals.",
+  "generatedAt": "2026-02-12T21:59:53.257Z",
+  "summary": "Splash screen headline text was updated to “GALAXY INTERNET” and CSS/classes were added to place a galaxy image background behind the name area with an overlay for readability. However, the required static image asset itself was not added in this diff, and there are additional unrelated styling/UI changes (e.g., admin theme CSS and decorative floating circles) not requested by the BuildRequest.",
   "missing_requirements": [
     {
-      "id": "REQ-96",
-      "requirement": "Display the company name text exactly as \"Star Maharashtra Galaxy Internet\" (matching spelling and capitalization) as the primary branding text.",
-      "reason": "The heading applies the Tailwind class `uppercase`, which will render the text as all-caps, not with the exact capitalization specified in the requirement/AC.",
+      "id": "REQ-99",
+      "requirement": "Add the galaxy background image as a static frontend asset under `frontend/public/assets/generated/` (smgi-galaxy-name-bg.dim_1920x1080.png) and serve it from there (no backend fetch).",
+      "reason": "The CSS references `/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png`, but the diff shows no new/added file under `frontend/public/assets/generated/` (Added: 0 files). Without the asset being present, the requirement is not fully implemented/verified from this diff.",
       "evidence": [
-        "frontend/src/components/SplashScreen.tsx"
-      ]
-    },
-    {
-      "id": "REQ-96",
-      "requirement": "Do not change the splash screen background theme/animations beyond what is required to update the displayed company name text.",
-      "reason": "The splash screen adds decorative floating circle elements and introduces additional animations/classes not clearly required for changing the branding text.",
-      "evidence": [
-        "frontend/src/components/SplashScreen.tsx"
+        "frontend/src/index.css (references url('/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png'))",
+        "file-diff summary: Added: 0"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added a visible \"Skip\" button on the splash screen (in addition to click/tap anywhere).",
-      "reason": "REQ-96 only requires preserving click/tap-to-skip behavior; adding new splash UI controls is not requested and may be considered a splash asset/UI change beyond the text update.",
+      "description": "Added decorative floating circle elements and associated float animations on the splash screen.",
+      "reason": "The BuildRequest only asked to change the splash name text and add a galaxy background image behind the name area while preserving existing behavior; it did not request new decorative elements/animations.",
       "evidence": [
-        "frontend/src/components/SplashScreen.tsx"
+        "frontend/src/components/SplashScreen.tsx (\"Decorative floating circles\" divs with animate-float)",
+        "frontend/src/index.css (@keyframes float, .animate-float)"
       ]
     },
     {
-      "description": "Added decorative floating circle elements (visual assets/effects) to the splash screen.",
-      "reason": "Non-goals explicitly exclude adding/changing splash assets or changing the splash theme/animations beyond what’s required for the name text update.",
+      "description": "Introduced/modified Admin Panel theme CSS in `index.css` (\"Admin Panel Theme - Force dark mode styling\").",
+      "reason": "Non-goals explicitly state not to change Admin Panel UI as part of this request; adding/changing admin theme styling is outside the requested splash-screen-only update.",
       "evidence": [
-        "frontend/src/components/SplashScreen.tsx"
+        "frontend/src/index.css (\"Admin Panel Theme - Force dark mode styling\" and .admin-theme-wrapper styles)"
+      ]
+    },
+    {
+      "description": "Updated `frontend-file-summaries.txt` content describing Registration Flow UI changes (e.g., sticky header with splash background).",
+      "reason": "Non-goals state not to change the Registration flow UI; even though this is documentation/summary, it introduces unrequested scope and implies changes unrelated to the splash requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (RegistrationFlow description mentions sticky header and splash-galaxy-bg usage)"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/components/SplashScreen.tsx",
+    "frontend/src/index.css",
     "project_state.json"
   ]
 }

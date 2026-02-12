@@ -1,23 +1,49 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T21:44:02.946Z",
+  "generatedAt": "2026-02-12T21:59:53.262Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-96",
-        "summary": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
+        "id": "REQ-100",
+        "summary": "Update splash screen styling (in `frontend/src/index.css` and/or Tailwind classes in `frontend/src/components/SplashScreen.tsx`) to integrate the galaxy image background behind the name area while keeping existing splash layout, fade-out behavior, and Skip button behavior unchanged.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/SplashScreen.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/SplashScreen.tsx"
+        ]
+      },
+      {
+        "id": "REQ-98",
+        "summary": "Update the splash/intro screen company name text in `frontend/src/components/SplashScreen.tsx` to display exactly: \"GALAXY INTERNET\" (replace the current \"Star Maharashtra Galaxy Internet\" text).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/SplashScreen.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/components/SplashScreen.tsx"
+        ]
+      },
+      {
+        "id": "REQ-99",
+        "summary": "Add a galaxy-themed background image behind the splash screen company name area (the text block containing the \"GALAXY INTERNET\" headline), using a static frontend asset under `frontend/public/assets/generated/`, and style it so the headline remains readable with sufficient contrast across breakpoints.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png",
+          "frontend/src/components/SplashScreen.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png",
           "frontend/src/components/SplashScreen.tsx"
         ]
       }
@@ -28,7 +54,9 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png",
     "frontend/src/components/SplashScreen.tsx",
+    "frontend/src/index.css",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

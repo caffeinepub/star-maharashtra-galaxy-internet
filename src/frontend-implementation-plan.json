@@ -1,24 +1,64 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update splash screen branding text to “Star Maharashtra Galaxy Internet”",
+  "title": "Splash screen: rename to “GALAXY INTERNET” and add galaxy image background behind name",
   "requirements": [
     {
-      "id": "REQ-96",
-      "summary": "Replace the splash screen branding text with the exact company name “Star Maharashtra Galaxy Internet” while preserving skip, timing, fade-out, and reduced-motion behavior.",
+      "id": "REQ-98",
+      "summary": "Change splash screen headline text to exactly “GALAXY INTERNET” while preserving all existing splash behaviors.",
       "acceptanceCriteria": [
-        "On app load, the Splash Screen shows the text exactly \"Star Maharashtra Galaxy Internet\" (matching spelling and capitalization), and it is visible as the primary branding text.",
-        "The texts \"SMGI\" and \"Network Solutions\" are not displayed anywhere on the splash screen.",
-        "Clicking/tapping anywhere on the splash screen still skips it and transitions to the main app UI.",
-        "The splash screen still auto-transitions after the existing timeout and fades out before entering the main UI.",
-        "When the user has prefers-reduced-motion enabled, the splash screen uses the reduced-motion behavior and still transitions quickly (no blocking animation).",
-        "No backend changes are required or introduced for this update."
+        "On app launch, the splash screen headline text reads exactly \"GALAXY INTERNET\".",
+        "No other branding text is shown in place of the company name on the splash screen.",
+        "Existing splash behaviors remain unchanged: auto-transition timing, fade-out, click/tap to skip, and reduced-motion support."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/SplashScreen.tsx",
           "operation": "modify",
-          "description": "Update the displayed branding text to exactly “Star Maharashtra Galaxy Internet”, removing any rendering of “SMGI” and “Network Solutions”, while preserving existing behaviors (auto-transition duration, fade-out timing, click/tap-to-skip, and prefers-reduced-motion handling). Keep all user-facing UI text in English. Continue using the existing shadcn-ui Button for the Skip control (Verify the component's usage instructions before implementing.)"
+          "description": "Replace the current company name string with the exact text \"GALAXY INTERNET\" (and remove/adjust any related comment) without changing existing timing, fade-out, click-to-skip, Skip button behavior, or reduced-motion handling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-99",
+      "summary": "Add a static galaxy background image behind the splash screen company-name area and ensure readable contrast across breakpoints.",
+      "acceptanceCriteria": [
+        "A galaxy image is used as a background behind the company-name area (not just a flat gradient).",
+        "The \"GALAXY INTERNET\" text remains clearly legible on top of the galaxy image on mobile and desktop.",
+        "Reduced-motion mode still shows a minimal/non-animated variant and still transitions quickly (no animation required for the galaxy image itself).",
+        "The galaxy background image is served as a static asset from `frontend/public/assets/generated/` and is not fetched from the backend."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png",
+          "operation": "create",
+          "description": "Add the required static galaxy background image asset to be used for the splash screen company-name area: frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png."
+        },
+        {
+          "path": "frontend/src/components/SplashScreen.tsx",
+          "operation": "modify",
+          "description": "Wrap the headline block in a dedicated 'company-name area' container that uses the static galaxy background image (from frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png) behind the text, and add appropriate layering/overlay (e.g., dark scrim) so the title remains readable on mobile/desktop. Ensure reduced-motion mode does not introduce additional animations for this background."
+        }
+      ]
+    },
+    {
+      "id": "REQ-100",
+      "summary": "Integrate the galaxy name-area background into existing splash styling without altering layout, fade-out, or Skip button behavior.",
+      "acceptanceCriteria": [
+        "The splash screen still fades out when completing.",
+        "The Skip button still works and remains readable/usable on top of the updated design.",
+        "No backend changes are introduced for this update."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add/adjust splash-specific CSS classes to support the name-area galaxy background (using frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png) and ensure sufficient contrast (e.g., overlay/scrim, border-radius, padding) across breakpoints while leaving existing global splash behaviors (fade-out, reduced-motion) unchanged."
+        },
+        {
+          "path": "frontend/src/components/SplashScreen.tsx",
+          "operation": "modify",
+          "description": "Update Tailwind classes/structure to apply the new name-area background styling and maintain existing layout, z-index layering, and Skip button readability/interaction (no changes to the underlying completion/skip logic)."
         }
       ]
     }

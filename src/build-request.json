@@ -1,42 +1,84 @@
 {
   "kind": "build_request",
-  "title": "Update splash screen animation to show company name “Star Maharashtra Galaxy Internet”",
+  "title": "Update Splash Screen name to “GALAXY INTERNET” and add galaxy image background behind the name",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-96",
-      "text": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
+      "id": "REQ-98",
+      "text": "Update the splash/intro screen company name text in `frontend/src/components/SplashScreen.tsx` to display exactly: \"GALAXY INTERNET\" (replace the current \"Star Maharashtra Galaxy Internet\" text).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-messages"
         ],
         "quotes": [
-          "app start karne par animation me muze mere company ne ka naam de  Star Maharashtra Galaxy Internet"
+          "font is ok but chnage into company name is GALAXY INTERNET"
         ]
       },
       "acceptanceCriteria": [
-        "On app load, the Splash Screen shows the text exactly \"Star Maharashtra Galaxy Internet\" (matching spelling and capitalization), and it is visible as the primary branding text.",
-        "The texts \"SMGI\" and \"Network Solutions\" are not displayed anywhere on the splash screen.",
-        "Clicking/tapping anywhere on the splash screen still skips it and transitions to the main app UI.",
-        "The splash screen still auto-transitions after the existing timeout and fades out before entering the main UI.",
-        "When the user has prefers-reduced-motion enabled, the splash screen uses the reduced-motion behavior and still transitions quickly (no blocking animation).",
-        "No backend changes are required or introduced for this update."
+        "On app launch, the splash screen headline text reads exactly \"GALAXY INTERNET\".",
+        "No other branding text is shown in place of the company name on the splash screen.",
+        "Existing splash behaviors remain unchanged: auto-transition timing, fade-out, click/tap to skip, and reduced-motion support."
+      ]
+    },
+    {
+      "id": "REQ-99",
+      "text": "Add a galaxy-themed background image behind the splash screen company name area (the text block containing the \"GALAXY INTERNET\" headline), using a static frontend asset under `frontend/public/assets/generated/`, and style it so the headline remains readable with sufficient contrast across breakpoints.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "background of name is galaxy image"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A galaxy image is used as a background behind the company-name area (not just a flat gradient).",
+        "The \"GALAXY INTERNET\" text remains clearly legible on top of the galaxy image on mobile and desktop.",
+        "Reduced-motion mode still shows a minimal/non-animated variant and still transitions quickly (no animation required for the galaxy image itself).",
+        "The galaxy background image is served as a static asset from `frontend/public/assets/generated/` and is not fetched from the backend."
+      ]
+    },
+    {
+      "id": "REQ-100",
+      "text": "Update splash screen styling (in `frontend/src/index.css` and/or Tailwind classes in `frontend/src/components/SplashScreen.tsx`) to integrate the galaxy image background behind the name area while keeping existing splash layout, fade-out behavior, and Skip button behavior unchanged.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The splash screen still fades out when completing.",
+        "The Skip button still works and remains readable/usable on top of the updated design.",
+        "No backend changes are introduced for this update."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/hooks/useInternetIdentity.ts(x) or frontend/src/hooks/useActor.ts (immutable paths).",
-    "Keep all user-facing UI text in English.",
-    "Do not add any backend changes for the splash screen update."
+    "Do not modify any files under `frontend/src/components/ui` (read-only UI library components).",
+    "Do not serve images from the backend; all splash images must be static assets under `frontend/public/assets/generated/`.",
+    "Preserve existing splash behavior: auto-transition after a short delay, fade-out on completion, click/tap to skip, and reduced-motion accessibility support."
   ],
   "nonGoals": [
-    "Changing the registration flow or admin panel behavior.",
-    "Adding or changing logos, images, or other splash assets.",
-    "Changing the splash screen background theme, animations, or timing beyond what is required to update the displayed company name text."
+    "Do not change the Registration flow UI or Admin Panel UI as part of this request.",
+    "Do not add or modify backend/canister logic for the splash screen."
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Galaxy background image (smgi-galaxy-name-bg.dim_1920x1080.png)"
+    ],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

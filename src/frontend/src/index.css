@@ -93,6 +93,41 @@
   background: linear-gradient(135deg, #0a1628 0%, #1a2f4f 50%, #0f1f3a 100%);
 }
 
+/* Galaxy name area with background image */
+.splash-name-area {
+  position: relative;
+  display: inline-block;
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  background-image: url('/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Dark overlay for better text readability */
+.splash-name-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 1rem;
+  z-index: 0;
+}
+
+/* Ensure text is above overlay */
+.splash-name-area h1 {
+  position: relative;
+  z-index: 1;
+}
+
+/* Splash company title styling */
+.splash-company-title {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
+               0 0 40px rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.05em;
+}
+
 /* Splash screen animations */
 @keyframes fadeIn {
   from {

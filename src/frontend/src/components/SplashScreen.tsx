@@ -55,11 +55,13 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       }`}
       onClick={handleComplete}
     >
-      {/* Company name - Star Maharashtra Galaxy Internet */}
+      {/* Company name area with galaxy background */}
       <div className={`text-center ${prefersReducedMotion ? '' : 'animate-fade-in'}`}>
-        <h1 className="text-5xl font-black uppercase tracking-widest text-white font-display sm:text-6xl md:text-7xl lg:text-8xl">
-          Star Maharashtra Galaxy Internet
-        </h1>
+        <div className="splash-name-area">
+          <h1 className="splash-company-title text-4xl font-bold tracking-wide text-white font-display sm:text-5xl md:text-6xl lg:text-7xl">
+            GALAXY INTERNET
+          </h1>
+        </div>
       </div>
 
       {/* Skip button */}

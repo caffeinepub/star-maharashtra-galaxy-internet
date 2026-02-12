@@ -1,52 +1,24 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Panel: Fix and harden Aadhaar/PAN/Receipt document image previews in Registration Details",
+  "title": "Update splash screen branding text to “Star Maharashtra Galaxy Internet”",
   "requirements": [
     {
-      "id": "REQ-87",
-      "summary": "Ensure Aadhaar/PAN (and optional receipt) images reliably render as previews in the Admin Registration Details 'Verification Documents' section, including for legacy/previously stored registrations, with clear English fallbacks.",
+      "id": "REQ-96",
+      "summary": "Replace the splash screen branding text with the exact company name “Star Maharashtra Galaxy Internet” while preserving skip, timing, fade-out, and reduced-motion behavior.",
       "acceptanceCriteria": [
-        "Given an existing registration that contains stored Aadhaar and PAN document blobs, the Admin Panel detail view shows both images (Aadhaar + PAN) as visible previews (not just placeholders).",
-        "If a registration includes a receipt blob, the receipt image preview is also shown; if it does not, the UI clearly indicates it is not provided (in English).",
-        "The fix works for previously submitted registrations already stored in the canister (not only newly created ones).",
-        "No blank panel/crash occurs if a document is missing or in an unexpected format; the UI shows a readable English fallback message per missing/invalid document."
+        "On app load, the Splash Screen shows the text exactly \"Star Maharashtra Galaxy Internet\" (matching spelling and capitalization), and it is visible as the primary branding text.",
+        "The texts \"SMGI\" and \"Network Solutions\" are not displayed anywhere on the splash screen.",
+        "Clicking/tapping anywhere on the splash screen still skips it and transitions to the main app UI.",
+        "The splash screen still auto-transitions after the existing timeout and fades out before entering the main UI.",
+        "When the user has prefers-reduced-motion enabled, the splash screen uses the reduced-motion behavior and still transitions quickly (no blocking animation).",
+        "No backend changes are required or introduced for this update."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "path": "frontend/src/components/SplashScreen.tsx",
           "operation": "modify",
-          "description": "Harden preview rendering by safely generating a display URL from the provided blob (wrap URL generation in try/catch, validate that a usable URL exists, and avoid crashes when the blob is missing/invalid). Use the blob-storage ExternalBlob capability (getDirectURL) to generate preview URLs when available. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "operation": "modify",
-          "description": "Update the 'Verification Documents' and receipt sections to render Aadhaar and PAN previews more defensively for legacy registrations (handle missing/short documents arrays; handle unexpected blob shapes without crashing; show clear English placeholders per missing/invalid document). Ensure the receipt preview is shown only when present; otherwise display an English 'not provided' message."
-        },
-        {
-          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
-          "operation": "modify",
-          "description": "Ensure the selected registration detail query is invalidated/refetched in a way that supports reliable document rendering for previously stored registrations (e.g., avoid stale cached detail data when switching registrations or after a retry), without changing authentication behavior."
-        }
-      ]
-    },
-    {
-      "id": "REQ-88",
-      "summary": "Add defensive handling, retry behavior, and developer-only diagnostics for admin document preview failures without exposing sensitive data.",
-      "acceptanceCriteria": [
-        "If a document preview fails to load, the Admin Panel shows an English error state for that document (existing ‘Failed to load image’ is acceptable) and provides a visible ‘Retry’ action or re-attempt behavior without requiring a full page refresh.",
-        "Console logging (developer-only) clearly indicates which document type failed (Aadhaar/PAN/Receipt) and includes the failure reason (e.g., image load error), without logging the raw image bytes."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "operation": "modify",
-          "description": "Add per-document retry support (e.g., a 'Retry' button that re-attempts URL generation and forces the <img> to reload), plus developer-only console diagnostics indicating the failing document label/type and high-level reason (URL generation failure, image load error, fetch not ok) while never logging raw bytes. Use the blob-storage ExternalBlob capability (getDirectURL) as part of retries when applicable. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "operation": "modify",
-          "description": "Wire the document-type context (Aadhaar/PAN/Receipt) into each DocumentImagePreview instance so diagnostics clearly identify which document failed, and ensure missing/invalid states show readable English messages without breaking the rest of the detail panel."
+          "description": "Update the displayed branding text to exactly “Star Maharashtra Galaxy Internet”, removing any rendering of “SMGI” and “Network Solutions”, while preserving existing behaviors (auto-transition duration, fade-out timing, click/tap-to-skip, and prefers-reduced-motion handling). Keep all user-facing UI text in English. Continue using the existing shadcn-ui Button for the Skip control (Verify the component's usage instructions before implementing.)"
         }
       ]
     }

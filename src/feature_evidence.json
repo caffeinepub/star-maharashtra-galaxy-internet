@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-admin-panel-registration-details-view-so-that-when-a-customer-has-uploaded-aadhaar-card-and-pan-card-photos-during-registration-those-document-images-reliably-render-under-the-verification-documents-section-for-that-registration-and-the-optional-receipt-image-renders-when-present",
-      "featureTitle": "Fix the Admin Panel Registration Details view so that, when a customer has uploaded Aadhaar Card and PAN Card photos during registration, those document images reliably render under the “Verification Documents” section for that registration (and the optional receipt image renders when present).",
+      "featureId": "feature-update-the-app-start-splash-intro-animation-screen-to-display-the-company-name-text-exactly-as-star-maharashtra-galaxy-internet-replace-the-current-smgi-network-solutions-branding-text-preserve-existing-splash-behavior-auto-transition-timing-fade-out-click-tap-to-skip-and-reduced-motion-support",
+      "featureTitle": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
       "files": [
-        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+        "frontend/src/components/SplashScreen.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -19,28 +17,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-87"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-defensive-handling-and-diagnostics-for-document-preview-failures-so-admins-can-understand-why-an-uploaded-document-is-not-visible-e-g-failed-url-generation-unauthorized-fetch-missing-blob-corrupted-blob-without-exposing-sensitive-data",
-      "featureTitle": "Add defensive handling and diagnostics for document preview failures so admins can understand why an uploaded document is not visible (e.g., failed URL generation, unauthorized fetch, missing blob, corrupted blob) without exposing sensitive data.",
-      "files": [
-        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-88"
+        "REQ-96"
       ],
       "confidence": "high"
     }

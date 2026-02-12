@@ -58,10 +58,10 @@ export function AdminAccessRecoveryCard({
   };
 
   return (
-    <Card className="shadow-lg">
+    <Card className="admin-card shadow-lg border">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 text-destructive">
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/20 text-destructive">
             <Shield className="w-8 h-8" />
           </div>
         </div>
@@ -225,10 +225,10 @@ export function AdminAccessRecoveryCard({
           )}
 
           {success && (
-            <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
-              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertTitle className="text-green-600 dark:text-green-400">Code Applied Successfully</AlertTitle>
-              <AlertDescription className="text-green-600 dark:text-green-400">
+            <Alert className="border-green-500 bg-green-950/50">
+              <CheckCircle2 className="h-4 w-4 text-green-400" />
+              <AlertTitle className="text-green-400">Code Applied Successfully</AlertTitle>
+              <AlertDescription className="text-green-400">
                 Verifying admin access...
               </AlertDescription>
             </Alert>

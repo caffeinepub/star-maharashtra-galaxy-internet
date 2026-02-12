@@ -305,47 +305,49 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   // Show login prompt if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full shadow-lg">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary">
-                <Shield className="w-8 h-8" />
+      <div className="admin-theme-wrapper">
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Card className="admin-card max-w-md w-full shadow-lg border">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 text-primary">
+                  <Shield className="w-8 h-8" />
+                </div>
               </div>
-            </div>
-            <CardTitle className="text-2xl">Admin Panel</CardTitle>
-            <CardDescription>
-              Sign in with Internet Identity to access the admin panel
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button
-              onClick={login}
-              disabled={isLoggingIn}
-              className="w-full gap-2"
-            >
-              {isLoggingIn ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  <Shield className="w-4 h-4" />
-                  Sign In with Internet Identity
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onNavigateToRegistration}
-              className="w-full gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Registration
-            </Button>
-          </CardContent>
-        </Card>
+              <CardTitle className="text-2xl">Admin Panel</CardTitle>
+              <CardDescription>
+                Sign in with Internet Identity to access the admin panel
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button
+                onClick={login}
+                disabled={isLoggingIn}
+                className="w-full gap-2"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4" />
+                    Sign In with Internet Identity
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onNavigateToRegistration}
+                className="w-full gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Registration
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -353,10 +355,12 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   // Show loading state while checking admin status
   if (isAdminQuery.isLoading || userRoleQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Checking admin access...</p>
+      <div className="admin-theme-wrapper">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Checking admin access...</p>
+          </div>
         </div>
       </div>
     );
@@ -365,58 +369,60 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   // Show claim UI for first-time admin
   if (showClaimUI && !claimAdminMutation.isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full shadow-lg">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary">
-                <Shield className="w-8 h-8" />
+      <div className="admin-theme-wrapper">
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Card className="admin-card max-w-md w-full shadow-lg border">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 text-primary">
+                  <Shield className="w-8 h-8" />
+                </div>
               </div>
-            </div>
-            <CardTitle className="text-2xl">Claim Admin Access</CardTitle>
-            <CardDescription>
-              You are the first user. Click below to become the admin.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button
-              onClick={() => claimAdminMutation.mutate()}
-              disabled={claimAdminMutation.isPending}
-              className="w-full gap-2"
-            >
-              {claimAdminMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Claiming admin access...
-                </>
-              ) : (
-                <>
-                  <Shield className="w-4 h-4" />
-                  Claim Admin Access
-                </>
+              <CardTitle className="text-2xl">Claim Admin Access</CardTitle>
+              <CardDescription>
+                You are the first user. Click below to become the admin.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button
+                onClick={() => claimAdminMutation.mutate()}
+                disabled={claimAdminMutation.isPending}
+                className="w-full gap-2"
+              >
+                {claimAdminMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Claiming admin access...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4" />
+                    Claim Admin Access
+                  </>
+                )}
+              </Button>
+              {claimAdminMutation.isError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {claimAdminMutation.error instanceof Error
+                      ? claimAdminMutation.error.message
+                      : 'Failed to claim admin access'}
+                  </AlertDescription>
+                </Alert>
               )}
-            </Button>
-            {claimAdminMutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  {claimAdminMutation.error instanceof Error
-                    ? claimAdminMutation.error.message
-                    : 'Failed to claim admin access'}
-                </AlertDescription>
-              </Alert>
-            )}
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="w-full gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Sign Out
-            </Button>
-          </CardContent>
-        </Card>
+              <Button
+                variant="outline"
+                onClick={handleSignOut}
+                className="w-full gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Sign Out
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -424,10 +430,12 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   // Show neutral loading state while verifying admin access after password login
   if (passwordLoginMutation.isSuccess && !isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Verifying admin access...</p>
+      <div className="admin-theme-wrapper">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Verifying admin access...</p>
+          </div>
         </div>
       </div>
     );
@@ -436,36 +444,38 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   // Show access recovery UI if not admin
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full">
-          <AdminAccessRecoveryCard
-            onApplyCode={handleApplyCode}
-            onSignOut={handleSignOut}
-            onPasswordLogin={handlePasswordLogin}
-            isApplying={isApplying}
-            isPasswordLoggingIn={passwordLoginMutation.isPending}
-            error={codeAppliedError ? (codeError instanceof Error ? codeError.message : 'Failed to apply code') : null}
-            passwordError={passwordLoginMutation.isError ? (passwordLoginMutation.error instanceof Error ? passwordLoginMutation.error.message : 'Login failed') : null}
-            success={codeAppliedSuccess && !showAccessStillDenied}
-            passwordSuccess={false}
-          />
-          {showAccessStillDenied && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Access Still Denied</AlertTitle>
-              <AlertDescription>
-                The setup code was applied, but admin access could not be verified. This may indicate:
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>The code was for a different Internet Identity</li>
-                  <li>The code has already been used</li>
-                  <li>There was a system error</li>
-                </ul>
-                <div className="mt-3">
-                  <strong>Next steps:</strong> Try signing out and signing back in with the correct Internet Identity, or contact support.
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
+      <div className="admin-theme-wrapper">
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="max-w-2xl w-full">
+            <AdminAccessRecoveryCard
+              onApplyCode={handleApplyCode}
+              onSignOut={handleSignOut}
+              onPasswordLogin={handlePasswordLogin}
+              isApplying={isApplying}
+              isPasswordLoggingIn={passwordLoginMutation.isPending}
+              error={codeAppliedError ? (codeError instanceof Error ? codeError.message : 'Failed to apply code') : null}
+              passwordError={passwordLoginMutation.isError ? (passwordLoginMutation.error instanceof Error ? passwordLoginMutation.error.message : 'Login failed') : null}
+              success={codeAppliedSuccess && !showAccessStillDenied}
+              passwordSuccess={false}
+            />
+            {showAccessStillDenied && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Access Still Denied</AlertTitle>
+                <AlertDescription>
+                  The setup code was applied, but admin access could not be verified. This may indicate:
+                  <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li>The code was for a different Internet Identity</li>
+                    <li>The code has already been used</li>
+                    <li>There was a system error</li>
+                  </ul>
+                  <div className="mt-3">
+                    <strong>Next steps:</strong> Try signing out and signing back in with the correct Internet Identity, or contact support.
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -473,13 +483,13 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
 
   // Main admin panel UI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="admin-theme-wrapper">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+      <header className="admin-header border-b sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/20 text-primary">
                 <Shield className="w-5 h-5" />
               </div>
               <div>
@@ -497,15 +507,16 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
                 className="gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Registration
+                <span className="hidden sm:inline">Back to Registration</span>
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleSignOut}
                 className="gap-2"
               >
-                Sign Out
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
             </div>
           </div>
@@ -513,96 +524,104 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {registrationsQuery.isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-              <p className="text-muted-foreground">Loading customer registrations...</p>
-            </div>
-          </div>
-        ) : registrationsQuery.isError ? (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error Loading Registrations</AlertTitle>
-            <AlertDescription>
-              {registrationsQuery.error instanceof Error
-                ? registrationsQuery.error.message
-                : 'Failed to load customer registrations'}
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Panel - Registration List */}
-            <Card className="shadow-lg">
+      <main className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Panel - Registrations List */}
+          <div className="lg:col-span-1">
+            <Card className="admin-card shadow-lg border">
               <CardHeader>
-                <CardTitle>Customer Registrations</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Customer Registrations</span>
+                  <Badge variant="secondary">
+                    {registrationsQuery.data?.length || 0}
+                  </Badge>
+                </CardTitle>
                 <CardDescription>
-                  {registrationsQuery.data?.length || 0} total registration(s)
+                  Select a registration to view details
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[600px] pr-4">
-                  {registrationsQuery.data && registrationsQuery.data.length > 0 ? (
-                    <div className="space-y-2">
+              <CardContent className="p-0">
+                {registrationsQuery.isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : registrationsQuery.isError ? (
+                  <div className="p-4">
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>
+                        {registrationsQuery.error instanceof Error
+                          ? registrationsQuery.error.message
+                          : 'Failed to load registrations'}
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ) : !registrationsQuery.data || registrationsQuery.data.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                    <FileText className="w-12 h-12 text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      No customer registrations yet
+                    </p>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-[calc(100vh-280px)]">
+                    <div className="divide-y divide-border">
                       {registrationsQuery.data.map(([id, registration]) => (
                         <button
                           key={id}
                           onClick={() => setSelectedRegistrationId(id)}
-                          className={`w-full text-left p-4 rounded-lg border transition-colors ${
+                          className={`w-full text-left p-4 hover:bg-accent/50 transition-colors ${
                             selectedRegistrationId === id
-                              ? 'bg-primary/10 border-primary'
-                              : 'bg-background hover:bg-muted border-border'
+                              ? 'bg-accent/70 border-l-4 border-primary'
+                              : ''
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start gap-3">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary flex-shrink-0">
+                              <User className="w-5 h-5" />
+                            </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                                <p className="font-medium truncate">
-                                  {registration.name || 'Unknown'}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Phone className="w-3 h-3 flex-shrink-0" />
-                                <span className="truncate">{registration.phone || 'N/A'}</span>
+                              <p className="font-medium truncate">
+                                {registration.name}
+                              </p>
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                                <Phone className="w-3 h-3" />
+                                <span className="truncate">{registration.phone}</span>
                               </div>
                               <div className="flex items-center gap-2 mt-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {registration.category}
+                                </Badge>
                                 <Badge variant="secondary" className="text-xs">
-                                  {registration.category || 'N/A'}
+                                  {registration.router}
                                 </Badge>
                               </div>
                             </div>
-                            {selectedRegistrationId === id && (
-                              <FileText className="w-5 h-5 text-primary flex-shrink-0" />
-                            )}
                           </div>
                         </button>
                       ))}
                     </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground">No registrations found</p>
-                    </div>
-                  )}
-                </ScrollArea>
+                  </ScrollArea>
+                )}
               </CardContent>
             </Card>
+          </div>
 
-            {/* Right Panel - Registration Details or Edit Form */}
-            <AdminDetailErrorBoundary onRetry={handleErrorBoundaryRetry}>
-              {isEditMode && registrationData ? (
-                <EditRegistrationDetailsForm
-                  registration={registrationData}
-                  registrationId={selectedRegistrationId || ''}
-                  onSave={handleEditSave}
-                  onCancel={handleEditCancel}
-                  isSaving={updateRegistrationMutation.isPending}
-                  error={updateError}
-                  success={updateSuccess}
-                />
-              ) : (
+          {/* Right Panel - Registration Details or Edit Form */}
+          <div className="lg:col-span-2">
+            {isEditMode && registrationData && selectedRegistrationId ? (
+              <EditRegistrationDetailsForm
+                registration={registrationData}
+                registrationId={selectedRegistrationId}
+                onSave={handleEditSave}
+                onCancel={handleEditCancel}
+                isSaving={updateRegistrationMutation.isPending}
+                error={updateError}
+                success={updateSuccess}
+              />
+            ) : (
+              <AdminDetailErrorBoundary onRetry={handleErrorBoundaryRetry}>
                 <RegistrationDetailPanel
                   selectedRegistrationId={selectedRegistrationId}
                   isLoading={selectedRegistrationQuery.isLoading}
@@ -624,10 +643,21 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
                   selectedRegistrationName={selectedRegistrationName}
                   selectedRegistrationPhone={selectedRegistrationPhone}
                 />
-              )}
-            </AdminDetailErrorBoundary>
+              </AdminDetailErrorBoundary>
+            )}
+
+            {/* Success Message */}
+            {updateSuccess && !isEditMode && (
+              <Alert className="mt-4 border-green-500 bg-green-950/50">
+                <AlertCircle className="h-4 w-4 text-green-400" />
+                <AlertTitle className="text-green-400">Success</AlertTitle>
+                <AlertDescription className="text-green-400">
+                  Registration updated successfully
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
-        )}
+        </div>
       </main>
     </div>
   );

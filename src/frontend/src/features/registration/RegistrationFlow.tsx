@@ -111,23 +111,23 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       {/* Header */}
-      <header className="no-print border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="no-print border-b splash-galaxy-bg sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white text-black">
                 <Wifi className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight">Star Maharashtra Galaxy Internet</h1>
-                <p className="text-sm text-muted-foreground">Customer Registration</p>
+                <h1 className="text-xl font-bold tracking-tight text-white">Star Maharashtra Galaxy Internet</h1>
+                <p className="text-sm text-gray-200">Customer Registration</p>
               </div>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={onNavigateToAdmin}
-              className="gap-2"
+              className="gap-2 border-white/40 text-white hover:bg-white/20 hover:text-white hover:border-white/60"
             >
               <Shield className="w-4 h-4" />
               Admin Panel

@@ -1,72 +1,39 @@
 {
   "kind": "build_request",
-  "title": "Fix Admin Panel: Aadhaar/PAN document photos not showing in Registration Details",
-  "priority": "high",
+  "title": "Update splash screen animation to show company name “Star Maharashtra Galaxy Internet”",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-87",
-      "text": "Fix the Admin Panel Registration Details view so that, when a customer has uploaded Aadhaar Card and PAN Card photos during registration, those document images reliably render under the “Verification Documents” section for that registration (and the optional receipt image renders when present).",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "sun mere customer ne aadhar aur pan card  ki photos upload ki thi but wo dikh nhi rahi hai admin panel mai registration deails mai"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Given an existing registration that contains stored Aadhaar and PAN document blobs, the Admin Panel detail view shows both images (Aadhaar + PAN) as visible previews (not just placeholders).",
-        "If a registration includes a receipt blob, the receipt image preview is also shown; if it does not, the UI clearly indicates it is not provided (in English).",
-        "The fix works for previously submitted registrations already stored in the canister (not only newly created ones).",
-        "No blank panel/crash occurs if a document is missing or in an unexpected format; the UI shows a readable English fallback message per missing/invalid document."
-      ]
-    },
-    {
-      "id": "REQ-88",
-      "text": "Add defensive handling and diagnostics for document preview failures so admins can understand why an uploaded document is not visible (e.g., failed URL generation, unauthorized fetch, missing blob, corrupted blob) without exposing sensitive data.",
+      "id": "REQ-96",
+      "text": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-4"
         ],
         "quotes": [
-          "...photos upload ki thi but wo dikh nhi rahi hai admin panel mai..."
+          "app start karne par animation me muze mere company ne ka naam de  Star Maharashtra Galaxy Internet"
         ]
       },
       "acceptanceCriteria": [
-        "If a document preview fails to load, the Admin Panel shows an English error state for that document (existing ‘Failed to load image’ is acceptable) and provides a visible ‘Retry’ action or re-attempt behavior without requiring a full page refresh.",
-        "Console logging (developer-only) clearly indicates which document type failed (Aadhaar/PAN/Receipt) and includes the failure reason (e.g., image load error), without logging the raw image bytes."
-      ]
-    },
-    {
-      "id": "REQ-89",
-      "text": "Ensure backend blob/document access used by the Admin Panel is compatible with admin-only registration viewing, so document images can be fetched/rendered when the caller is an authorized admin.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "...aadhar aur pan card ki photos upload ki thi but wo dikh nhi rahi hai admin panel..."
-        ]
-      },
-      "acceptanceCriteria": [
-        "When an admin can successfully fetch a registration via admin-only APIs (e.g., `getRegistration` / `getRegistrationWithReceiptInfo`), the same admin can also fetch/render the corresponding stored document blobs referenced by that registration in the frontend preview UI.",
-        "No relaxation of permissions: non-admin users must not gain access to other users’ uploaded document blobs via this fix."
+        "On app load, the Splash Screen shows the text exactly \"Star Maharashtra Galaxy Internet\" (matching spelling and capitalization), and it is visible as the primary branding text.",
+        "The texts \"SMGI\" and \"Network Solutions\" are not displayed anywhere on the splash screen.",
+        "Clicking/tapping anywhere on the splash screen still skips it and transitions to the main app UI.",
+        "The splash screen still auto-transitions after the existing timeout and fades out before entering the main UI.",
+        "When the user has prefers-reduced-motion enabled, the splash screen uses the reduced-motion behavior and still transitions quickly (no blocking animation).",
+        "No backend changes are required or introduced for this update."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text.",
-    "Backend must remain a single Motoko actor (all logic in `backend/main.mo`).",
-    "Do not edit files in `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or anything under `frontend/src/components/ui`.",
-    "Do not add any external SMS, storage, or third-party services."
+    "Do not edit any files under frontend/src/hooks/useInternetIdentity.ts(x) or frontend/src/hooks/useActor.ts (immutable paths).",
+    "Keep all user-facing UI text in English.",
+    "Do not add any backend changes for the splash screen update."
   ],
   "nonGoals": [
-    "Adding new document types beyond Aadhaar, PAN, and the existing optional payment receipt.",
-    "Changing the registration step UI/flow unless required to fix persistence/display of already-uploaded documents.",
-    "Serving images from a new external host or adding a separate backend service."
+    "Changing the registration flow or admin panel behavior.",
+    "Adding or changing logos, images, or other splash assets.",
+    "Changing the splash screen background theme, animations, or timing beyond what is required to update the displayed company name text."
   ],
   "imageRequirements": {
     "required": [],

@@ -5,12 +5,12 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
-import Migration "migration";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 // Improved persistent state migration
-(with migration = Migration.run)
+
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();

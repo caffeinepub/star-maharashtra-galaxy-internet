@@ -3,305 +3,162 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 0.625rem;
-        --background: 0.98 0 0;
-        --foreground: 0.15 0 0;
-        --card: 1 0 0;
-        --card-foreground: 0.15 0 0;
-        --popover: 1 0 0;
-        --popover-foreground: 0.15 0 0;
-        --primary: 0.45 0.15 160;
-        --primary-foreground: 0.98 0 0;
-        --secondary: 0.92 0.08 80;
-        --secondary-foreground: 0.15 0 0;
-        --muted: 0.94 0 0;
-        --muted-foreground: 0.50 0 0;
-        --accent: 0.88 0.12 120;
-        --accent-foreground: 0.15 0 0;
-        --destructive: 0.55 0.22 25;
-        --destructive-foreground: 0.98 0 0;
-        --border: 0.88 0 0;
-        --input: 0.88 0 0;
-        --ring: 0.45 0.15 160;
-        --chart-1: 0.60 0.18 160;
-        --chart-2: 0.65 0.15 120;
-        --chart-3: 0.55 0.20 80;
-        --chart-4: 0.70 0.12 200;
-        --chart-5: 0.50 0.25 40;
-    }
+  :root {
+    --background: oklch(98% 0 0);
+    --foreground: oklch(15% 0 0);
+    --card: oklch(100% 0 0);
+    --card-foreground: oklch(15% 0 0);
+    --popover: oklch(100% 0 0);
+    --popover-foreground: oklch(15% 0 0);
+    --primary: oklch(50% 0.2 250);
+    --primary-foreground: oklch(98% 0 0);
+    --secondary: oklch(95% 0.01 250);
+    --secondary-foreground: oklch(15% 0 0);
+    --muted: oklch(95% 0.01 250);
+    --muted-foreground: oklch(45% 0.01 250);
+    --accent: oklch(95% 0.01 250);
+    --accent-foreground: oklch(15% 0 0);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(98% 0 0);
+    --border: oklch(90% 0.01 250);
+    --input: oklch(90% 0.01 250);
+    --ring: oklch(50% 0.2 250);
+    --radius: 0.5rem;
+    --chart-1: oklch(60% 0.15 12);
+    --chart-2: oklch(70% 0.14 142);
+    --chart-3: oklch(55% 0.15 258);
+    --chart-4: oklch(65% 0.12 305);
+    --chart-5: oklch(60% 0.13 45);
+  }
 
-    .dark {
-        --background: 0.12 0 0;
-        --foreground: 0.95 0 0;
-        --card: 0.16 0 0;
-        --card-foreground: 0.95 0 0;
-        --popover: 0.18 0 0;
-        --popover-foreground: 0.95 0 0;
-        --primary: 0.65 0.18 160;
-        --primary-foreground: 0.12 0 0;
-        --secondary: 0.25 0.08 80;
-        --secondary-foreground: 0.95 0 0;
-        --muted: 0.22 0 0;
-        --muted-foreground: 0.65 0 0;
-        --accent: 0.30 0.12 120;
-        --accent-foreground: 0.95 0 0;
-        --destructive: 0.60 0.20 25;
-        --destructive-foreground: 0.95 0 0;
-        --border: 0.25 0 0;
-        --input: 0.25 0 0;
-        --ring: 0.65 0.18 160;
-        --chart-1: 0.55 0.20 160;
-        --chart-2: 0.60 0.18 120;
-        --chart-3: 0.50 0.22 80;
-        --chart-4: 0.65 0.15 200;
-        --chart-5: 0.45 0.28 40;
-    }
-
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-        font-feature-settings: "rlig" 1, "calt" 1;
-    }
+  .dark {
+    --background: oklch(15% 0.01 250);
+    --foreground: oklch(98% 0 0);
+    --card: oklch(18% 0.01 250);
+    --card-foreground: oklch(98% 0 0);
+    --popover: oklch(15% 0.01 250);
+    --popover-foreground: oklch(98% 0 0);
+    --primary: oklch(65% 0.2 250);
+    --primary-foreground: oklch(15% 0 0);
+    --secondary: oklch(25% 0.02 250);
+    --secondary-foreground: oklch(98% 0 0);
+    --muted: oklch(25% 0.02 250);
+    --muted-foreground: oklch(65% 0.02 250);
+    --accent: oklch(25% 0.02 250);
+    --accent-foreground: oklch(98% 0 0);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(98% 0 0);
+    --border: oklch(25% 0.02 250);
+    --input: oklch(25% 0.02 250);
+    --ring: oklch(65% 0.2 250);
+    --chart-1: oklch(65% 0.15 12);
+    --chart-2: oklch(75% 0.14 142);
+    --chart-3: oklch(60% 0.15 258);
+    --chart-4: oklch(70% 0.12 305);
+    --chart-5: oklch(65% 0.13 45);
+  }
 }
 
-/* Print Styles */
-@media print {
-    /* Hide non-essential UI elements */
-    .no-print {
-        display: none !important;
-    }
-
-    /* Show print-only content */
-    .print-only {
-        display: block !important;
-    }
-
-    /* Reset page styles for printing */
-    body {
-        background: white !important;
-        color: black !important;
-    }
-
-    /* Ensure proper page layout */
-    @page {
-        margin: 2cm;
-        size: A4;
-    }
-
-    /* Prevent page breaks inside important elements */
-    h1, h2, h3, h4, h5, h6 {
-        page-break-after: avoid;
-        page-break-inside: avoid;
-    }
-
-    ul, ol {
-        page-break-inside: avoid;
-    }
-
-    /* Ensure readable font sizes */
-    body, p, li, span {
-        font-size: 12pt !important;
-        line-height: 1.5 !important;
-    }
-
-    h1 {
-        font-size: 20pt !important;
-    }
-
-    h2 {
-        font-size: 18pt !important;
-    }
-
-    h3 {
-        font-size: 16pt !important;
-    }
-
-    h4 {
-        font-size: 14pt !important;
-    }
-
-    /* Remove shadows and backgrounds for clean print */
-    * {
-        box-shadow: none !important;
-        text-shadow: none !important;
-    }
-
-    /* Ensure borders are visible */
-    .border, [class*="border-"] {
-        border-color: #000 !important;
-    }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-/* Hide print-only content on screen */
-.print-only {
-    display: none;
+/* Admin Panel Theme - Force dark mode styling */
+.admin-theme-wrapper {
+  /* Dark background for admin panel */
+  background: oklch(15% 0.01 250);
+  color: oklch(98% 0 0);
+  min-height: 100vh;
 }
 
-/* Space Galaxy Blue Background for Splash Screen */
+.admin-theme-wrapper .admin-card {
+  background: oklch(18% 0.01 250);
+  border-color: oklch(25% 0.02 250);
+  color: oklch(98% 0 0);
+}
+
+.admin-theme-wrapper .admin-header {
+  background: oklch(18% 0.015 250);
+  border-color: oklch(25% 0.02 250);
+  backdrop-filter: blur(8px);
+}
+
+/* Space galaxy blue background for splash screen */
 .splash-galaxy-bg {
-    background: radial-gradient(ellipse at 20% 30%, oklch(0.35 0.15 250) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, oklch(0.30 0.18 240) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, oklch(0.25 0.12 260) 0%, transparent 70%),
-                linear-gradient(135deg, oklch(0.18 0.10 250) 0%, oklch(0.12 0.08 240) 50%, oklch(0.08 0.05 260) 100%);
+  background: linear-gradient(135deg, #0a1628 0%, #1a2f4f 50%, #0f1f3a 100%);
 }
 
-/* Splash Screen Animations */
-@keyframes splash-fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Splash screen animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes splash-scale-pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
-@keyframes splash-glow {
-    0%, 100% {
-        opacity: 0.3;
-    }
-    50% {
-        opacity: 0.6;
-    }
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
 }
 
-@keyframes splash-float {
-    0%, 100% {
-        transform: translateY(0) scale(1);
-    }
-    50% {
-        transform: translateY(-10px) scale(1.1);
-    }
-}
-
-@keyframes splash-text-entrance {
-    from {
-        opacity: 0;
-        transform: scale(0.9) translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-@keyframes splash-text-shimmer {
-    0%, 100% {
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3),
-                     0 0 20px rgba(255, 255, 255, 0.2),
-                     0 0 30px rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
-                     0 0 30px rgba(255, 255, 255, 0.3),
-                     0 0 40px rgba(255, 255, 255, 0.2);
-    }
-}
-
-.splash-company-name {
-    animation: splash-text-entrance 1s ease-out;
-}
-
-.splash-company-text {
-    animation: splash-text-shimmer 3s ease-in-out 1s infinite;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4),
-                 0 0 30px rgba(255, 255, 255, 0.2),
-                 0 4px 8px rgba(0, 0, 0, 0.3);
-    line-height: 1.2;
-}
-
-.splash-word-star,
-.splash-word-maharashtra,
-.splash-word-galaxy,
-.splash-word-internet {
-    display: inline-block;
-}
-
-/* Multi-color styling for company name words */
-.splash-word-star {
-    color: oklch(0.75 0.25 30);
-}
-
-.splash-word-maharashtra {
-    color: oklch(0.70 0.22 280);
-}
-
-.splash-word-galaxy {
-    color: oklch(0.72 0.24 180);
-}
-
-.splash-word-internet {
-    color: oklch(0.78 0.20 120);
-}
-
-.splash-tagline {
-    animation: splash-fade-in 1s ease-out 0.4s backwards;
-}
-
-.splash-skip-button {
-    animation: splash-fade-in 0.8s ease-out 1s backwards;
-}
-
-.splash-circle-1 {
-    animation: splash-glow 3s ease-in-out infinite, splash-float 4s ease-in-out infinite;
-}
-
-.splash-circle-2 {
-    animation: splash-glow 3s ease-in-out 0.5s infinite, splash-float 4s ease-in-out 1s infinite;
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-    .splash-company-name,
-    .splash-company-text,
-    .splash-tagline,
-    .splash-skip-button,
-    .splash-circle-1,
-    .splash-circle-2 {
-        animation: none;
-    }
-    
-    .splash-company-name,
-    .splash-company-text,
-    .splash-tagline,
-    .splash-skip-button {
-        opacity: 1;
-        transform: none;
-    }
-    
-    .splash-company-text {
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4),
-                     0 0 30px rgba(255, 255, 255, 0.2),
-                     0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    
-    /* Keep colors in reduced motion mode */
-    .splash-word-star {
-        color: oklch(0.75 0.25 30);
-    }
+  .animate-fade-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  
+  .animate-float {
+    animation: none;
+  }
+}
 
-    .splash-word-maharashtra {
-        color: oklch(0.70 0.22 280);
-    }
+/* Print styles */
+@media print {
+  /* Hide non-printable elements */
+  .no-print,
+  header.no-print,
+  button.no-print,
+  .print-hide {
+    display: none !important;
+  }
 
-    .splash-word-galaxy {
-        color: oklch(0.72 0.24 180);
-    }
+  /* Ensure content is visible */
+  body {
+    background: white !important;
+    color: black !important;
+  }
 
-    .splash-word-internet {
-        color: oklch(0.78 0.20 120);
-    }
+  /* Page breaks */
+  .print-page-break {
+    page-break-after: always;
+  }
+
+  /* Optimize for print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }

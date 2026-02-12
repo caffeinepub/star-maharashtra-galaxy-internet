@@ -8,6 +8,7 @@ interface SplashScreenProps {
 export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -33,11 +34,18 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [prefersReducedMotion]);
 
   const handleComplete = () => {
+    if (hasCompleted) return; // Prevent double invocation
+    setHasCompleted(true);
     setIsVisible(false);
     // Small delay for fade-out animation
     setTimeout(() => {
       onComplete();
     }, 500);
+  };
+
+  const handleSkipClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event bubbling
+    handleComplete();
   };
 
   return (
@@ -47,37 +55,26 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       }`}
       onClick={handleComplete}
     >
-      {/* Company name and tagline container */}
-      <div className="splash-content-container flex flex-col items-center justify-center gap-4 px-6">
-        {/* Company Name - Stylized Text with Display Font */}
-        <div className="splash-company-name">
-          <h1 className="splash-company-text text-center text-4xl font-black uppercase tracking-wider font-display sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
-            <span className="splash-word-star">STAR</span>{' '}
-            <span className="splash-word-maharashtra">MAHARASHTRA</span>{' '}
-            <span className="splash-word-galaxy">GALAXY</span>{' '}
-            <span className="splash-word-internet">INTERNET</span>
-          </h1>
-        </div>
-
-        {/* Tagline */}
-        <p className="splash-tagline text-center text-xl font-semibold text-primary-foreground sm:text-2xl md:text-3xl lg:text-4xl">
-          Connect to the Future with Internet at Light Speed.
-        </p>
+      {/* Company name - Star Maharashtra Galaxy Internet */}
+      <div className={`text-center ${prefersReducedMotion ? '' : 'animate-fade-in'}`}>
+        <h1 className="text-5xl font-black uppercase tracking-widest text-white font-display sm:text-6xl md:text-7xl lg:text-8xl">
+          Star Maharashtra Galaxy Internet
+        </h1>
       </div>
 
       {/* Skip button */}
       <Button
         variant="outline"
         size="lg"
-        onClick={handleComplete}
-        className="splash-skip-button absolute bottom-12 bg-primary-foreground/10 text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/20"
+        onClick={handleSkipClick}
+        className="absolute bottom-12 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 border-white/20"
       >
         Skip
       </Button>
 
-      {/* Decorative elements */}
-      <div className="splash-circle-1 absolute left-1/4 top-1/4 h-32 w-32 rounded-full bg-primary-foreground/10 blur-3xl"></div>
-      <div className="splash-circle-2 absolute bottom-1/4 right-1/4 h-40 w-40 rounded-full bg-primary-foreground/10 blur-3xl"></div>
+      {/* Decorative floating circles */}
+      <div className={`absolute left-1/4 top-1/4 h-32 w-32 rounded-full bg-white/10 blur-3xl ${prefersReducedMotion ? '' : 'animate-float'}`}></div>
+      <div className={`absolute bottom-1/4 right-1/4 h-40 w-40 rounded-full bg-white/10 blur-3xl ${prefersReducedMotion ? '' : 'animate-float'}`} style={{ animationDelay: '1s' }}></div>
     </div>
   );
 }

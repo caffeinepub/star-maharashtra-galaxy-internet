@@ -1,62 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T20:56:12.710Z",
+  "generatedAt": "2026-02-12T21:44:02.946Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-87",
-        "summary": "Fix the Admin Panel Registration Details view so that, when a customer has uploaded Aadhaar Card and PAN Card photos during registration, those document images reliably render under the “Verification Documents” section for that registration (and the optional receipt image renders when present).",
+        "id": "REQ-96",
+        "summary": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/hooks/useAdminQueries.ts"
+          "frontend/src/components/SplashScreen.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/hooks/useAdminQueries.ts"
+          "frontend/src/components/SplashScreen.tsx"
         ]
-      },
-      {
-        "id": "REQ-88",
-        "summary": "Add defensive handling and diagnostics for document preview failures so admins can understand why an uploaded document is not visible (e.g., failed URL generation, unauthorized fetch, missing blob, corrupted blob) without exposing sensitive data.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
-        ]
-      },
-      {
-        "id": "REQ-89",
-        "summary": "Ensure backend blob/document access used by the Admin Panel is compatible with admin-only registration viewing, so document images can be fetched/rendered when the caller is an authorized admin.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-    "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-    "frontend/src/features/admin/hooks/useAdminQueries.ts",
+    "frontend/src/components/SplashScreen.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

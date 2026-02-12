@@ -1,58 +1,46 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T20:56:12.705Z",
-  "summary": "Diff adds a new admin-side DocumentImagePreview component with retry/error handling and updates admin queries to fetch registrations more defensively. Backend changes include adding a migration module and introducing an access-control mixin setup. However, based on the visible diff summary, backend support specifically ensuring admin-authorized document blob retrieval (without loosening non-admin access) is not clearly demonstrated, and several admin-panel capabilities appear added beyond the requested document-preview fix.",
+  "generatedAt": "2026-02-12T21:44:02.940Z",
+  "summary": "REQ-96 is partially implemented: the splash screen component now renders the company name string, retains click-to-skip, fade-out, auto-timeout, and reduced-motion handling. However, the rendered text is forced to uppercase via CSS (so it will not display with the exact capitalization required), and the diff introduces additional UI/visual elements (Skip button, decorative circles) that were not requested and may violate the non-goals.",
   "missing_requirements": [
     {
-      "id": "REQ-89",
-      "requirement": "Ensure backend blob/document access used by the Admin Panel is compatible with admin-only registration viewing, so document images can be fetched/rendered when the caller is an authorized admin (without relaxing permissions for non-admins).",
-      "reason": "The diff summary shows new access-control initialization and a storage mixin, but does not show the admin-only registration APIs (`getRegistration`, `getRegistrationWithReceiptInfo`, blob fetch/authorization pathways) being updated to guarantee that an authorized admin can retrieve/render stored document blobs while preventing non-admin access. The relevant functions are not present in the provided `backend/main.mo` snippet (truncated).",
+      "id": "REQ-96",
+      "requirement": "Display the company name text exactly as \"Star Maharashtra Galaxy Internet\" (matching spelling and capitalization) as the primary branding text.",
+      "reason": "The heading applies the Tailwind class `uppercase`, which will render the text as all-caps, not with the exact capitalization specified in the requirement/AC.",
       "evidence": [
-        "backend/main.mo (truncated)"
+        "frontend/src/components/SplashScreen.tsx"
+      ]
+    },
+    {
+      "id": "REQ-96",
+      "requirement": "Do not change the splash screen background theme/animations beyond what is required to update the displayed company name text.",
+      "reason": "The splash screen adds decorative floating circle elements and introduces additional animations/classes not clearly required for changing the branding text.",
+      "evidence": [
+        "frontend/src/components/SplashScreen.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added a persistent-state migration module and wired migration into the actor.",
-      "reason": "The BuildRequest is focused on fixing admin document preview rendering and admin-compatible blob access; it does not request introducing/altering canister state migration infrastructure.",
+      "description": "Added a visible \"Skip\" button on the splash screen (in addition to click/tap anywhere).",
+      "reason": "REQ-96 only requires preserving click/tap-to-skip behavior; adding new splash UI controls is not requested and may be considered a splash asset/UI change beyond the text update.",
       "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo (with migration = Migration.run)"
+        "frontend/src/components/SplashScreen.tsx"
       ]
     },
     {
-      "description": "Hard-coded default admin credentials in backend state.",
-      "reason": "Not requested by REQ-87/88/89 and potentially unrelated to fixing admin document image rendering.",
+      "description": "Added decorative floating circle elements (visual assets/effects) to the splash screen.",
+      "reason": "Non-goals explicitly exclude adding/changing splash assets or changing the splash theme/animations beyond what’s required for the name text update.",
       "evidence": [
-        "backend/main.mo (adminLoginCredentials default username/password)"
-      ]
-    },
-    {
-      "description": "Admin claim flow mutation appears to succeed without calling any backend authorization/claim API.",
-      "reason": "REQ-87/88/89 do not ask to change admin-claim behavior; returning `true` without a canister call may be an unrequested behavior change and could affect security semantics.",
-      "evidence": [
-        "frontend/src/features/admin/hooks/useAdminQueries.ts (claimAdminMutation mutationFn returns true)"
-      ]
-    },
-    {
-      "description": "Expanded Admin Panel capabilities like edit/delete flows and other UI behavior beyond document preview rendering.",
-      "reason": "Non-goals include not changing the registration step UI/flow unless needed for persistence/display; while this is admin-side, the BuildRequest only targets fixing document previews and diagnostics, not broader admin editing/deletion features.",
-      "evidence": [
-        "frontend-file-summaries.txt (mentions integrated edit mode, delete functionality)",
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated shows many additional actions/icons)"
+        "frontend/src/components/SplashScreen.tsx"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.74,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-    "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-    "frontend/src/features/admin/hooks/useAdminQueries.ts",
+    "frontend/src/components/SplashScreen.tsx",
     "project_state.json"
   ]
 }

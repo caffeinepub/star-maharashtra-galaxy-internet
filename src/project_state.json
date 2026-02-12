@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 61,
+  "projectStateVersion": 73,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -26,7 +26,7 @@
     "Admin Panel: \"Error loading details\" occurs only for a specific single customer registration (one record), suggesting record-specific data/loading issue; user also cannot access Edit/Delete on that record due to the details error.",
     "Admin Panel: Uploaded document photos (Aadhaar/PAN/receipt) are not visible in the registration detail view (user reports they cannot see the document photos)."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
@@ -611,6 +611,62 @@
         "REQ-88"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-top-header-area-background-behind-the-app-name-to-be-black-in-the-customer-registration-flow-the-sticky-header-that-contains-star-maharashtra-galaxy-internet-while-keeping-the-header-content-readable-with-appropriate-contrasting-text-icon-button-styling",
+      "title": "Update the top header area background behind the app name to be black in the customer Registration flow (the sticky header that contains “Star Maharashtra Galaxy Internet”), while keeping the header content readable with appropriate contrasting text/icon/button styling.",
+      "reqIds": [
+        "REQ-90"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-customer-registration-flow-header-background-the-sticky-top-header-containing-star-maharashtra-galaxy-internet-to-use-the-same-galaxy-blue-shade-as-the-splash-screen-animation-background-replacing-the-current-black-header-background-keep-all-header-content-icon-title-subtitle-and-admin-panel-button-readable-with-appropriate-contrast-on-the-new-blue-background",
+      "title": "Update the Customer Registration flow header background (the sticky top header containing “Star Maharashtra Galaxy Internet”) to use the same galaxy/blue shade as the Splash Screen animation background, replacing the current black header background. Keep all header content (icon, title, subtitle, and “Admin Panel” button) readable with appropriate contrast on the new blue background.",
+      "reqIds": [
+        "REQ-91"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-ui-styling-so-it-no-longer-appears-as-a-plain-all-white-screen-apply-a-distinct-non-white-background-for-the-admin-panel-pages-login-access-recovery-and-authorized-admin-view-and-ensure-primary-ui-surfaces-cards-panels-list-area-detail-area-header-have-clear-visual-separation-borders-shadows-background-tints-and-readable-contrast",
+      "title": "Update the Admin Panel UI styling so it no longer appears as a plain all-white screen: apply a distinct, non-white background for the Admin Panel pages (login, access recovery, and authorized admin view) and ensure primary UI surfaces (cards/panels, list area, detail area, header) have clear visual separation (borders/shadows/background tints) and readable contrast.",
+      "reqIds": [
+        "REQ-92"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-panel-header-and-main-content-container-styling-matches-the-updated-admin-background-including-sticky-header-so-the-header-does-not-blend-into-the-page-or-look-washed-out-and-interactive-controls-buttons-badges-remain-visually-clear-on-the-chosen-background",
+      "title": "Ensure the Admin Panel header and main content container styling matches the updated Admin background (including sticky header) so the header does not blend into the page or look washed out, and interactive controls (buttons/badges) remain visually clear on the chosen background.",
+      "reqIds": [
+        "REQ-93"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-revert-the-splash-intro-animation-page-to-the-previous-earlier-version-pahele-jaise-tha-vaise-undoing-the-most-recent-splash-design-styling-changes-update-frontend-src-components-splashscreen-tsx-and-any-related-splash-css-e-g-in-frontend-src-index-css-so-the-splash-screen-looks-and-behaves-like-it-did-before-the-latest-modifications-while-preserving-existing-core-behavior-auto-transition-after-a-short-delay-fade-out-on-completion-click-tap-to-skip-and-reduced-motion-accessibility-support",
+      "title": "Revert the splash/intro animation page to the previous/earlier version (\"pahele jaise tha vaise\"), undoing the most recent splash design/styling changes. Update `frontend/src/components/SplashScreen.tsx` and any related splash CSS (e.g., in `frontend/src/index.css`) so the splash screen looks and behaves like it did before the latest modifications, while preserving existing core behavior: auto-transition after a short delay, fade-out on completion, click/tap to skip, and reduced-motion accessibility support.",
+      "reqIds": [
+        "REQ-94"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-intro-screen-to-match-the-appearance-and-animation-behavior-from-application-version-30-the-version-the-user-confirmed-was-acceptable-this-includes-reverting-any-newer-splash-content-styling-that-changed-the-branding-text-e-g-remove-the-current-smgi-network-solutions-wording-and-any-associated-word-specific-coloring-classes-and-restoring-the-version-30-splash-layout-typography-animations-while-keeping-the-existing-core-behaviors-auto-transition-after-a-short-delay-fade-out-on-completion-click-tap-to-skip-and-reduced-motion-accessibility-support",
+      "title": "Update the splash/intro screen to match the appearance and animation behavior from application version 30 (the version the user confirmed was acceptable). This includes reverting any newer splash content/styling that changed the branding text (e.g., remove the current “SMGI Network Solutions” wording and any associated word-specific coloring classes) and restoring the version-30 splash layout/typography/animations while keeping the existing core behaviors: auto-transition after a short delay, fade-out on completion, click/tap to skip, and reduced-motion accessibility support.",
+      "reqIds": [
+        "REQ-95"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-app-start-splash-intro-animation-screen-to-display-the-company-name-text-exactly-as-star-maharashtra-galaxy-internet-replace-the-current-smgi-network-solutions-branding-text-preserve-existing-splash-behavior-auto-transition-timing-fade-out-click-tap-to-skip-and-reduced-motion-support",
+      "title": "Update the app start splash/intro animation screen to display the company name text exactly as: \"Star Maharashtra Galaxy Internet\" (replace the current \"SMGI\" / \"Network Solutions\" branding text). Preserve existing splash behavior: auto-transition timing, fade-out, click/tap-to-skip, and reduced-motion support.",
+      "reqIds": [
+        "REQ-96"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -854,6 +910,18 @@
       "reqIds": [
         "REQ-89"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "Update the UI so the background behind the top header/name area is black.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Revert the splash/intro animation page to the previous/earlier version (“pahele jaise tha vaise”).",
+      "reqIds": [],
       "status": "pending"
     }
   ],

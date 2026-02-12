@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add single-admin authorization and an Admin Panel so only one configured admin can view customer registration submissions.
+**Goal:** Fix the Admin Setup Code reset flow so the legitimate configured admin can recover admin access, while preventing unauthorized resets, and ensure the Admin Panel unlocks automatically after a successful reset.
 
 **Planned changes:**
-- Backend: store exactly one admin Principal in canister state and expose a one-time bootstrap method to set it (reject subsequent attempts), plus a query to read the current admin status for UI gating.
-- Backend: secure existing registrations list and single-registration retrieval APIs so only the stored admin Principal can access them; return clear errors for anonymous/non-admin callers.
-- Frontend: add an Admin Panel entry point in the main UI with Internet Identity sign-in prompting, “Access denied” handling for non-admin users, and a one-time “Claim Admin Access” flow when no admin is configured.
-- Frontend: in the Admin Panel, show a readable registrations list (name, phone, category, payment method, router, terms acceptance timestamp) and allow selecting an item to view full details without disrupting the existing registration flow UI.
-- Frontend: use React Query for admin operations (claim admin, fetch list, fetch single) with clear loading/error states and safeguards against double actions.
+- Update backend `resetAdminSetupCode()` to allow the configured admin Internet Identity to reset and rotate the Admin Setup Code even if current admin permission checks fail due to missing/invalid code.
+- Keep unauthorized users blocked from resetting the Admin Setup Code, returning a clear English error and not rotating the code.
+- Update Admin Panel recovery UI to show clear English error messaging on reset failure, including guidance to sign out and sign back in with the correct admin Internet Identity, and refer to “Admin Setup Code” (not “password”).
+- Make reset success automatically apply the new Admin Setup Code by storing it in `sessionStorage` as `caffeineAdminToken`, re-initializing access control, and refreshing admin React Query state so the Admin Panel unlocks without a manual refresh.
 
-**User-visible outcome:** Users can still submit registrations as before; the single admin can sign in to an Admin Panel to claim admin access (only once ever) and then view a list of customer submissions and inspect individual submission details, while non-admins see an access-denied experience.
+**User-visible outcome:** The configured admin can successfully reset the Admin Setup Code to regain access; if signed in as the wrong identity, the app shows clear instructions and an error reason; after a successful reset, the Admin Panel becomes authorized automatically without reloading the page.

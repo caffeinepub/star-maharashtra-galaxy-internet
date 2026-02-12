@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useAdminQueries } from './hooks/useAdminQueries';
+import { useAdminSetupCode } from './hooks/useAdminSetupCode';
+import { AdminAccessRecoveryCard } from './components/AdminAccessRecoveryCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -20,6 +22,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import type { Registration } from '../../backend';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AdminPanelProps {
   onNavigateToRegistration: () => void;
@@ -27,6 +30,7 @@ interface AdminPanelProps {
 
 export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   const { identity, login, loginStatus, clear } = useInternetIdentity();
+  const queryClient = useQueryClient();
   const { 
     isAdminQuery, 
     userRoleQuery,
@@ -35,6 +39,15 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
     useRegistrationQuery 
   } = useAdminQueries();
   
+  const {
+    applyAdminSetupCode,
+    isApplying,
+    isSuccess: codeAppliedSuccess,
+    isError: codeAppliedError,
+    error: codeError,
+    reset: resetCodeMutation,
+  } = useAdminSetupCode();
+
   const [selectedRegistrationId, setSelectedRegistrationId] = useState<string | null>(null);
   const [showClaimUI, setShowClaimUI] = useState(false);
   const selectedRegistration = useRegistrationQuery(selectedRegistrationId);
@@ -43,6 +56,7 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   const isLoggingIn = loginStatus === 'logging-in';
   const isAdmin = isAdminQuery.data === true;
   const isGuest = userRoleQuery.data === 'guest';
+  const principalString = identity?.getPrincipal().toString() || '';
 
   // Check if we should show the claim UI
   // Show claim UI only if authenticated, not admin, and is guest
@@ -51,6 +65,17 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
       setShowClaimUI(isGuest && !isAdmin);
     }
   }, [isAuthenticated, isAdmin, isGuest, isAdminQuery.isLoading, userRoleQuery.isLoading]);
+
+  // When admin setup code is successfully applied, wait for queries to refresh
+  useEffect(() => {
+    if (codeAppliedSuccess) {
+      // Reset the mutation state after a brief moment to allow UI to show success
+      const timer = setTimeout(() => {
+        resetCodeMutation();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [codeAppliedSuccess, resetCodeMutation]);
 
   // Format timestamp
   const formatTimestamp = (timestamp: bigint) => {
@@ -70,6 +95,12 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
     } catch (error) {
       console.error('Error claiming admin:', error);
     }
+  };
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    await clear();
+    queryClient.clear();
   };
 
   // Render: Not authenticated
@@ -273,8 +304,14 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
     );
   }
 
-  // Render: Access denied (not admin)
+  // Render: Access denied (not admin) - with recovery UI
   if (isAuthenticated && !isAdmin && !showClaimUI) {
+    const errorMessage = codeAppliedError && codeError instanceof Error 
+      ? codeError.message 
+      : codeAppliedError 
+      ? 'Failed to apply Admin Setup Code' 
+      : null;
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
         <header className="border-b bg-card/50 backdrop-blur-sm">
@@ -303,28 +340,21 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
         </header>
 
         <main className="container mx-auto px-4 py-16 max-w-2xl">
-          <Card className="shadow-lg">
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 text-destructive">
-                  <AlertCircle className="w-8 h-8" />
-                </div>
-              </div>
-              <CardTitle className="text-2xl">Access Denied</CardTitle>
-              <CardDescription>
-                You do not have permission to access the admin panel
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center text-muted-foreground">
-              <p>Only authorized administrators can view customer submissions.</p>
-            </CardContent>
-          </Card>
+          <AdminAccessRecoveryCard
+            onApplyCode={applyAdminSetupCode}
+            onSignOut={handleSignOut}
+            isApplying={isApplying}
+            error={errorMessage}
+            success={codeAppliedSuccess}
+          />
         </main>
       </div>
     );
   }
 
-  // Render: Admin view with registrations list
+  // Render: Admin panel (authorized)
+  const registrations = registrationsQuery.data || [];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
@@ -339,254 +369,268 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
                 <p className="text-sm text-muted-foreground">Customer Submissions</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNavigateToRegistration}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Registration
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onNavigateToRegistration}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Registration
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="gap-2"
+              >
+                <Shield className="w-4 h-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Registrations List */}
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Customer Registrations
-              </CardTitle>
-              <CardDescription>
-                {registrationsQuery.isLoading
-                  ? 'Loading submissions...'
-                  : `${registrationsQuery.data?.length || 0} total submissions`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {registrationsQuery.isLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <main className="container mx-auto px-4 py-6">
+        {/* Admin info banner */}
+        <div className="mb-6">
+          <Card>
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge variant="default" className="gap-1">
+                    <Shield className="w-3 h-3" />
+                    Admin
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    Principal: <code className="text-xs bg-muted px-2 py-1 rounded">{principalString}</code>
+                  </span>
                 </div>
-              )}
-
-              {registrationsQuery.isError && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>
-                    {registrationsQuery.error instanceof Error
-                      ? registrationsQuery.error.message
-                      : 'Failed to load registrations'}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {registrationsQuery.isSuccess && registrationsQuery.data.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No customer registrations yet</p>
+                <div className="text-sm text-muted-foreground">
+                  {registrations.length} {registrations.length === 1 ? 'registration' : 'registrations'}
                 </div>
-              )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              {registrationsQuery.isSuccess && registrationsQuery.data.length > 0 && (
-                <ScrollArea className="h-[600px] pr-4">
-                  <div className="space-y-3">
-                    {registrationsQuery.data.map(([id, registration]) => (
-                      <Card
-                        key={id}
-                        className={`cursor-pointer transition-colors hover:bg-accent/50 ${
-                          selectedRegistrationId === id ? 'border-primary bg-accent/30' : ''
-                        }`}
-                        onClick={() => setSelectedRegistrationId(id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-2">
+        {/* Loading state */}
+        {registrationsQuery.isLoading && (
+          <Card>
+            <CardContent className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading registrations...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error state */}
+        {registrationsQuery.isError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {registrationsQuery.error instanceof Error
+                ? registrationsQuery.error.message
+                : 'Failed to load registrations'}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Empty state */}
+        {!registrationsQuery.isLoading && !registrationsQuery.isError && registrations.length === 0 && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <FileText className="w-16 h-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Registrations Yet</h3>
+              <p className="text-muted-foreground text-center max-w-md">
+                Customer registrations will appear here once they complete the registration process.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Registrations list */}
+        {!registrationsQuery.isLoading && !registrationsQuery.isError && registrations.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* List of registrations */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">All Registrations</h2>
+              <ScrollArea className="h-[calc(100vh-280px)]">
+                <div className="space-y-3 pr-4">
+                  {registrations.map(([id, registration]) => (
+                    <Card
+                      key={id}
+                      className={`cursor-pointer transition-all hover:shadow-md ${
+                        selectedRegistrationId === id ? 'ring-2 ring-primary' : ''
+                      }`}
+                      onClick={() => setSelectedRegistrationId(id)}
+                    >
+                      <CardContent className="py-4">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <User className="w-4 h-4 text-muted-foreground" />
                               <span className="font-semibold">{registration.name}</span>
                             </div>
-                            <Badge variant="outline">{registration.category}</Badge>
-                          </div>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Phone className="w-3 h-3" />
                               <span>{registration.phone}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <CreditCard className="w-3 h-3" />
-                              <span>{registration.paymentMethod}</span>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Badge variant="secondary">{registration.category}</Badge>
+                            </div>
+                          </div>
+                          {selectedRegistrationId === id && (
+                            <CheckCircle2 className="w-5 h-5 text-primary" />
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Selected registration details */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Registration Details</h2>
+              {selectedRegistrationId ? (
+                <ScrollArea className="h-[calc(100vh-280px)]">
+                  <div className="pr-4">
+                    {selectedRegistration.isLoading && (
+                      <Card>
+                        <CardContent className="flex items-center justify-center py-16">
+                          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {selectedRegistration.isError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                          Failed to load registration details
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {selectedRegistration.data && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Customer Information</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          {/* Personal Info */}
+                          <div className="space-y-3">
+                            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                              Personal Details
+                            </h3>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <User className="w-4 h-4 text-muted-foreground" />
+                                <span className="font-medium">Name:</span>
+                                <span>{selectedRegistration.data.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-muted-foreground" />
+                                <span className="font-medium">Phone:</span>
+                                <span>{selectedRegistration.data.phone}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          {/* Service Details */}
+                          <div className="space-y-3">
+                            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                              Service Details
+                            </h3>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Category:</span>
+                                <Badge variant="secondary">{selectedRegistration.data.category}</Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <CreditCard className="w-4 h-4 text-muted-foreground" />
+                                <span className="font-medium">Payment:</span>
+                                <span>{selectedRegistration.data.paymentMethod}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Wifi className="w-4 h-4 text-muted-foreground" />
+                                <span className="font-medium">Router:</span>
+                                <span>{selectedRegistration.data.router}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          {/* Terms Acceptance */}
+                          <div className="space-y-3">
+                            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                              Terms & Conditions
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm">
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                              <span>Accepted on {formatTimestamp(selectedRegistration.data.termsAcceptedAt)}</span>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          {/* Documents */}
+                          <div className="space-y-3">
+                            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                              Uploaded Documents
+                            </h3>
+                            <div className="grid grid-cols-2 gap-3">
+                              {selectedRegistration.data.documents.map((doc, index) => (
+                                <div key={index} className="space-y-2">
+                                  <p className="text-sm font-medium">
+                                    {index === 0 ? 'Aadhaar Card' : 'PAN Card'}
+                                  </p>
+                                  <a
+                                    href={doc.getDirectURL()}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block"
+                                  >
+                                    <img
+                                      src={doc.getDirectURL()}
+                                      alt={index === 0 ? 'Aadhaar Card' : 'PAN Card'}
+                                      className="w-full h-32 object-cover rounded border hover:opacity-80 transition-opacity"
+                                    />
+                                  </a>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
+                    )}
                   </div>
                 </ScrollArea>
+              ) : (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-16">
+                    <FileText className="w-12 h-12 text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground text-center">
+                      Select a registration from the list to view details
+                    </p>
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Registration Details */}
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Registration Details
-              </CardTitle>
-              <CardDescription>
-                {selectedRegistrationId
-                  ? 'View complete registration information'
-                  : 'Select a registration to view details'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!selectedRegistrationId && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>Select a registration from the list to view details</p>
-                </div>
-              )}
-
-              {selectedRegistrationId && selectedRegistration.isLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              )}
-
-              {selectedRegistrationId && selectedRegistration.isError && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>
-                    Failed to load registration details
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {selectedRegistrationId && selectedRegistration.isSuccess && selectedRegistration.data && (
-                <ScrollArea className="h-[600px] pr-4">
-                  <div className="space-y-6">
-                    {/* Customer Information */}
-                    <div>
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        Customer Information
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Name:</span>
-                          <span className="font-medium">{selectedRegistration.data.name}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Phone:</span>
-                          <span className="font-medium">{selectedRegistration.data.phone}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Category:</span>
-                          <Badge variant="outline">{selectedRegistration.data.category}</Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Service Details */}
-                    <div>
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        <Wifi className="w-4 h-4" />
-                        Service Details
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Payment Method:</span>
-                          <span className="font-medium">{selectedRegistration.data.paymentMethod}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Router:</span>
-                          <span className="font-medium">{selectedRegistration.data.router}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Terms Acceptance */}
-                    <div>
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4" />
-                        Terms Acceptance
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Accepted at:</span>
-                          <span className="font-medium">
-                            {formatTimestamp(selectedRegistration.data.termsAcceptedAt)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Documents */}
-                    <div>
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        Verification Documents
-                      </h3>
-                      <div className="space-y-3">
-                        {selectedRegistration.data.documents.map((doc, index) => (
-                          <div key={index} className="border rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium">
-                                {index === 0 ? 'Aadhaar Card' : 'PAN Card'}
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  const url = doc.getDirectURL();
-                                  window.open(url, '_blank');
-                                }}
-                              >
-                                View Document
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </ScrollArea>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
+        )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t mt-16 py-6 bg-card/30">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>
-            © {new Date().getFullYear()} Star Maharashtra Galaxy Internet. Built with ❤️ using{' '}
-            <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
-                typeof window !== 'undefined' ? window.location.hostname : 'star-maharashtra-galaxy'
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              caffeine.ai
-            </a>
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

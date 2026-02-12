@@ -1,82 +1,52 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T04:25:38.242Z",
-  "summary": "Diff adds an Admin Panel UI and React Query hooks, and introduces an access-control system in the Motoko backend that restricts registration viewing to callers with an #admin permission. However, the requested single-admin bootstrap flow (set admin principal once, query current admin principal/not-set) is not evidenced. The implementation appears to rely on an unrequested secret-token-based initialization wired through the frontend (including edits to an immutable hook file).",
+  "generatedAt": "2026-02-12T05:14:10.390Z",
+  "summary": "The diff shows significant frontend work around applying an Admin Setup Code (sessionStorage persistence + React Query invalidation/refetch) and a recovery card with troubleshooting text, but it does not provide evidence that the backend `resetAdminSetupCode()` authorization/rotation behavior was fixed, nor that the frontend implements a reset flow (call + success/error handling) as required. The diff also appears to introduce unrelated registration-flow UI changes (Admin Panel navigation) that were not requested and may violate the stated non-goal.",
   "missing_requirements": [
     {
-      "id": "REQ-10",
-      "requirement": "Backend stores one (and only one) admin Principal in canister state and provides a one-time bootstrap method to set it only if not already set.",
-      "reason": "backend/main.mo shows permission checks for #admin on viewing APIs, but the diff does not show any canister state field holding a single admin Principal nor a dedicated one-time bootstrap method that sets the admin Principal only when unset and rejects subsequent calls.",
+      "id": "REQ-20",
+      "requirement": "Fix backend `resetAdminSetupCode()` so the configured admin principal can reset even when not currently recognized as admin by permission checks, while non-admin principals are blocked with a clear English error, and the code is rotated to a new generated value.",
+      "reason": "The shown/truncated backend diff does not include any implementation or modification of `resetAdminSetupCode()` or logic demonstrating: (a) admin-principal-based authorization independent of current admin permission checks, (b) clear English error for non-admin principals, or (c) setup code rotation to a newly generated value.",
       "evidence": [
-        "backend/main.mo"
+        "backend/main.mo (truncated excerpt shows registrations/OTP/admin permission checks, but no `resetAdminSetupCode()` implementation or changes are visible)"
       ]
     },
     {
-      "id": "REQ-10",
-      "requirement": "Backend provides a query method to return the current admin Principal (or an explicit 'not set' state) for UI gating.",
-      "reason": "No query method returning the current admin Principal / not-set state is shown in backend/main.mo; frontend gating instead uses isCallerAdmin/getCallerUserRole which do not satisfy 'return current admin principal (or not set)'.",
+      "id": "REQ-21",
+      "requirement": "Update the Admin Panel recovery UI specifically for Admin Setup Code *reset* failures to show clear, actionable English messaging (including sign out / sign in with correct admin Internet Identity and retry), and include the canister error reason when available.",
+      "reason": "The diff shows an AdminAccessRecoveryCard for applying an existing code and generic troubleshooting, but it does not show a reset action/UI, nor error handling tied to a reset call that includes the canister-provided reason.",
       "evidence": [
-        "backend/main.mo",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx (shows apply-code UI; no reset action is visible in the provided excerpt)",
+        "frontend/src/features/admin/hooks/useAdminSetupCode.ts (only applies a provided code via `_initializeAccessControlWithSecret`; no call to `resetAdminSetupCode()`)"
       ]
     },
     {
-      "id": "REQ-12",
-      "requirement": "If no admin is configured yet, Admin Panel offers a one-time 'Claim Admin Access' action that sets the currently signed-in Principal as the admin, then allows access.",
-      "reason": "Frontend 'claim' flow appears to clear session and re-login, and the React Query claimAdminMutation does not call any backend bootstrap method to set the current principal as admin. No backend method for one-time claim is evidenced.",
+      "id": "REQ-22",
+      "requirement": "On successful Admin Setup Code reset, automatically apply the new code by storing it under `sessionStorage` key `caffeineAdminToken`, re-initializing access control, and refreshing admin-related React Query state so the Admin Panel unlocks without manual refresh.",
+      "reason": "The diff implements persistence and query invalidation/refetch for applying a code the user enters, but there is no evidence of a successful *reset* returning a newly generated code and then auto-applying that returned value to unlock the admin panel.",
       "evidence": [
-        "frontend/src/features/admin/AdminPanel.tsx",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts",
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "requirement": "Admin Panel uses React Query for all backend calls related to admin access, including 'claim admin access', with clear loading/error states and prevention of accidental double actions (disable while in progress and after success).",
-      "reason": "useAdminQueries defines claimAdminMutation, but it does not perform a backend call (returns true) and comments indicate admin assignment happens elsewhere; AdminPanel’s handleClaimAdmin shown performs clear()+login() instead of invoking the mutation. Based on the provided diff evidence, the required React Query-based claim action (with in-flight disable/after-success disable) is not demonstrated.",
-      "evidence": [
-        "frontend/src/features/admin/hooks/useAdminQueries.ts",
-        "frontend/src/features/admin/AdminPanel.tsx"
+        "frontend/src/features/admin/hooks/useAdminSetupCode.ts (stores provided code; no reset+auto-apply flow)",
+        "frontend/src/features/admin/AdminPanel.tsx (references `reset: resetCodeMutation` which appears to be mutation-state reset, not canister setup-code reset; no reset success path shown)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Secret-token-based admin initialization via URL/session parameter (e.g., 'caffeineAdminToken') and a backend '_initializeAccessControlWithSecret' call from the frontend actor creation.",
-      "reason": "BuildRequest requires single-admin bootstrap by setting a stored admin Principal (no external auth providers, no mention of secret tokens). The diff introduces a token parameter mechanism and initializes access control with a secret, which is not requested as part of the requirements.",
+      "description": "Added/changed customer registration flow UI to include an Admin Panel navigation button in the registration header.",
+      "reason": "The BuildRequest explicitly lists as a non-goal changing the customer registration flow behavior unrelated to admin access recovery; adding navigation in the registration flow is not requested by REQ-20/21/22.",
       "evidence": [
-        "frontend/src/hooks/useActor.ts",
-        "frontend/src/utils/urlParams.ts",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts"
-      ]
-    },
-    {
-      "description": "Modification of an explicitly immutable frontend hook file (frontend/src/hooks/useActor.ts).",
-      "reason": "Constraints explicitly say not to edit immutable paths including 'frontend/src/hooks/useActor.ts'. The diff modifies this file to add secret-token initialization and actor recreation behavior.",
-      "evidence": [
-        "frontend/src/hooks/useActor.ts"
-      ]
-    },
-    {
-      "description": "Introduction of an access-control/authorization mixin system (authorization/MixinAuthorization and authorization/access-control) and role queries (getCallerUserRole/isCallerAdmin) rather than the requested single-admin principal + bootstrap/query API.",
-      "reason": "The BuildRequest specifies a particular single-admin state/bootstrapping and admin principal query for UI gating. The diff instead adds an authorization system abstraction and role-based checks without evidence of the required single-admin bootstrap and admin-principal query methods.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+        "frontend-file-summaries.txt (\"RegistrationFlow.tsx\": \"added Admin Panel navigation button in the header\")"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
     "frontend/src/features/admin/AdminPanel.tsx",
-    "frontend/src/features/admin/hooks/useAdminQueries.ts",
-    "frontend/src/features/registration/RegistrationFlow.tsx",
-    "frontend/src/hooks/useActor.ts",
-    "frontend/src/utils/urlParams.ts",
+    "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+    "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
     "project_state.json"
   ]
 }

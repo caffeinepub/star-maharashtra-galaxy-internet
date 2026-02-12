@@ -1,102 +1,84 @@
 {
   "kind": "build_request",
-  "title": "Add single-admin access and Admin Panel to view customer submissions",
-  "priority": "normal",
+  "title": "Fix Admin Setup Code reset flow so admin recovery works",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-10",
-      "text": "Add single-admin authorization to the backend so that viewing customer submissions is restricted to exactly one admin identity.",
+      "id": "REQ-20",
+      "text": "Fix the backend `resetAdminSetupCode()` behavior so the Admin Setup Code reset flow can succeed for the legitimate admin user even when they are currently not recognized as admin by permission checks (i.e., they cannot access admin-only APIs because the setup code is missing/invalid). The backend must still prevent unauthorized users from resetting the admin setup code.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-3"
         ],
         "quotes": [
-          "Yes, I would like to have admin access to view customer submissions. Please grant access to me as a single admin"
+          "they not work reset admin password"
         ]
       },
       "acceptanceCriteria": [
-        "Backend stores one (and only one) admin Principal in canister state.",
-        "Backend provides a one-time admin bootstrap method that sets the admin Principal if (and only if) no admin has been set yet; subsequent calls must be rejected.",
-        "Backend provides a query method to return the current admin Principal (or an explicit \"not set\" state) for UI gating.",
-        "Backend restricts customer submission viewing APIs so only the stored admin Principal can call them; unauthorized callers receive a clear error.",
-        "Existing registration submission and OTP flows continue to work for regular (non-admin) users."
+        "When a user is signed in with the correct Internet Identity for the configured admin, calling `resetAdminSetupCode()` returns a newly generated setup code instead of trapping with \"Unauthorized: Only admins can reset the setup code\".",
+        "When a user is signed in with an Internet Identity that is not the configured admin, calling `resetAdminSetupCode()` fails with a clear English error message and does not rotate the code.",
+        "Resetting the admin setup code rotates the code to a new value (not a constant like \"new-setup-code\")."
       ]
     },
     {
-      "id": "REQ-11",
-      "text": "Secure the existing customer submissions query APIs so they are not publicly accessible to anonymous users and non-admin authenticated users.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "admin access to view customer submissions"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calls to the registrations listing endpoint fail for anonymous and non-admin callers.",
-        "Calls to individual registration retrieval fail for anonymous and non-admin callers.",
-        "Calls from the admin Principal succeed and return the same data as before (no data loss)."
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "text": "Implement an Admin Panel in the frontend that allows the single admin to view customer submissions (registrations) in a readable list and inspect individual submission details.",
+      "id": "REQ-21",
+      "text": "Update the Admin Panel recovery UI to show clear, actionable error messaging when Admin Setup Code reset fails (for example, due to being signed in with the wrong Internet Identity), including instructions in English to sign out and sign back in with the correct admin Internet Identity and then retry.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-3"
         ],
         "quotes": [
-          "have admin access to view customer submissions"
+          "they not work reset admin password"
         ]
       },
       "acceptanceCriteria": [
-        "The app provides an Admin Panel entry point accessible from the main UI (user-facing text in English).",
-        "When the user is not authenticated, the Admin Panel prompts the user to sign in with Internet Identity.",
-        "If the signed-in user is not the configured admin, the Admin Panel displays an 'Access denied' message and does not display any submissions.",
-        "If no admin is configured yet, the Admin Panel offers a one-time 'Claim Admin Access' action that sets the currently signed-in Principal as the admin, then allows access.",
-        "When the signed-in user is the admin, the Admin Panel fetches and displays a list of registrations including at minimum: name, phone, category, payment method, router, and terms acceptance timestamp.",
-        "The admin can click/select a registration to view its full details on the same page (or a detail section) without breaking the registration flow UI."
+        "If the reset call traps/throws, the Access Denied recovery card shows an English error message that includes the reason returned from the canister when available.",
+        "The UI text refers to \"Admin Setup Code\" (not \"password\") while still addressing the user’s intent (resetting admin access)."
       ]
     },
     {
-      "id": "REQ-13",
-      "text": "Add React Query wiring for admin operations (claim admin access, fetch registrations list, fetch single registration) with clear loading and error states and prevention of accidental double actions.",
+      "id": "REQ-22",
+      "text": "Ensure the reset success path reliably re-initializes admin access after the new Admin Setup Code is generated by: (1) storing it under `sessionStorage` key `caffeineAdminToken`, (2) re-initializing access control, and (3) refreshing admin-related React Query state so the Admin Panel unlocks without a manual page refresh.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-3"
         ],
         "quotes": [
-          "admin access to view customer submissions"
+          "they not work reset admin password"
         ]
       },
       "acceptanceCriteria": [
-        "Admin Panel uses React Query for all backend calls related to admin access and submissions viewing.",
-        "All admin actions show a loading state while in flight and show error messages on failure (English text).",
-        "The 'Claim Admin Access' action is disabled while the request is in progress and after a successful claim.",
-        "Registrations list refreshes successfully after claiming admin access or after re-authentication changes the identity."
+        "After a successful reset, the app automatically applies the new code and the Admin Panel transitions from the Access Denied recovery UI to the authorized admin view without requiring a manual browser refresh.",
+        "After reset+auto-apply, `isAdmin` becomes true and registrations queries can load (subject to having data)."
       ]
     }
   ],
   "constraints": [
-    "Use English for all user-facing UI text.",
-    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
-    "Do not add any external authentication providers; only Internet Identity is supported.",
-    "Do not attempt any SMS integration for OTP delivery.",
-    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose existing UI components instead)."
+    "Backend must remain a single Motoko actor (all logic in `backend/main.mo`).",
+    "Do not attempt any external SMS, email, or third-party integrations.",
+    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or any `frontend/src/components/ui` sources (compose instead).",
+    "Use English for all user-facing UI text."
   ],
   "nonGoals": [
-    "Supporting multiple admins or role-based permissions beyond a single admin.",
-    "Password-based admin access.",
-    "Exporting submissions to CSV/PDF or adding advanced analytics.",
-    "Editing or deleting customer submissions from the Admin Panel."
+    "Implementing third-party authentication beyond Internet Identity.",
+    "Adding any out-of-band admin recovery infrastructure (email/SMS support, external databases, or human verification).",
+    "Changing the customer registration flow behavior unrelated to admin access recovery."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

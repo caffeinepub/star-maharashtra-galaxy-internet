@@ -12,5 +12,7 @@
   "frontend/src/index.css": "Global styles with OKLCH color system using teal/green primary colors (avoiding blue/purple) with proper light and dark mode support.",
   "frontend/tailwind.config.js": "Tailwind configuration with Inter font family and extended theme tokens matching the OKLCH color system.",
   "frontend/src/features/admin/hooks/useAdminQueries.ts": "React Query hooks for admin operations including checking admin status and fetching customer registrations, with the claim admin mutation triggering a re-login flow to initialize admin access via the authorization system.",
-  "frontend/src/features/admin/AdminPanel.tsx": "Complete admin panel component with authentication gating, loading states, one-time admin claim flow via re-login, access control, and dual-pane UI for viewing registrations list and detailed registration information."
+  "frontend/src/features/admin/AdminPanel.tsx": "Complete admin panel component with authentication gating, loading states, one-time admin claim flow, access denied recovery UI with admin setup code input functionality, principal/admin status display, and dual-pane UI for viewing registrations list and detailed registration information.",
+  "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx": "Recovery UI component for the Admin Panel access denied screen with admin setup code input/apply functionality, enhanced error messaging with troubleshooting guidance, and sign-out option.",
+  "frontend/src/features/admin/hooks/useAdminSetupCode.ts": "React Query hook for applying admin setup codes with sessionStorage persistence, actor re-initialization, and explicit query refetching for immediate UI updates."
 }

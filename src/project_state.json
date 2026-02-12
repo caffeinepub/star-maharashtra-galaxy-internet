@@ -1,13 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
+  "projectStateVersion": 11,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
     "Add an Admin Panel for viewing saved registrations, restricted to a single admin user (access control mechanism TBD)."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Admin Panel/admin access flow is not opening for the user; they receive an error message and cannot log in.",
+    "Admin password/setup code reset flow is not working; user still cannot regain admin access after attempting reset."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
@@ -88,6 +91,62 @@
         "REQ-13"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-access-denied-experience-to-help-users-recover-admin-access-when-they-are-authenticated-but-not-recognized-as-admin-by-providing-an-in-page-admin-setup-reset-flow",
+      "title": "Update the Admin Panel “Access Denied” experience to help users recover admin access when they are authenticated but not recognized as admin, by providing an in-page admin setup/reset flow.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-frontend-logic-to-apply-an-admin-setup-code-by-storing-it-in-session-storage-under-the-key-caffeineadmintoken-and-re-initializing-access-control-without-editing-immutable-hook-files",
+      "title": "Implement frontend logic to apply an Admin Setup Code by storing it in session storage under the key \"caffeineAdminToken\" and re-initializing access control without editing immutable hook files.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-admin-panel-display-a-clear-signed-in-as-principal-status-and-an-admin-yes-no-status-once-authenticated-to-remove-confusion-about-whether-the-current-internet-identity-is-the-admin",
+      "title": "Make the Admin Panel display a clear “Signed in as: <principal>” status and an “Admin: Yes/No” status once authenticated, to remove confusion about whether the current Internet Identity is the admin.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-in-page-reset-admin-setup-code-action-to-the-admin-panel-access-denied-recovery-ui-that-calls-the-backend-reset-endpoint-shows-the-newly-generated-code-to-the-user-and-provides-clear-english-instructions-to-copy-store-it-safely",
+      "title": "Add an in-page 'Reset Admin Setup Code' action to the Admin Panel access-denied recovery UI that calls the backend reset endpoint, shows the newly generated code to the user, and provides clear English instructions to copy/store it safely.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-a-successful-admin-code-reset-automatically-apply-the-new-code-by-storing-it-in-sessionstorage-under-the-key-caffeineadmintoken-re-initializing-access-control-and-refreshing-admin-related-react-query-state-so-the-admin-panel-loads-without-requiring-a-manual-page-refresh",
+      "title": "After a successful admin code reset, automatically apply the new code by storing it in sessionStorage under the key \"caffeineAdminToken\", re-initializing access control, and refreshing admin-related React Query state so the Admin Panel loads without requiring a manual page refresh.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-recovery-ui-to-show-clear-actionable-error-messaging-when-admin-setup-code-reset-fails-for-example-due-to-being-signed-in-with-the-wrong-internet-identity-including-instructions-in-english-to-sign-out-and-sign-back-in-with-the-correct-admin-internet-identity-and-then-retry",
+      "title": "Update the Admin Panel recovery UI to show clear, actionable error messaging when Admin Setup Code reset fails (for example, due to being signed in with the wrong Internet Identity), including instructions in English to sign out and sign back in with the correct admin Internet Identity and then retry.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-reset-success-path-reliably-re-initializes-admin-access-after-the-new-admin-setup-code-is-generated-by-1-storing-it-under-sessionstorage-key-caffeineadmintoken-2-re-initializing-access-control-and-3-refreshing-admin-related-react-query-state-so-the-admin-panel-unlocks-without-a-manual-page-refresh",
+      "title": "Ensure the reset success path reliably re-initializes admin access after the new Admin Setup Code is generated by: (1) storing it under `sessionStorage` key `caffeineAdminToken`, (2) re-initializing access control, and (3) refreshing admin-related React Query state so the Admin Panel unlocks without a manual page refresh.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -142,6 +201,28 @@
       "summary": "Secure the existing customer submissions query APIs so they are not publicly accessible to anonymous users and non-admin authenticated users.",
       "reqIds": [
         "REQ-11"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Provide an admin credential reset / new admin login setup flow (and optionally show a clear “Logged in as Admin” status on the Admin Panel/login screen).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Implement a backend endpoint to reset/rotate the Admin Setup Code and return a newly generated code to the caller, so a user who forgot the code can regain admin access via the app.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Fix the backend `resetAdminSetupCode()` behavior so the Admin Setup Code reset flow can succeed for the legitimate admin user even when they are currently not recognized as admin by permission checks (i.e., they cannot access admin-only APIs because the setup code is missing/invalid). The backend must still prevent unauthorized users from resetting the admin setup code.",
+      "reqIds": [
+        "REQ-20"
       ],
       "status": "pending"
     }

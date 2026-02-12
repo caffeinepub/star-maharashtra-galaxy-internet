@@ -1,61 +1,45 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Single-admin Admin Panel UI for viewing customer submissions",
+  "title": "Admin Panel recovery UX + reliable Admin Setup Code reset/apply unlock",
   "requirements": [
     {
-      "id": "REQ-12",
-      "summary": "Add an Admin Panel UI entry point and screen that supports Internet Identity sign-in, access gating, one-time admin claim when unconfigured, and viewing registrations list + details.",
+      "id": "REQ-21",
+      "summary": "Improve Admin Panel recovery UI with clear, actionable English error messaging for failed Admin Setup Code resets (including sign-out/sign-in guidance).",
       "acceptanceCriteria": [
-        "The app provides an Admin Panel entry point accessible from the main UI (user-facing text in English).",
-        "When the user is not authenticated, the Admin Panel prompts the user to sign in with Internet Identity.",
-        "If the signed-in user is not the configured admin, the Admin Panel displays an 'Access denied' message and does not display any submissions.",
-        "If no admin is configured yet, the Admin Panel offers a one-time 'Claim Admin Access' action that sets the currently signed-in Principal as the admin, then allows access.",
-        "When the signed-in user is the admin, the Admin Panel fetches and displays a list of registrations including at minimum: name, phone, category, payment method, router, and terms acceptance timestamp.",
-        "The admin can click/select a registration to view its full details on the same page (or a detail section) without breaking the registration flow UI."
+        "If the reset call traps/throws, the Access Denied recovery card shows an English error message that includes the reason returned from the canister when available.",
+        "The UI text refers to \"Admin Setup Code\" (not \"password\") while still addressing the user’s intent (resetting admin access)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add top-level view state to switch between the existing RegistrationFlow and the new AdminPanel, ensuring the Admin Panel is reachable from the main UI and can return back to registration without disrupting the registration flow."
-        },
-        {
-          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
-          "operation": "modify",
-          "description": "Add an 'Admin Panel' entry point control in the existing header (English text) by accepting a callback prop from App for switching views; use existing shadcn-ui components for the button and layout. Verify the component's usage instructions before implementing."
-        },
-        {
           "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "create",
-          "description": "Implement the Admin Panel screen: (1) unauthenticated state prompting Internet Identity sign-in, (2) admin configuration state showing one-time claim action if admin is not set, (3) access denied state for non-admins, (4) admin state showing registrations list and an on-page detail section for a selected registration. Use existing shadcn-ui components to keep the UI readable (cards, buttons, separators, etc.). Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Adjust how reset/apply errors are surfaced to the Access Denied recovery UI so the message reliably includes the underlying thrown/trapped reason when available (preserve the raw message and avoid replacing it with generic text). Ensure user-facing wording consistently says \"Admin Setup Code\". Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/backend.d.ts",
+          "path": "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
           "operation": "modify",
-          "description": "Extend the frontend backend type definitions to include the admin gating capabilities required by the Admin Panel UI (query for current admin principal or explicit not-set, and a one-time bootstrap/claim admin action), so the Admin Panel can call them in a type-safe way."
+          "description": "Enhance the reset-failure UI: when reset fails, show clear English guidance explaining likely cause (signed in with the wrong Internet Identity), and provide actionable steps: sign out, sign back in with the correct admin Internet Identity, then retry resetting the Admin Setup Code. Keep terminology as \"Admin Setup Code\" throughout. Use existing shadcn-ui composed components (Alert/Card/Button/Input) for messaging layout. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-13",
-      "summary": "Add React Query hooks for admin operations (claim admin access, fetch registrations list, fetch single registration) with loading/error states, double-action prevention, and refresh on identity changes.",
+      "id": "REQ-22",
+      "summary": "Make the reset success path automatically apply the new Admin Setup Code and refresh admin access/React Query state so the Admin Panel unlocks without manual refresh.",
       "acceptanceCriteria": [
-        "Admin Panel uses React Query for all backend calls related to admin access and submissions viewing.",
-        "All admin actions show a loading state while in flight and show error messages on failure (English text).",
-        "The 'Claim Admin Access' action is disabled while the request is in progress and after a successful claim.",
-        "Registrations list refreshes successfully after claiming admin access or after re-authentication changes the identity."
+        "After a successful reset, the app automatically applies the new code and the Admin Panel transitions from the Access Denied recovery UI to the authorized admin view without requiring a manual browser refresh.",
+        "After reset+auto-apply, `isAdmin` becomes true and registrations queries can load (subject to having data)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
-          "operation": "create",
-          "description": "Create React Query hooks for: fetching current admin status/config, claiming admin access (mutation), fetching registrations list, and fetching a single registration for details; ensure queries are enabled only when the actor is ready and reflect identity changes via query keys (principal string) and/or invalidation."
+          "path": "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
+          "operation": "modify",
+          "description": "Ensure the reset success flow is fully sequenced and reliable: (1) store the generated code under sessionStorage key `caffeineAdminToken` (via existing session helper), (2) re-initialize access control by calling the actor’s secret initialization function, and only then (3) refresh admin-related React Query state by invalidating and explicitly refetching `isAdmin`, `userRole`, and `registrations` so the UI unlocks immediately. Also ensure the manual apply path follows the same pattern (store -> initialize -> refresh). Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/features/admin/AdminPanel.tsx",
           "operation": "modify",
-          "description": "Wire AdminPanel to the new React Query hooks: show clear loading and error UI, disable the claim button while pending and after success, and trigger refresh/invalidation of admin state + registrations after claim and after login/logout transitions. Use existing shadcn-ui components for alerts/messages and buttons. Verify the component's usage instructions before implementing."
+          "description": "Update post-reset/post-apply handling to rely on the hook’s immediate query refresh rather than time-based delays where possible, so the Admin Panel transitions from Access Denied to the authorized view promptly after success. Ensure any remaining success UI state is cleared only after queries have refreshed. Verify the component's usage instructions before implementing."
         }
       ]
     }

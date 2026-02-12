@@ -1,13 +1,13 @@
 import Text "mo:core/Text";
-import VarArray "mo:core/VarArray";
+import Time "mo:core/Time";
+import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
 import Map "mo:core/Map";
-import Runtime "mo:core/Runtime";
+import VarArray "mo:core/VarArray";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
-import Iter "mo:core/Iter";
-import Time "mo:core/Time";
-import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
@@ -135,4 +135,4 @@ actor {
       case (null) { Runtime.trap("Registration not found") };
     };
   };
-}
+};

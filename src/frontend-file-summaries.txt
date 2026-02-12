@@ -1,0 +1,16 @@
+{
+  "frontend/src/App.tsx": "Main application entry point with view state management to switch between RegistrationFlow and AdminPanel components.",
+  "frontend/src/features/registration/RegistrationFlow.tsx": "Multi-step registration container with added Admin Panel navigation button in the header that accepts an onNavigateToAdmin callback prop.",
+  "frontend/src/features/registration/types.ts": "TypeScript type definitions for customer details, documents data, and step component props used throughout the registration flow.",
+  "frontend/src/features/registration/steps/StepCustomerDetails.tsx": "Step 1 component with form fields for personal information, contact details, and customer category/payment/router selections with real-time validation.",
+  "frontend/src/features/registration/steps/StepVerificationDocuments.tsx": "Step 2 component for uploading Aadhaar and PAN card documents with file preview, replace, and remove functionality.",
+  "frontend/src/features/registration/steps/StepTermsAndConditions.tsx": "Step 3 component displaying scrollable terms and conditions with required acceptance checkbox and timestamp capture.",
+  "frontend/src/features/registration/steps/StepOTPVerification.tsx": "Step 4 component handling OTP generation, display (simulated SMS), verification, and final registration submission with success/error states.",
+  "frontend/src/features/registration/validation.ts": "Validation helper functions for customer details including required fields, phone format, email format, age verification, and address length checks.",
+  "frontend/src/features/registration/terms.ts": "Structured terms and conditions content organized by sections (Router Terms, Service Terms) for display in Step 3.",
+  "frontend/src/features/registration/hooks/useRegistrationMutations.ts": "React Query mutations for OTP generation, OTP verification, and registration submission with ExternalBlob conversion for document uploads.",
+  "frontend/src/index.css": "Global styles with OKLCH color system using teal/green primary colors (avoiding blue/purple) with proper light and dark mode support.",
+  "frontend/tailwind.config.js": "Tailwind configuration with Inter font family and extended theme tokens matching the OKLCH color system.",
+  "frontend/src/features/admin/hooks/useAdminQueries.ts": "React Query hooks for admin operations including checking admin status and fetching customer registrations, with the claim admin mutation triggering a re-login flow to initialize admin access via the authorization system.",
+  "frontend/src/features/admin/AdminPanel.tsx": "Complete admin panel component with authentication gating, loading states, one-time admin claim flow via re-login, access control, and dual-pane UI for viewing registrations list and detailed registration information."
+}

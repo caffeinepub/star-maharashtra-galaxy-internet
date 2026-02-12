@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
+  "architectural_notes": [
+    "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
+    "Add an Admin Panel for viewing saved registrations, restricted to a single admin user (access control mechanism TBD)."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
+      "title": "Create a multi-step customer registration flow for “Star Maharashtra Galaxy Internet” with 4 steps: (1) Customer Details, (2) Verification Documents, (3) Terms and Conditions, (4) OTP Verification. Use English for all user-facing UI text.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-step-1-customer-details-form-fields-and-validations-first-name-middle-name-surname-phone-number-date-of-birth-email-id-address-customer-category-residential-commercial-payment-option-cash-upi-router-provision-provided-free-of-cost-chargeable-ensure-required-fields-are-validated-before-allowing-navigation-to-step-2",
+      "title": "Implement Step 1 (Customer Details) form fields and validations: First Name, Middle Name, Surname, Phone Number, Date of Birth, Email ID, Address; Customer Category (Residential/Commercial); Payment Option (Cash/UPI); Router Provision (Provided Free of Cost/Chargeable). Ensure required fields are validated before allowing navigation to Step 2.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-step-2-verification-documents-to-allow-uploading-exactly-two-document-copies-aadhaar-card-and-pan-card-the-ui-must-show-selected-file-name-s-allow-replacing-removing-a-selected-file-before-submission-and-block-moving-to-step-3-until-both-documents-are-provided",
+      "title": "Implement Step 2 (Verification Documents) to allow uploading exactly two document copies: Aadhaar Card and PAN Card. The UI must show selected file name(s), allow replacing/removing a selected file before submission, and block moving to Step 3 until both documents are provided.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-step-3-terms-and-conditions-page-displaying-the-provided-terms-as-readable-bullet-points-sections-and-require-explicit-user-agreement-checkbox-before-proceeding-to-step-4",
+      "title": "Implement Step 3 (Terms and Conditions) page displaying the provided terms as readable bullet points/sections and require explicit user agreement (checkbox) before proceeding to Step 4.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-step-4-otp-verification-ui-with-mobile-number-input-prefilled-from-step-1-but-editable-if-needed-generate-otp-action-otp-input-and-verify-action-display-clear-status-and-error-messages-for-otp-generation-and-verification",
+      "title": "Implement Step 4 (OTP Verification) UI with: mobile number input (prefilled from Step 1 but editable if needed), “Generate OTP” action, OTP input, and “Verify” action. Display clear status and error messages for OTP generation and verification.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-backend-otp-generation-and-verification-generate-a-6-digit-otp-tied-to-a-phone-number-with-a-short-expiry-store-it-temporarily-in-canister-state-and-verify-user-submitted-otp-because-external-sms-sending-is-not-available-the-system-must-not-attempt-any-sms-integration-otp-delivery-must-be-simulated-via-ui-messaging-only",
+      "title": "Implement backend OTP generation and verification: generate a 6-digit OTP tied to a phone number with a short expiry, store it temporarily in canister state, and verify user-submitted OTP. Because external SMS sending is not available, the system must not attempt any SMS integration; OTP delivery must be simulated via UI messaging only.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-frontend-backend-wiring-with-react-query-so-the-registration-flow-submits-data-to-the-canister-only-after-otp-verification-succeeds-handle-loading-error-states-and-prevent-double-submissions",
+      "title": "Implement frontend-backend wiring with React Query so the registration flow submits data to the canister only after OTP verification succeeds; handle loading/error states and prevent double submissions.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-define-and-apply-a-coherent-visual-theme-for-the-app-colors-typography-spacing-form-layout-appropriate-for-an-isp-customer-onboarding-experience-consistently-across-all-4-steps-avoid-a-blue-purple-dominant-palette",
+      "title": "Define and apply a coherent visual theme for the app (colors, typography, spacing, form layout) appropriate for an ISP customer onboarding experience, consistently across all 4 steps. Avoid a blue/purple-dominant palette.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-admin-panel-in-the-frontend-that-allows-the-single-admin-to-view-customer-submissions-registrations-in-a-readable-list-and-inspect-individual-submission-details",
+      "title": "Implement an Admin Panel in the frontend that allows the single admin to view customer submissions (registrations) in a readable list and inspect individual submission details.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-react-query-wiring-for-admin-operations-claim-admin-access-fetch-registrations-list-fetch-single-registration-with-clear-loading-and-error-states-and-prevention-of-accidental-double-actions",
+      "title": "Add React Query wiring for admin operations (claim admin access, fetch registrations list, fetch single registration) with clear loading and error states and prevention of accidental double actions.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create multi-page customer registration flow (personal details, category, payment option, router provision)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add verification documents upload page (Aadhaar card and PAN card copy uploads)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add terms and conditions page requiring customer agreement",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add OTP verification page (generate OTP to mobile number, enter OTP, verify)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Add backend canister support to persist completed registrations, including: customer details, chosen options (category/payment/router), terms acceptance timestamp, and references to uploaded documents. Provide a query endpoint to list/retrieve saved registrations for basic admin/testing visibility.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Add an Admin Panel with single-admin access to view customer submissions/registrations (admin-only viewer rights).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add single-admin authorization to the backend so that viewing customer submissions is restricted to exactly one admin identity.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Secure the existing customer submissions query APIs so they are not publicly accessible to anonymous users and non-admin authenticated users.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Star Maharashtra Galaxy Internet",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-12T04:25:38.242Z",
+  "summary": "Diff adds an Admin Panel UI and React Query hooks, and introduces an access-control system in the Motoko backend that restricts registration viewing to callers with an #admin permission. However, the requested single-admin bootstrap flow (set admin principal once, query current admin principal/not-set) is not evidenced. The implementation appears to rely on an unrequested secret-token-based initialization wired through the frontend (including edits to an immutable hook file).",
+  "missing_requirements": [
+    {
+      "id": "REQ-10",
+      "requirement": "Backend stores one (and only one) admin Principal in canister state and provides a one-time bootstrap method to set it only if not already set.",
+      "reason": "backend/main.mo shows permission checks for #admin on viewing APIs, but the diff does not show any canister state field holding a single admin Principal nor a dedicated one-time bootstrap method that sets the admin Principal only when unset and rejects subsequent calls.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Backend provides a query method to return the current admin Principal (or an explicit 'not set' state) for UI gating.",
+      "reason": "No query method returning the current admin Principal / not-set state is shown in backend/main.mo; frontend gating instead uses isCallerAdmin/getCallerUserRole which do not satisfy 'return current admin principal (or not set)'.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "requirement": "If no admin is configured yet, Admin Panel offers a one-time 'Claim Admin Access' action that sets the currently signed-in Principal as the admin, then allows access.",
+      "reason": "Frontend 'claim' flow appears to clear session and re-login, and the React Query claimAdminMutation does not call any backend bootstrap method to set the current principal as admin. No backend method for one-time claim is evidenced.",
+      "evidence": [
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "requirement": "Admin Panel uses React Query for all backend calls related to admin access, including 'claim admin access', with clear loading/error states and prevention of accidental double actions (disable while in progress and after success).",
+      "reason": "useAdminQueries defines claimAdminMutation, but it does not perform a backend call (returns true) and comments indicate admin assignment happens elsewhere; AdminPanel’s handleClaimAdmin shown performs clear()+login() instead of invoking the mutation. Based on the provided diff evidence, the required React Query-based claim action (with in-flight disable/after-success disable) is not demonstrated.",
+      "evidence": [
+        "frontend/src/features/admin/hooks/useAdminQueries.ts",
+        "frontend/src/features/admin/AdminPanel.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Secret-token-based admin initialization via URL/session parameter (e.g., 'caffeineAdminToken') and a backend '_initializeAccessControlWithSecret' call from the frontend actor creation.",
+      "reason": "BuildRequest requires single-admin bootstrap by setting a stored admin Principal (no external auth providers, no mention of secret tokens). The diff introduces a token parameter mechanism and initializes access control with a secret, which is not requested as part of the requirements.",
+      "evidence": [
+        "frontend/src/hooks/useActor.ts",
+        "frontend/src/utils/urlParams.ts",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+      ]
+    },
+    {
+      "description": "Modification of an explicitly immutable frontend hook file (frontend/src/hooks/useActor.ts).",
+      "reason": "Constraints explicitly say not to edit immutable paths including 'frontend/src/hooks/useActor.ts'. The diff modifies this file to add secret-token initialization and actor recreation behavior.",
+      "evidence": [
+        "frontend/src/hooks/useActor.ts"
+      ]
+    },
+    {
+      "description": "Introduction of an access-control/authorization mixin system (authorization/MixinAuthorization and authorization/access-control) and role queries (getCallerUserRole/isCallerAdmin) rather than the requested single-admin principal + bootstrap/query API.",
+      "reason": "The BuildRequest specifies a particular single-admin state/bootstrapping and admin principal query for UI gating. The diff instead adds an authorization system abstraction and role-based checks without evidence of the required single-admin bootstrap and admin-principal query methods.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+      ]
+    }
+  ],
+  "confidence": 0.74,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/features/admin/AdminPanel.tsx",
+    "frontend/src/features/admin/hooks/useAdminQueries.ts",
+    "frontend/src/features/registration/RegistrationFlow.tsx",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/utils/urlParams.ts",
+    "project_state.json"
+  ]
+}

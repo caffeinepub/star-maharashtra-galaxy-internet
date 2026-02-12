@@ -1,0 +1,63 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Single-admin Admin Panel UI for viewing customer submissions",
+  "requirements": [
+    {
+      "id": "REQ-12",
+      "summary": "Add an Admin Panel UI entry point and screen that supports Internet Identity sign-in, access gating, one-time admin claim when unconfigured, and viewing registrations list + details.",
+      "acceptanceCriteria": [
+        "The app provides an Admin Panel entry point accessible from the main UI (user-facing text in English).",
+        "When the user is not authenticated, the Admin Panel prompts the user to sign in with Internet Identity.",
+        "If the signed-in user is not the configured admin, the Admin Panel displays an 'Access denied' message and does not display any submissions.",
+        "If no admin is configured yet, the Admin Panel offers a one-time 'Claim Admin Access' action that sets the currently signed-in Principal as the admin, then allows access.",
+        "When the signed-in user is the admin, the Admin Panel fetches and displays a list of registrations including at minimum: name, phone, category, payment method, router, and terms acceptance timestamp.",
+        "The admin can click/select a registration to view its full details on the same page (or a detail section) without breaking the registration flow UI."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add top-level view state to switch between the existing RegistrationFlow and the new AdminPanel, ensuring the Admin Panel is reachable from the main UI and can return back to registration without disrupting the registration flow."
+        },
+        {
+          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
+          "operation": "modify",
+          "description": "Add an 'Admin Panel' entry point control in the existing header (English text) by accepting a callback prop from App for switching views; use existing shadcn-ui components for the button and layout. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "create",
+          "description": "Implement the Admin Panel screen: (1) unauthenticated state prompting Internet Identity sign-in, (2) admin configuration state showing one-time claim action if admin is not set, (3) access denied state for non-admins, (4) admin state showing registrations list and an on-page detail section for a selected registration. Use existing shadcn-ui components to keep the UI readable (cards, buttons, separators, etc.). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/backend.d.ts",
+          "operation": "modify",
+          "description": "Extend the frontend backend type definitions to include the admin gating capabilities required by the Admin Panel UI (query for current admin principal or explicit not-set, and a one-time bootstrap/claim admin action), so the Admin Panel can call them in a type-safe way."
+        }
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "summary": "Add React Query hooks for admin operations (claim admin access, fetch registrations list, fetch single registration) with loading/error states, double-action prevention, and refresh on identity changes.",
+      "acceptanceCriteria": [
+        "Admin Panel uses React Query for all backend calls related to admin access and submissions viewing.",
+        "All admin actions show a loading state while in flight and show error messages on failure (English text).",
+        "The 'Claim Admin Access' action is disabled while the request is in progress and after a successful claim.",
+        "Registrations list refreshes successfully after claiming admin access or after re-authentication changes the identity."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
+          "operation": "create",
+          "description": "Create React Query hooks for: fetching current admin status/config, claiming admin access (mutation), fetching registrations list, and fetching a single registration for details; ensure queries are enabled only when the actor is ready and reflect identity changes via query keys (principal string) and/or invalidation."
+        },
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "modify",
+          "description": "Wire AdminPanel to the new React Query hooks: show clear loading and error UI, disable the claim button while pending and after success, and trigger refresh/invalidation of admin state + registrations after claim and after login/logout transitions. Use existing shadcn-ui components for alerts/messages and buttons. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}

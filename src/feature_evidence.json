@@ -1,0 +1,48 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-implement-an-admin-panel-in-the-frontend-that-allows-the-single-admin-to-view-customer-submissions-registrations-in-a-readable-list-and-inspect-individual-submission-details",
+      "featureTitle": "Implement an Admin Panel in the frontend that allows the single admin to view customer submissions (registrations) in a readable list and inspect individual submission details.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/registration/RegistrationFlow.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-react-query-wiring-for-admin-operations-claim-admin-access-fetch-registrations-list-fetch-single-registration-with-clear-loading-and-error-states-and-prevention-of-accidental-double-actions",
+      "featureTitle": "Add React Query wiring for admin operations (claim admin access, fetch registrations list, fetch single registration) with clear loading and error states and prevention of accidental double actions.",
+      "files": [
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

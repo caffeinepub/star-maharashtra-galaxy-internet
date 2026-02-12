@@ -1,0 +1,102 @@
+{
+  "kind": "build_request",
+  "title": "Add single-admin access and Admin Panel to view customer submissions",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-10",
+      "text": "Add single-admin authorization to the backend so that viewing customer submissions is restricted to exactly one admin identity.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Yes, I would like to have admin access to view customer submissions. Please grant access to me as a single admin"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend stores one (and only one) admin Principal in canister state.",
+        "Backend provides a one-time admin bootstrap method that sets the admin Principal if (and only if) no admin has been set yet; subsequent calls must be rejected.",
+        "Backend provides a query method to return the current admin Principal (or an explicit \"not set\" state) for UI gating.",
+        "Backend restricts customer submission viewing APIs so only the stored admin Principal can call them; unauthorized callers receive a clear error.",
+        "Existing registration submission and OTP flows continue to work for regular (non-admin) users."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Secure the existing customer submissions query APIs so they are not publicly accessible to anonymous users and non-admin authenticated users.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "admin access to view customer submissions"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Calls to the registrations listing endpoint fail for anonymous and non-admin callers.",
+        "Calls to individual registration retrieval fail for anonymous and non-admin callers.",
+        "Calls from the admin Principal succeed and return the same data as before (no data loss)."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Implement an Admin Panel in the frontend that allows the single admin to view customer submissions (registrations) in a readable list and inspect individual submission details.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "have admin access to view customer submissions"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The app provides an Admin Panel entry point accessible from the main UI (user-facing text in English).",
+        "When the user is not authenticated, the Admin Panel prompts the user to sign in with Internet Identity.",
+        "If the signed-in user is not the configured admin, the Admin Panel displays an 'Access denied' message and does not display any submissions.",
+        "If no admin is configured yet, the Admin Panel offers a one-time 'Claim Admin Access' action that sets the currently signed-in Principal as the admin, then allows access.",
+        "When the signed-in user is the admin, the Admin Panel fetches and displays a list of registrations including at minimum: name, phone, category, payment method, router, and terms acceptance timestamp.",
+        "The admin can click/select a registration to view its full details on the same page (or a detail section) without breaking the registration flow UI."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Add React Query wiring for admin operations (claim admin access, fetch registrations list, fetch single registration) with clear loading and error states and prevention of accidental double actions.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "admin access to view customer submissions"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin Panel uses React Query for all backend calls related to admin access and submissions viewing.",
+        "All admin actions show a loading state while in flight and show error messages on failure (English text).",
+        "The 'Claim Admin Access' action is disabled while the request is in progress and after a successful claim.",
+        "Registrations list refreshes successfully after claiming admin access or after re-authentication changes the identity."
+      ]
+    }
+  ],
+  "constraints": [
+    "Use English for all user-facing UI text.",
+    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
+    "Do not add any external authentication providers; only Internet Identity is supported.",
+    "Do not attempt any SMS integration for OTP delivery.",
+    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose existing UI components instead)."
+  ],
+  "nonGoals": [
+    "Supporting multiple admins or role-based permissions beyond a single admin.",
+    "Password-based admin access.",
+    "Exporting submissions to CSV/PDF or adding advanced analytics.",
+    "Editing or deleting customer submissions from the Admin Panel."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

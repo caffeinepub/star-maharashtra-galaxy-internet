@@ -1,69 +1,73 @@
 {
   "kind": "build_request",
-  "title": "Fix Admin Panel registration detail opening and missing Edit option",
-  "priority": "high",
+  "title": "Admin Panel: add Back/Cancel navigation in edit flow and display uploaded document photos in details view",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-55",
-      "text": "Fix the Admin Panel so selecting a customer registration (\"customer id\") reliably opens the registration detail view on the right side, instead of failing to open or appearing blank.",
+      "id": "REQ-84",
+      "text": "Update the Admin Panel edit flow so that when an admin clicks “Edit Details”, they can exit edit mode without saving by using a clear Back/Cancel action that returns to the read-only Registration Details view for the currently selected registration.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "recent-messages-user-1"
         ],
         "quotes": [
-          "are wo customer id open nhi ho rahi hai aur edit ka option bhi nhi aa raha hai check ke"
+          "us mai muze back ka bhi option ana chahye edit delet ke baad kyu ki jab mai edit ka option click karu aur muze information correct lage to bina edit ke he back kar saku"
         ]
       },
       "acceptanceCriteria": [
-        "When the admin clicks any item in the \"Customer Registrations\" list, the right panel shows the selected registration’s details.",
-        "The UI must not appear blank; it must render an explicit loading state while the registration detail query is in-flight.",
-        "If the registration detail fetch fails (e.g., canister error, not found, unauthorized), show a clear English error message in the right panel with a retry action.",
-        "If no registration is selected yet, show a clear English placeholder message instructing the admin to select a registration from the list."
+        "When “Edit Details” is clicked, the edit form shows a clearly labeled action (English) such as “Back” or “Cancel” that exits edit mode without persisting any changes.",
+        "Using the Back/Cancel action returns to the read-only Registration Details panel for the same selected registration id (selection does not change).",
+        "If the admin made unsaved changes, exiting edit mode via Back/Cancel does not call the update mutation and discards the unsaved edits (returning to the original values shown in details)."
       ]
     },
     {
-      "id": "REQ-56",
-      "text": "Fix the Admin Panel so an \"Edit Details\" option is shown whenever a registration is selected and the user is authorized as admin, and ensure entering edit mode reliably renders the existing edit form.",
+      "id": "REQ-85",
+      "text": "Ensure the Admin Panel edit form provides an explicit Save action and only enables saving when changes have been made, with clear English loading and error feedback.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "recent-messages-user-1"
         ],
         "quotes": [
-          "are wo customer id open nhi ho rahi hai aur edit ka option bhi nhi aa raha hai check ke"
+          "aur agar kuch edit keya to save ka button bhi add kar de"
         ]
       },
       "acceptanceCriteria": [
-        "When a registration is selected and the admin is not currently editing, an \"Edit Details\" button is visible in the registration detail view.",
-        "Clicking \"Edit Details\" always opens the edit form (using the existing EditRegistrationDetailsForm) populated with the selected registration’s current values.",
-        "If the selected registration detail is still loading, the \"Edit Details\" button is hidden or disabled (no broken/empty edit screen).",
-        "All user-facing text introduced/changed for this fix is in English."
+        "In edit mode, a “Save” (or “Save Changes”) button is present and triggers the existing update flow for the selected registration.",
+        "The Save button is disabled when there are no changes, and enabled when at least one editable field differs from the current registration values.",
+        "While saving, the Save button shows a loading state and prevents double submission; on success, the UI returns to the updated read-only Registration Details view; on failure, an error message is shown in English."
       ]
     },
     {
-      "id": "REQ-57",
-      "text": "Ensure Admin Panel edit-save flow remains stable after fixing the detail view, including clear save-loading/error feedback and returning to the updated detail view after a successful save.",
-      "target": "frontend",
+      "id": "REQ-86",
+      "text": "Display uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) in the Admin Panel registration detail view so the admin can visually inspect the images.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-20"
+          "recent-messages-user-1"
+        ],
+        "quotes": [
+          "aur us mai documents ke photos nahi dekh rahe hai"
         ]
       },
       "acceptanceCriteria": [
-        "Saving changes shows a clear in-progress state (no double submissions).",
-        "After a successful save, the detail view reflects the updated data (list and detail are refreshed via React Query invalidation).",
-        "If save fails, an English error message is shown and the admin remains in edit mode so they can retry or cancel."
+        "When a registration contains stored document blobs for Aadhaar and PAN, the Registration Details view renders visible image previews (thumbnails) for each document with clear English labels (e.g., “Aadhaar Card”, “PAN Card”).",
+        "When a registration has an uploaded payment receipt, the Registration Details view renders a visible image preview labeled “Payment Receipt”. When there is no receipt, show a clear English ‘No receipt uploaded’ (or equivalent) state for that slot.",
+        "If any document blob is missing/cannot be decoded/loaded, the UI shows a clear English fallback message for that document (not a blank area).",
+        "The backend and/or admin query layer returns enough data for the frontend to render these images for an admin (no placeholder-only UI)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/immutablePaths (e.g., frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts, frontend/src/main.tsx, frontend/src/components/ui/*).",
-    "Keep all user-facing UI text in English."
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any file under frontend/src/components/ui (compose instead).",
+    "Keep all user-facing UI text in English.",
+    "Backend must remain a single Motoko actor; only add migration code if an actual stable-state schema change is required."
   ],
   "nonGoals": [
-    "Do not add new authentication providers or third-party integrations.",
-    "Do not change the backend registration schema or admin authorization model unless it is strictly required to fix the Admin Panel detail/edit rendering issue."
+    "Adding external image hosting or serving images from a separate backend service.",
+    "Adding real-time updates or chat-like functionality.",
+    "Changing the registration submission flow steps beyond what is needed to support admin viewing of already-uploaded documents."
   ],
   "imageRequirements": {
     "required": [],

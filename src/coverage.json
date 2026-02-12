@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T17:39:50.316Z",
+  "generatedAt": "2026-02-12T20:33:30.771Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,61 +11,53 @@
     "implemented": 3,
     "items": [
       {
-        "id": "REQ-55",
-        "summary": "Fix the Admin Panel so selecting a customer registration (\"customer id\") reliably opens the registration detail view on the right side, instead of failing to open or appearing blank.",
+        "id": "REQ-84",
+        "summary": "Update the Admin Panel edit flow so that when an admin clicks “Edit Details”, they can exit edit mode without saving by using a clear Back/Cancel action that returns to the read-only Registration Details view for the currently selected registration.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/hooks/useAdminQueries.ts"
+          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+          "frontend/src/features/admin/AdminPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/hooks/useAdminQueries.ts"
+          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
         ]
       },
       {
-        "id": "REQ-56",
-        "summary": "Fix the Admin Panel so an \"Edit Details\" option is shown whenever a registration is selected and the user is authorized as admin, and ensure entering edit mode reliably renders the existing edit form.",
+        "id": "REQ-85",
+        "summary": "Ensure the Admin Panel edit form provides an explicit Save action and only enables saving when changes have been made, with clear English loading and error feedback.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
           "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
+          "frontend/src/features/admin/AdminPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
+          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
         ]
       },
       {
-        "id": "REQ-57",
-        "summary": "Ensure Admin Panel edit-save flow remains stable after fixing the detail view, including clear save-loading/error feedback and returning to the updated detail view after a successful save.",
+        "id": "REQ-86",
+        "summary": "Display uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) in the Admin Panel registration detail view so the admin can visually inspect the images.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "frontend/src/features/admin/hooks/useAdminQueries.ts"
+          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "frontend/src/features/admin/hooks/useAdminQueries.ts"
+          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/features/admin/AdminPanel.tsx",
+    "frontend/src/features/admin/components/DocumentImagePreview.tsx",
     "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
     "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-    "frontend/src/features/admin/hooks/useAdminQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -70,10 +70,12 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteCustomerRegistration' : IDL.Func([IDL.Text], [], []),
   'generateOTP' : IDL.Func([IDL.Text], [IDL.Text], []),
+  'getAdminUsername' : IDL.Func([], [IDL.Text], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getRegistration' : IDL.Func([IDL.Text], [Registration], ['query']),
+  'getRegistration' : IDL.Func([IDL.Text], [IDL.Opt(Registration)], ['query']),
   'getRegistrationWithReceiptInfo' : IDL.Func(
       [IDL.Text],
       [Registration, IDL.Bool],
@@ -91,6 +93,7 @@ export const idlService = IDL.Service({
     ),
   'hasReceipt' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'loginAdmin' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'submitRegistration' : IDL.Func(
       [
@@ -106,6 +109,7 @@ export const idlService = IDL.Service({
       [IDL.Text],
       [],
     ),
+  'updateAdminCredentials' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'updateCustomerRegistration' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [],
@@ -179,10 +183,16 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteCustomerRegistration' : IDL.Func([IDL.Text], [], []),
     'generateOTP' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'getAdminUsername' : IDL.Func([], [IDL.Text], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getRegistration' : IDL.Func([IDL.Text], [Registration], ['query']),
+    'getRegistration' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(Registration)],
+        ['query'],
+      ),
     'getRegistrationWithReceiptInfo' : IDL.Func(
         [IDL.Text],
         [Registration, IDL.Bool],
@@ -200,6 +210,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'hasReceipt' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'loginAdmin' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitRegistration' : IDL.Func(
         [
@@ -215,6 +226,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
+    'updateAdminCredentials' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateCustomerRegistration' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],

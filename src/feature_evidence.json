@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-admin-panel-so-selecting-a-customer-registration-customer-id-reliably-opens-the-registration-detail-view-on-the-right-side-instead-of-failing-to-open-or-appearing-blank",
-      "featureTitle": "Fix the Admin Panel so selecting a customer registration (\"customer id\") reliably opens the registration detail view on the right side, instead of failing to open or appearing blank.",
+      "featureId": "feature-update-the-admin-panel-edit-flow-so-that-when-an-admin-clicks-edit-details-they-can-exit-edit-mode-without-saving-by-using-a-clear-back-cancel-action-that-returns-to-the-read-only-registration-details-view-for-the-currently-selected-registration",
+      "featureTitle": "Update the Admin Panel edit flow so that when an admin clicks “Edit Details”, they can exit edit mode without saving by using a clear Back/Cancel action that returns to the read-only Registration Details view for the currently selected registration.",
       "files": [
-        "frontend/src/features/admin/AdminPanel.tsx",
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts"
+        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -19,16 +17,35 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-55"
+        "REQ-84"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-admin-panel-so-an-edit-details-option-is-shown-whenever-a-registration-is-selected-and-the-user-is-authorized-as-admin-and-ensure-entering-edit-mode-reliably-renders-the-existing-edit-form",
-      "featureTitle": "Fix the Admin Panel so an \"Edit Details\" option is shown whenever a registration is selected and the user is authorized as admin, and ensure entering edit mode reliably renders the existing edit form.",
+      "featureId": "feature-ensure-the-admin-panel-edit-form-provides-an-explicit-save-action-and-only-enables-saving-when-changes-have-been-made-with-clear-english-loading-and-error-feedback",
+      "featureTitle": "Ensure the Admin Panel edit form provides an explicit Save action and only enables saving when changes have been made, with clear English loading and error feedback.",
       "files": [
-        "frontend/src/features/admin/AdminPanel.tsx",
-        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-85"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-display-uploaded-verification-document-photos-aadhaar-card-pan-card-and-the-optional-payment-receipt-photo-when-present-in-the-admin-panel-registration-detail-view-so-the-admin-can-visually-inspect-the-images",
+      "featureTitle": "Display uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) in the Admin Panel registration detail view so the admin can visually inspect the images.",
+      "files": [
+        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
         "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
       ],
       "components": [
@@ -41,29 +58,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-56"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-admin-panel-edit-save-flow-remains-stable-after-fixing-the-detail-view-including-clear-save-loading-error-feedback-and-returning-to-the-updated-detail-view-after-a-successful-save",
-      "featureTitle": "Ensure Admin Panel edit-save flow remains stable after fixing the detail view, including clear save-loading/error feedback and returning to the updated detail view after a successful save.",
-      "files": [
-        "frontend/src/features/admin/AdminPanel.tsx",
-        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-        "frontend/src/features/admin/hooks/useAdminQueries.ts"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-57"
+        "REQ-86"
       ],
       "confidence": "high"
     }

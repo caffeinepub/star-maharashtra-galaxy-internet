@@ -6,45 +6,41 @@ export function useAdminSetupCode() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  const applyAdminSetupCodeMutation = useMutation({
-    mutationFn: async (adminCode: string) => {
-      if (!actor) throw new Error('Actor not available');
-
-      // Store the admin token in sessionStorage
-      storeSessionParameter('caffeineAdminToken', adminCode);
-
-      // Call the backend to initialize access control with the secret
-      // We need to cast the actor to access the internal method
-      const actorWithSecret = actor as any;
-      if (typeof actorWithSecret._initializeAccessControlWithSecret === 'function') {
-        await actorWithSecret._initializeAccessControlWithSecret(adminCode);
-      } else {
-        throw new Error('Admin initialization method not available');
+  const mutation = useMutation({
+    mutationFn: async (setupCode: string) => {
+      if (!actor) {
+        throw new Error('Backend actor not available');
       }
 
-      return true;
-    },
-    onSuccess: async () => {
-      // Invalidate actor first to force re-initialization with the new token
+      // Store the setup code in sessionStorage as caffeineAdminToken
+      storeSessionParameter('caffeineAdminToken', setupCode);
+
+      // Invalidate the actor query to trigger re-initialization with the new token
       await queryClient.invalidateQueries({ queryKey: ['actor'] });
       
-      // Then invalidate and explicitly refetch admin-related queries
+      // Wait for actor to re-initialize
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Aggressively invalidate and refetch all admin-related queries
       await queryClient.invalidateQueries({ queryKey: ['isAdmin'] });
       await queryClient.invalidateQueries({ queryKey: ['userRole'] });
       await queryClient.invalidateQueries({ queryKey: ['registrations'] });
       
-      // Explicitly refetch to ensure UI updates immediately
+      // Force immediate refetch
       await queryClient.refetchQueries({ queryKey: ['isAdmin'] });
       await queryClient.refetchQueries({ queryKey: ['userRole'] });
+    },
+    onError: (error) => {
+      console.error('Failed to apply admin setup code:', error);
     },
   });
 
   return {
-    applyAdminSetupCode: applyAdminSetupCodeMutation.mutate,
-    isApplying: applyAdminSetupCodeMutation.isPending,
-    isSuccess: applyAdminSetupCodeMutation.isSuccess,
-    isError: applyAdminSetupCodeMutation.isError,
-    error: applyAdminSetupCodeMutation.error,
-    reset: applyAdminSetupCodeMutation.reset,
+    applyAdminSetupCode: mutation.mutateAsync,
+    isApplying: mutation.isPending,
+    isSuccess: mutation.isSuccess,
+    isError: mutation.isError,
+    error: mutation.error,
+    reset: mutation.reset,
   };
 }

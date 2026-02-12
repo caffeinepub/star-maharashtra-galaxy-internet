@@ -58,10 +58,12 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteCustomerRegistration' : ActorMethod<[string], undefined>,
   'generateOTP' : ActorMethod<[string], string>,
+  'getAdminUsername' : ActorMethod<[], string>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getRegistration' : ActorMethod<[string], Registration>,
+  'getRegistration' : ActorMethod<[string], [] | [Registration]>,
   'getRegistrationWithReceiptInfo' : ActorMethod<
     [string],
     [Registration, boolean]
@@ -70,6 +72,7 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'hasReceipt' : ActorMethod<[string], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'loginAdmin' : ActorMethod<[string, string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitRegistration' : ActorMethod<
     [
@@ -84,6 +87,7 @@ export interface _SERVICE {
     ],
     string
   >,
+  'updateAdminCredentials' : ActorMethod<[string, string], undefined>,
   'updateCustomerRegistration' : ActorMethod<
     [string, string, string, string, string],
     undefined

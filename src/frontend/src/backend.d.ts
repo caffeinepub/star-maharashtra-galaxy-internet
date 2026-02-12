@@ -36,17 +36,21 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteCustomerRegistration(id: string): Promise<void>;
     generateOTP(phone: string): Promise<string>;
+    getAdminUsername(): Promise<string>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getRegistration(id: string): Promise<Registration>;
+    getRegistration(id: string): Promise<Registration | null>;
     getRegistrationWithReceiptInfo(id: string): Promise<[Registration, boolean]>;
     getRegistrations(): Promise<Array<[string, Registration]>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     hasReceipt(id: string): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    loginAdmin(username: string, password: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     submitRegistration(name: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>): Promise<string>;
+    updateAdminCredentials(newUsername: string, newPassword: string): Promise<void>;
     updateCustomerRegistration(id: string, name: string, category: string, paymentMethod: string, router: string): Promise<void>;
     verifyOTP(phone: string, submittedOTP: string): Promise<boolean>;
 }

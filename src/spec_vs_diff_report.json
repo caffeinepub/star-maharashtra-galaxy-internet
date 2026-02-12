@@ -1,17 +1,63 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T17:39:50.311Z",
-  "summary": "Diff adds a new RegistrationDetailPanel with explicit no-selection, loading, error+retry, and not-found states, and updates AdminPanel/useAdminQueries/EditRegistrationDetailsForm to support reliable selection-based detail rendering and edit/save flow with React Query invalidation.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.78,
+  "generatedAt": "2026-02-12T20:33:30.767Z",
+  "summary": "Diff adds a reusable DocumentImagePreview component and updates admin registration detail/edit components, but the truncated diff does not provide enough evidence that all edit-flow ACs (Back/Cancel behavior + Save gating/feedback) and all document-preview ACs (Aadhaar/PAN/receipt with required empty/error states) are fully implemented end-to-end. Backend changes also include unrelated admin credential defaults.",
+  "missing_requirements": [
+    {
+      "id": "REQ-84",
+      "requirement": "Provide a clear Back/Cancel action in edit mode that exits without saving, returns to read-only details for the same selected registration, and discards unsaved edits without calling the update mutation.",
+      "reason": "The edit form now accepts an `onCancel` prop, but the provided truncated diff does not show an actual Back/Cancel button wired to `onCancel`, nor does it show parent logic ensuring the same selected registration remains selected and that cancelling never triggers the update mutation.",
+      "evidence": [
+        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx (truncated)",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated)",
+        "frontend/src/features/admin/AdminPanel.tsx (not shown; only referenced in frontend-file-summaries.txt)"
+      ]
+    },
+    {
+      "id": "REQ-85",
+      "requirement": "Edit form must have an explicit Save action that is disabled until changes are made; show English loading/error feedback; prevent double submit; on success return to updated read-only details view.",
+      "reason": "The form computes `hasChanges` and supports `isSaving/error/success` props, but the truncated diff does not show the Save button implementation (disabled state tied to `hasChanges`, loading state, double-submit prevention) nor the success/failure UI behavior (error message, returning to read-only view).",
+      "evidence": [
+        "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx (truncated)",
+        "frontend/src/features/admin/AdminPanel.tsx (not shown; only referenced in frontend-file-summaries.txt)"
+      ]
+    },
+    {
+      "id": "REQ-86",
+      "requirement": "Show visible image previews for Aadhaar, PAN, and optional Payment Receipt in the admin Registration Details view with English labels; show an explicit 'No receipt uploaded' state when absent; show per-document fallback when missing/cannot load; ensure backend/admin query returns enough data to render images.",
+      "reason": "A preview component and placeholder are added, and the detail panel imports them, but the truncated diff does not show the actual rendering logic mapping registration blobs to (Aadhaar, PAN, Receipt) slots with required labels and the required 'No receipt uploaded' empty state. It also does not show the admin query layer returning/constructing the needed blob objects for these previews.",
+      "evidence": [
+        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated)",
+        "frontend/src/features/admin/hooks/useAdminQueries.ts (not included in diff; only referenced in frontend-file-summaries.txt)",
+        "backend/main.mo (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Hardcoded default admin login credentials added/maintained in backend state.",
+      "reason": "BuildRequest focuses on admin edit navigation and document preview display; it does not request changing or introducing default admin credentials.",
+      "evidence": [
+        "backend/main.mo (truncated) — `adminLoginCredentials` default values"
+      ]
+    },
+    {
+      "description": "Login attempt tracking / basic rate limiting state in backend.",
+      "reason": "Not requested by REQ-84/85/86 and appears unrelated to the admin edit flow/document previews.",
+      "evidence": [
+        "backend/main.mo (truncated) — `loginAttempts` map"
+      ]
+    }
+  ],
+  "confidence": 0.54,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/admin/AdminPanel.tsx",
+    "frontend/src/features/admin/components/DocumentImagePreview.tsx",
     "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
     "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-    "frontend/src/features/admin/hooks/useAdminQueries.ts",
     "project_state.json"
   ]
 }

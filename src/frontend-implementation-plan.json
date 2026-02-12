@@ -1,85 +1,69 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Panel: stabilize registration detail + edit option rendering",
+  "title": "Admin Panel: Back/Cancel navigation in edit flow and document image previews in registration details",
   "requirements": [
     {
-      "id": "REQ-55",
-      "summary": "Make registration selection reliably render a non-blank right-side detail panel with placeholder, loading, and error+retry states.",
+      "id": "REQ-84",
+      "summary": "Add a clear Back/Cancel action in edit mode that exits without saving and returns to the read-only details view for the same selected registration.",
       "acceptanceCriteria": [
-        "When the admin clicks any item in the \"Customer Registrations\" list, the right panel shows the selected registration’s details.",
-        "The UI must not appear blank; it must render an explicit loading state while the registration detail query is in-flight.",
-        "If the registration detail fetch fails (e.g., canister error, not found, unauthorized), show a clear English error message in the right panel with a retry action.",
-        "If no registration is selected yet, show a clear English placeholder message instructing the admin to select a registration from the list."
+        "When “Edit Details” is clicked, the edit form shows a clearly labeled action (English) such as “Back” or “Cancel” that exits edit mode without persisting any changes.",
+        "Using the Back/Cancel action returns to the read-only Registration Details panel for the same selected registration id (selection does not change).",
+        "If the admin made unsaved changes, exiting edit mode via Back/Cancel does not call the update mutation and discards the unsaved edits (returning to the original values shown in details)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+          "operation": "modify",
+          "description": "Update the edit form actions to include a clearly labeled Back/Cancel control (English) that calls onCancel and does not submit; ensure copy and placement make it obvious it returns to details without saving."
+        },
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "modify",
+          "description": "Ensure the edit-mode cancel handler only exits edit mode (no selection changes) and does not trigger the update flow; confirm the UI returns to the read-only RegistrationDetailPanel for the currently selected registration."
+        }
+      ]
+    },
+    {
+      "id": "REQ-85",
+      "summary": "Provide an explicit Save action in the edit form that only enables when changes exist, with English loading and error feedback and safe single-submit behavior.",
+      "acceptanceCriteria": [
+        "In edit mode, a “Save” (or “Save Changes”) button is present and triggers the existing update flow for the selected registration.",
+        "The Save button is disabled when there are no changes, and enabled when at least one editable field differs from the current registration values.",
+        "While saving, the Save button shows a loading state and prevents double submission; on success, the UI returns to the updated read-only Registration Details view; on failure, an error message is shown in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+          "operation": "modify",
+          "description": "Confirm the Save button is explicit, disabled when no changes exist, and shows an English loading state while isSaving is true; prevent double-submission by disabling inputs/buttons during save."
+        },
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "modify",
+          "description": "Wire edit form props to the existing update mutation (isSaving, success, and English error messages); on success, exit edit mode back to the read-only details view for the same selected registration."
+        }
+      ]
+    },
+    {
+      "id": "REQ-86",
+      "summary": "Render admin-visible image previews for Aadhaar, PAN, and optional Payment Receipt blobs in the Registration Details view with clear labels and fallback states.",
+      "acceptanceCriteria": [
+        "When a registration contains stored document blobs for Aadhaar and PAN, the Registration Details view renders visible image previews (thumbnails) for each document with clear English labels (e.g., “Aadhaar Card”, “PAN Card”).",
+        "When a registration has an uploaded payment receipt, the Registration Details view renders a visible image preview labeled “Payment Receipt”. When there is no receipt, show a clear English ‘No receipt uploaded’ (or equivalent) state for that slot.",
+        "If any document blob is missing/cannot be decoded/loaded, the UI shows a clear English fallback message for that document (not a blank area).",
+        "The backend and/or admin query layer returns enough data for the frontend to render these images for an admin (no placeholder-only UI)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/admin/components/DocumentImagePreview.tsx",
           "operation": "create",
-          "description": "Create a dedicated right-side panel component that renders: (1) an English placeholder when no registration is selected, (2) an explicit loading state when the selected registration query is in-flight, and (3) an English error state with a retry action that calls the provided React Query refetch. Use existing shadcn-ui building blocks (Card/Alert/Button/Separator/ScrollArea) for consistent layout. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "modify",
-          "description": "Wire the new RegistrationDetailPanel into the admin two-column layout and ensure list item clicks always set selectedRegistrationId (and visually indicate selection). Pass selectedRegistrationId plus selectedRegistrationQuery state (isLoading/isFetching/isError/error/refetch/data) into the panel so the right side never renders blank. Ensure any newly introduced/changed user-facing text in these states is English. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
-          "operation": "modify",
-          "description": "Harden the single-registration query behavior to avoid 'blank' UI states (e.g., keep prior data while fetching a newly-selected id and ensure query state clearly reflects loading vs disabled). Ensure the query remains disabled when id is null, but provides predictable states to the UI when id changes. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-56",
-      "summary": "Show an authorized-only \"Edit Details\" action when a registration is selected, and ensure entering edit mode always renders the existing edit form with current values.",
-      "acceptanceCriteria": [
-        "When a registration is selected and the admin is not currently editing, an \"Edit Details\" button is visible in the registration detail view.",
-        "Clicking \"Edit Details\" always opens the edit form (using the existing EditRegistrationDetailsForm) populated with the selected registration’s current values.",
-        "If the selected registration detail is still loading, the \"Edit Details\" button is hidden or disabled (no broken/empty edit screen).",
-        "All user-facing text introduced/changed for this fix is in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "modify",
-          "description": "Ensure the detail view shows an \"Edit Details\" button only when: a registration is selected, admin is authorized (isAdminQuery true), the detail query has resolved successfully, and isEditMode is false. Hide/disable the button while the selected registration is loading or when an error is shown. Wire the button to the existing handleEditClick so edit mode reliably activates without showing an empty form. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "operation": "modify",
-          "description": "Fix form state initialization so the form is always populated with the currently selected registration values: reset internal form state whenever registrationId or registration fields change (e.g., via an effect). This prevents stale/blank edit screens when switching selections or re-entering edit mode. Keep all text English. Verify the component's usage instructions before implementing."
+          "description": "Create a small reusable preview component for an ExternalBlob image that renders a thumbnail using a direct URL, shows a labeled fallback on missing/failed load, and supports a simple loading/error state. Use the blob-storage component's ExternalBlob capability (getDirectURL) to display blobs efficiently. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
           "operation": "modify",
-          "description": "Within the detail panel, render the \"Edit Details\" action in the non-editing state (when allowed) and ensure it is not shown during loading/error/empty-selection states. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-57",
-      "summary": "Stabilize edit-save flow with clear save loading/error feedback and returning to the updated detail view after successful save.",
-      "acceptanceCriteria": [
-        "Saving changes shows a clear in-progress state (no double submissions).",
-        "After a successful save, the detail view reflects the updated data (list and detail are refreshed via React Query invalidation).",
-        "If save fails, an English error message is shown and the admin remains in edit mode so they can retry or cancel."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "modify",
-          "description": "Use updateRegistrationMutation.isPending as the single source of truth for save-in-progress UI. Guard handleSaveChanges against double submissions while pending. After a successful save, immediately exit edit mode and ensure the updated detail is shown (rely on existing React Query invalidation in useAdminQueries and optionally trigger a refetch of the selected registration query). On save failure, keep isEditMode true and show a clear English error message. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
-          "operation": "modify",
-          "description": "Ensure save feedback is unambiguous: disable inputs and primary action while isSaving is true; keep the existing English error/success alerts visible and ensure they reflect the passed-in props without requiring remounts. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
-          "operation": "modify",
-          "description": "Confirm mutation-side cache refresh covers both list and detail; align query keys used by the UI components so invalidation reliably refreshes the selected detail and the registrations list after save. Verify the component's usage instructions before implementing."
+          "description": "Replace the current documents 'count only' UI with labeled image preview slots for Aadhaar Card and PAN Card (using the documents array in the expected order), plus a Payment Receipt slot that renders an image when registration.receipt is present and otherwise shows an English 'No receipt uploaded' state; use DocumentImagePreview and provide explicit English fallback messages when any blob is missing or fails to load. Use the blob-storage component's ExternalBlob capability (getDirectURL) to display blobs. Verify the component's usage instructions before implementing."
         }
       ]
     }

@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Admin Panel Customer Registrations detail panel so selecting a registration reliably shows details (with proper loading/error/empty states) and restore a dependable “Edit Details” + save flow for admins.
+**Goal:** Improve the Admin Panel registration edit and review experience by adding clear navigation in the edit flow and displaying uploaded document/receipt photos in the details view.
 
 **Planned changes:**
-- Make selecting any item in the “Customer Registrations” list consistently load and render the selected registration’s details in the right-side panel.
-- Add explicit right-panel UI states: placeholder when nothing is selected, loading state while details are fetching, and a clear English error with a retry action if fetching fails.
-- Ensure an “Edit Details” button appears for authorized admins when a registration is selected (and not currently editing), and that entering edit mode always renders the existing `EditRegistrationDetailsForm` pre-filled with current values.
-- Stabilize edit-save UX: show an in-progress saving state to prevent double submissions, show English save errors while staying in edit mode, and refresh list/detail after successful save via React Query invalidation.
+- Add a clearly labeled “Back” or “Cancel” action in the Registration “Edit Details” mode to exit without saving and return to the read-only Registration Details view for the currently selected registration.
+- Ensure edit mode has an explicit “Save” / “Save Changes” button that triggers the existing update flow, shows loading/error feedback in English, and prevents double submission.
+- Disable “Save” when no fields have changed; enable it only when at least one editable field differs from the current registration values.
+- Render image previews in the Registration Details view for uploaded Aadhaar Card, PAN Card, and (when present) Payment Receipt, with clear English labels and fallback messages when missing/unavailable.
+- Update the backend/admin query layer (as needed) to return sufficient data for the frontend to render stored document/receipt images for admins.
 
-**User-visible outcome:** Admins can click any customer registration and always see its details on the right (never blank), can enter edit mode via “Edit Details,” and can save changes with clear loading/error feedback and see updated details afterward.
+**User-visible outcome:** Admins can enter edit mode and safely leave via Back/Cancel without saving, save only when changes exist with clear feedback, and visually inspect uploaded Aadhaar/PAN/receipt images directly within the Registration Details view.

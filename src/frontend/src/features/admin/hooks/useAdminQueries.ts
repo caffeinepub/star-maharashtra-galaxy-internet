@@ -52,16 +52,49 @@ export function useAdminQueries() {
     retry: false,
   });
 
-  // Fetch single registration with receipt info (admin only)
+  // Fetch single registration with receipt info (admin only) - with resilient error handling
   const useRegistrationWithReceiptQuery = (id: string | null) => {
-    return useQuery<[Registration, boolean]>({
+    return useQuery<{ registration: Registration | null; hasReceipt: boolean; error?: string }>({
       queryKey: ['registration', id, 'withReceipt'],
       queryFn: async () => {
         if (!actor || !id) throw new Error('Actor or ID not available');
-        return await actor.getRegistrationWithReceiptInfo(id);
+        
+        try {
+          // Try the primary method first
+          const [registration, hasReceipt] = await actor.getRegistrationWithReceiptInfo(id);
+          return { registration, hasReceipt };
+        } catch (primaryError) {
+          // If primary method fails, try fallback: fetch basic registration
+          try {
+            const registration = await actor.getRegistration(id);
+            if (registration) {
+              // Try to check receipt separately
+              try {
+                const hasReceipt = await actor.hasReceipt(id);
+                return { 
+                  registration, 
+                  hasReceipt,
+                  error: 'Some fields may be unavailable due to legacy data format'
+                };
+              } catch {
+                // If receipt check fails, assume no receipt
+                return { 
+                  registration, 
+                  hasReceipt: false,
+                  error: 'Some fields may be unavailable due to legacy data format'
+                };
+              }
+            } else {
+              throw new Error('Registration not found');
+            }
+          } catch (fallbackError) {
+            // If all methods fail, throw the original error
+            throw primaryError;
+          }
+        }
       },
       enabled: !!actor && !actorFetching && !!id && isAdminQuery.data === true,
-      retry: false,
+      retry: 1, // Retry once on failure
       staleTime: 0, // Always fetch fresh data when selection changes
     });
   };
@@ -92,6 +125,33 @@ export function useAdminQueries() {
     },
   });
 
+  // Delete customer registration mutation
+  const deleteRegistrationMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error('Actor not available');
+      try {
+        await actor.deleteCustomerRegistration(id);
+      } catch (error: unknown) {
+        // Normalize backend errors into readable Error messages
+        if (error instanceof Error) {
+          throw error;
+        } else if (typeof error === 'object' && error !== null && 'message' in error) {
+          throw new Error(String((error as { message: unknown }).message));
+        } else if (typeof error === 'string') {
+          throw new Error(error);
+        } else {
+          throw new Error('Failed to delete registration');
+        }
+      }
+    },
+    onSuccess: (_, deletedId) => {
+      // Invalidate registrations list to refresh the list view
+      queryClient.invalidateQueries({ queryKey: ['registrations'] });
+      // Invalidate the specific registration detail query
+      queryClient.invalidateQueries({ queryKey: ['registration', deletedId, 'withReceipt'] });
+    },
+  });
+
   return {
     isAdminQuery,
     userRoleQuery,
@@ -99,5 +159,6 @@ export function useAdminQueries() {
     registrationsQuery,
     useRegistrationWithReceiptQuery,
     updateRegistrationMutation,
+    deleteRegistrationMutation,
   };
 }

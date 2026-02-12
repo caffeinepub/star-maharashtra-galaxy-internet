@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 41,
+  "projectStateVersion": 59,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -10,11 +10,21 @@
     "Splash screen company name text (no logo) should use an updated font and include color styling.",
     "Add conditional receipt upload: when Payment Option = Online, require user to upload a payment-success receipt photo (PhonePe/Google Pay) before completing registration.",
     "Provide a printable/exportable Terms & Conditions proof for the customer (e.g., print dialog / downloadable receipt) from the Terms step after acceptance.",
-    "Splash/intro screen animation background should use a space/galaxy blue color theme."
+    "Splash/intro screen animation background should use a space/galaxy blue color theme.",
+    "Admin username/password login success should auto-redirect to a customer registration detail/editing view (directly opening customer details) to support quick edits when setup-code unlock is failing.",
+    "Admin Panel should support deleting customer submissions (admin-only), with a clear UI action (e.g., Delete button) in the submissions list/detail view."
   ],
   "known_issues": [
     "Customer Details page is not opening (user reports it 'again' not opening).",
-    "Admin Panel: customer details/registration detail (\"customer id\") page is not opening and the \"Edit\" option is not appearing."
+    "Admin Panel: customer details/registration detail (\"customer id\") page is not opening and the \"Edit\" option is not appearing.",
+    "Admin Panel still not opening/accessible even after entering the admin setup code (user reports it still does not open).",
+    "Admin Setup Code flow still does not open/unlock the Admin Panel (user reports it does not work, hence needing username/password option).",
+    "Admin Panel username/password sign-in is showing \"Login failed\" after attempting to sign in; user expects successful sign-in and then direct navigation to the customer details/registration detail page.",
+    "Admin Panel username/password login is still showing \"Login failed\" (user reports it still isn’t working after latest build).",
+    "Password field visibility toggle (eye icon) is still not present/added on the login form as expected.",
+    "After entering correct admin password (and even correct setup code), the UI still shows the note: \"Try signing out and signing back in with the correct Internet Identity...\" instead of opening the Admin Panel/customer details directly.",
+    "Admin Panel: \"Error loading details\" occurs only for a specific single customer registration (one record), suggesting record-specific data/loading issue; user also cannot access Edit/Delete on that record due to the details error.",
+    "Admin Panel: Uploaded document photos (Aadhaar/PAN/receipt) are not visible in the registration detail view (user reports they cannot see the document photos)."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -425,6 +435,166 @@
         "REQ-57"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-simple-admin-panel-login-option-that-allows-an-admin-to-enter-a-username-and-password-in-addition-to-the-existing-admin-setup-code-flow-to-unlock-admin-access",
+      "title": "Add a simple Admin Panel login option that allows an admin to enter a username and password (in addition to the existing Admin Setup Code flow) to unlock admin access.",
+      "reqIds": [
+        "REQ-58"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-the-new-username-password-login-ui-to-backend-login-using-react-query-and-on-success-automatically-store-the-returned-token-in-sessionstorage-under-caffeineadmintoken-re-initialize-access-control-and-refresh-admin-queries-so-the-admin-panel-opens-immediately",
+      "title": "Wire the new username/password login UI to backend login using React Query, and on success automatically store the returned token in `sessionStorage` under `caffeineAdminToken`, re-initialize access control, and refresh admin queries so the Admin Panel opens immediately.",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-setup-code-unlock-experience-so-that-after-applying-the-code-successfully-the-admin-panel-reliably-transitions-from-the-access-denied-recovery-view-to-the-authorized-admin-panel-view-registrations-list-without-appearing-stuck",
+      "title": "Fix the Admin Setup Code unlock experience so that after applying the code successfully, the Admin Panel reliably transitions from the access-denied recovery view to the authorized Admin Panel view (registrations list) without appearing stuck.",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-a-successful-admin-username-password-sign-in-in-the-admin-panel-automatically-open-a-customer-registration-detail-page-so-the-admin-can-immediately-edit-customer-details-instead-of-leaving-the-admin-on-the-access-recovery-login-screen",
+      "title": "After a successful admin username/password sign-in in the Admin Panel, automatically open a customer registration detail page (so the admin can immediately edit customer details) instead of leaving the admin on the access recovery/login screen.",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-a-successful-admin-username-password-sign-in-in-the-admin-panel-automatically-transition-from-the-access-denied-screen-to-the-authorized-admin-panel-view-and-open-a-customer-registration-detail-page-immediately-auto-select-the-first-registration-if-available",
+      "title": "After a successful admin username/password sign-in in the Admin Panel, automatically transition from the Access Denied screen to the authorized Admin Panel view and open a customer registration detail page immediately (auto-select the first registration if available).",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-admin-panel-password-login-error-handling-so-the-ui-shows-clear-english-actionable-messaging-when-login-fails-and-does-not-surface-misleading-authorization-errors-caused-by-backend-role-assignment-internals",
+      "title": "Improve the Admin Panel password login error handling so the UI shows clear, English, actionable messaging when login fails, and does not surface misleading authorization errors caused by backend role-assignment internals.",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-password-visibility-toggle-eye-icon-to-the-admin-panel-username-password-login-form-on-the-access-denied-recovery-screen-so-the-admin-can-show-hide-the-password-while-typing",
+      "title": "Add a password visibility toggle (eye icon) to the Admin Panel username/password login form on the Access Denied / recovery screen so the admin can show/hide the password while typing.",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-a-successful-admin-username-password-login-ensure-the-admin-panel-reliably-transitions-out-of-the-access-denied-screen-into-the-authorized-admin-view-and-loads-the-registrations-list-if-registrations-exist-auto-select-the-first-registration-to-open-its-detail-panel",
+      "title": "After a successful admin username/password login, ensure the Admin Panel reliably transitions out of the Access Denied screen into the authorized admin view and loads the registrations list; if registrations exist, auto-select the first registration to open its detail panel.",
+      "reqIds": [
+        "REQ-72"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-ui-flow-so-that-after-a-successful-username-password-login-the-app-transitions-directly-into-the-authorized-admin-panel-view-registrations-list-and-does-not-display-the-try-signing-out-and-signing-back-in-with-the-correct-internet-identity-troubleshooting-note-when-credentials-were-accepted",
+      "title": "Update the Admin Panel UI flow so that after a successful username/password login, the app transitions directly into the authorized Admin Panel view (registrations list) and does not display the \"Try signing out and signing back in with the correct Internet Identity\" troubleshooting note when credentials were accepted.",
+      "reqIds": [
+        "REQ-74"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-successful-admin-password-login-and-authorization-automatically-load-the-registrations-list-and-open-a-customer-registration-detail-page-immediately-by-auto-selecting-the-first-registration-when-available",
+      "title": "After successful admin password login and authorization, automatically load the registrations list and open a customer registration detail page immediately by auto-selecting the first registration when available.",
+      "reqIds": [
+        "REQ-75"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-so-that-clicking-a-customer-registration-in-the-left-side-list-reliably-opens-the-selected-registration-s-detail-view-in-the-right-side-panel-no-blank-empty-page",
+      "title": "Fix the Admin Panel so that clicking a customer registration in the left-side list reliably opens the selected registration’s detail view in the right-side panel (no blank/empty page).",
+      "reqIds": [
+        "REQ-76"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-panel-shows-an-edit-details-action-whenever-a-registration-is-selected-and-the-current-user-is-authorized-as-admin-and-ensure-entering-edit-mode-reliably-renders-the-existing-edit-form-for-that-selected-registration",
+      "title": "Ensure the Admin Panel shows an “Edit Details” action whenever a registration is selected and the current user is authorized as admin, and ensure entering edit mode reliably renders the existing edit form for that selected registration.",
+      "reqIds": [
+        "REQ-77"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-user-visible-english-fallback-ui-in-the-admin-panel-detail-area-so-that-unexpected-rendering-errors-in-the-registration-detail-or-edit-panel-are-caught-and-shown-as-a-readable-error-card-instead-of-a-blank-panel",
+      "title": "Add a user-visible English fallback UI in the Admin Panel detail area so that unexpected rendering errors in the registration detail or edit panel are caught and shown as a readable error card instead of a blank panel.",
+      "reqIds": [
+        "REQ-78"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-the-admin-react-query-layer-to-support-deleting-a-registration-and-refreshing-the-admin-ui-state-after-a-successful-delete",
+      "title": "Extend the Admin React Query layer to support deleting a registration and refreshing the admin UI state after a successful delete.",
+      "reqIds": [
+        "REQ-80"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-visible-delete-option-in-the-admin-panel-for-customer-submissions-allowing-an-authorized-admin-to-delete-a-selected-registration-with-a-confirmation-step-and-provide-clear-english-loading-success-error-feedback",
+      "title": "Add a visible \"Delete\" option in the Admin Panel for customer submissions, allowing an authorized admin to delete a selected registration with a confirmation step, and provide clear English loading/success/error feedback.",
+      "reqIds": [
+        "REQ-81"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-issue-where-opening-the-registration-details-panel-shows-an-error-loading-details-error-loading-registration-state-for-only-a-specific-single-customer-record-the-selected-registration-must-render-reliably-without-a-blank-panel-or-crash",
+      "title": "Fix the Admin Panel issue where opening the Registration Details panel shows an \"Error Loading Details\" / \"Error Loading Registration\" state for only a specific single customer record. The selected registration must render reliably without a blank panel or crash.",
+      "reqIds": [
+        "REQ-82"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-panel-shows-working-edit-details-and-delete-actions-for-the-selected-registration-for-authorized-admins-including-for-the-record-that-previously-failed-to-load-details",
+      "title": "Ensure the Admin Panel shows working \"Edit Details\" and \"Delete\" actions for the selected registration for authorized admins, including for the record that previously failed to load details.",
+      "reqIds": [
+        "REQ-83"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-edit-flow-so-that-when-an-admin-clicks-edit-details-they-can-exit-edit-mode-without-saving-by-using-a-clear-back-cancel-action-that-returns-to-the-read-only-registration-details-view-for-the-currently-selected-registration",
+      "title": "Update the Admin Panel edit flow so that when an admin clicks “Edit Details”, they can exit edit mode without saving by using a clear Back/Cancel action that returns to the read-only Registration Details view for the currently selected registration.",
+      "reqIds": [
+        "REQ-84"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-panel-edit-form-provides-an-explicit-save-action-and-only-enables-saving-when-changes-have-been-made-with-clear-english-loading-and-error-feedback",
+      "title": "Ensure the Admin Panel edit form provides an explicit Save action and only enables saving when changes have been made, with clear English loading and error feedback.",
+      "reqIds": [
+        "REQ-85"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-uploaded-verification-document-photos-aadhaar-card-pan-card-and-the-optional-payment-receipt-photo-when-present-in-the-admin-panel-registration-detail-view-so-the-admin-can-visually-inspect-the-images",
+      "title": "Display uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) in the Admin Panel registration detail view so the admin can visually inspect the images.",
+      "reqIds": [
+        "REQ-86"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -552,6 +722,114 @@
       "reqIds": [
         "REQ-49"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Add a simple Admin Panel login option using username + password fields (instead of/alongside the current admin setup code flow) so the admin can easily access the panel.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Implement backend support for username/password admin login that returns an admin session secret compatible with the existing access-control initialization mechanism (sessionStorage key `caffeineAdminToken` and `_initializeAccessControlWithSecret`).",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Add backend functionality for configuring and updating the admin username/password in a controlled way, without allowing unauthorized users to set or reset admin credentials.",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "After successful admin username/password sign-in, automatically navigate directly to the customer registration details page (or first registration detail) to enable editing, instead of leaving the user on the login/admin landing screen.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Update the backend admin username/password credentials so that admin login works with username `PrabhaPerkar@6` and password `Prabha@1991`.",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Fix the backend admin username/password login endpoint so that a valid login does not fail with an authorization error (e.g., \"Unauthorized: Only admins can assign user roles\") and instead returns an admin session token successfully for the correct credentials.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Ensure the configured backend admin username/password credentials are set to username `PrabhaPerkar@6` and password `Prabha@1991` for the deployed canister, including on upgrades where prior state may still have old credentials.",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Fix the backend admin username/password login so that valid credentials successfully return an admin session token and do not fail with internal authorization errors (e.g., errors related to assigning roles), and ensure the caller is recognized as admin immediately after successful login.",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Ensure the deployed backend admin credentials are configured to username `PrabhaPerkar@6` and password `Prabha@1991`, including after canister upgrades where older credentials may exist.",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Fix backend admin password login so that a successful `loginAdmin(username, password)` immediately grants admin authorization for the signed-in Internet Identity principal, making `isCallerAdmin()` return `true` right after login and allowing admin-only APIs (e.g., `getRegistrations`) to succeed without requiring sign-out/sign-in.",
+      "reqIds": [
+        "REQ-73"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Add a delete option in the Admin Panel customer submissions/registrations list/detail view so the admin can delete a selected customer submission.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Add a new admin-only backend canister method to delete an existing customer registration by registration id (customer submission delete). The method must enforce admin permissions and must fail with a clear error if the registration id does not exist.",
+      "reqIds": [
+        "REQ-79"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Admin Panel: Add a Back/Cancel option in registration detail/edit flow so admin can exit edit mode without saving after clicking Edit (return to details view).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Admin Panel: Add a Save button in edit mode to persist changes when admin edits registration details (with appropriate enable/disable behavior).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Admin Panel: Display uploaded document photos (Aadhaar/PAN and any receipt if applicable) in the registration detail view so admin can view the images.",
+      "reqIds": [],
       "status": "pending"
     }
   ],

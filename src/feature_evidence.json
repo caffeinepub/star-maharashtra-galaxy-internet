@@ -2,12 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-splash-screen-company-name-styling-in-frontend-src-components-splashscreen-tsx-to-use-a-different-more-stylized-display-font-different-from-the-default-sans-for-the-text-star-maharashtra-galaxy-internet",
-      "featureTitle": "Update the splash screen company name styling in `frontend/src/components/SplashScreen.tsx` to use a different, more stylized display font (different from the default sans) for the text \"STAR MAHARASHTRA GALAXY INTERNET\".",
+      "featureId": "feature-fix-the-bug-that-prevents-the-step-1-customer-details-page-from-opening-rendering-reliably-in-the-registration-flow",
+      "featureTitle": "Fix the bug that prevents the Step 1 \"Customer Details\" page from opening/rendering reliably in the registration flow.",
       "files": [
-        "frontend/index.html",
-        "frontend/src/components/SplashScreen.tsx",
-        "frontend/tailwind.config.js"
+        "frontend/src/App.tsx",
+        "frontend/src/features/registration/RegistrationFlow.tsx",
+        "frontend/src/features/registration/steps/StepCustomerDetails.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -19,16 +19,17 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-41"
+        "REQ-52"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-color-styling-to-the-splash-screen-company-name-text-so-it-is-no-longer-a-single-flat-color-e-g-multi-color-per-word-or-a-gradient-effect-while-keeping-the-tagline-text-unchanged",
-      "featureTitle": "Add color styling to the splash screen company name text so it is no longer a single flat color (e.g., multi-color per word or a gradient effect), while keeping the tagline text unchanged.",
+      "featureId": "feature-stabilize-step-validation-callbacks-in-the-registration-flow-so-step-components-do-not-re-run-validation-effects-due-to-changing-function-identities-on-every-parent-render",
+      "featureTitle": "Stabilize Step validation callbacks in the registration flow so step components do not re-run validation effects due to changing function identities on every parent render.",
       "files": [
-        "frontend/src/components/SplashScreen.tsx",
-        "frontend/src/index.css"
+        "frontend/src/features/registration/RegistrationFlow.tsx",
+        "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
+        "frontend/src/features/registration/steps/StepVerificationDocuments.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -40,7 +41,28 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-42"
+        "REQ-53"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-user-visible-fallback-ui-for-unexpected-registration-step-rendering-errors-so-the-app-does-not-appear-blank-when-step-1-fails-all-user-facing-text-must-be-in-english",
+      "featureTitle": "Add a user-visible fallback UI for unexpected registration-step rendering errors so the app does not appear blank when Step 1 fails; all user-facing text must be in English.",
+      "files": [
+        "frontend/src/features/registration/RegistrationFlow.tsx",
+        "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-54"
       ],
       "confidence": "high"
     }

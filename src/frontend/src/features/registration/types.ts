@@ -16,6 +16,7 @@ export interface CustomerDetailsData {
 export interface DocumentsData {
   aadhaarCard: File;
   panCard: File;
+  paymentReceipt?: File;
 }
 
 export interface StepProps {

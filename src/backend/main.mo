@@ -1,10 +1,10 @@
+import Map "mo:core/Map";
+import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import Runtime "mo:core/Runtime";
-import Array "mo:core/Array";
-import Map "mo:core/Map";
 import VarArray "mo:core/VarArray";
-import Principal "mo:core/Principal";
+import Array "mo:core/Array";
 import Iter "mo:core/Iter";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
@@ -17,14 +17,31 @@ actor {
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
-  // User profile type and storage
   public type UserProfile = {
     name : Text;
+    hasSubmittedDocuments : Bool;
   };
 
+  public type Registration = {
+    name : Text;
+    phone : Text;
+    category : Text;
+    paymentMethod : Text;
+    router : Text;
+    termsAcceptedAt : Time.Time;
+    receipt : ?ExternalBlob.ExternalBlob;
+    documents : [ExternalBlob.ExternalBlob];
+  };
+
+  type OTPEntry = {
+    otp : Text;
+    expiresAt : Time.Time;
+  };
+
+  let registrations = Map.empty<Text, Registration>();
+  let otpEntries = Map.empty<Text, OTPEntry>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // User profile management functions
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles");
@@ -46,27 +63,20 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Registration types
-  type Registration = {
-    name : Text;
-    phone : Text;
-    category : Text;
-    paymentMethod : Text;
-    router : Text;
-    termsAcceptedAt : Time.Time;
-    documents : [ExternalBlob.ExternalBlob];
-  };
+  public shared ({ caller }) func submitRegistration(
+    name : Text,
+    phone : Text,
+    category : Text,
+    paymentMethod : Text,
+    router : Text,
+    termsAcceptedAt : Time.Time,
+    receipt : ?ExternalBlob.ExternalBlob,
+    documents : [ExternalBlob.ExternalBlob],
+  ) : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can submit registrations");
+    };
 
-  type OTPEntry = {
-    otp : Text;
-    expiresAt : Time.Time;
-  };
-
-  let registrations = Map.empty<Text, Registration>();
-  let otpEntries = Map.empty<Text, OTPEntry>();
-
-  // Public registration submission (no auth required for customers to submit)
-  public shared ({ caller }) func submitRegistration(name : Text, phone : Text, category : Text, paymentMethod : Text, router : Text, termsAcceptedAt : Time.Time, documents : [ExternalBlob.ExternalBlob]) : async Text {
     let registrationId = phone;
 
     let registration : Registration = {
@@ -76,6 +86,7 @@ actor {
       paymentMethod;
       router;
       termsAcceptedAt;
+      receipt;
       documents;
     };
 
@@ -83,8 +94,11 @@ actor {
     registrationId;
   };
 
-  // OTP generation (public for customer use)
   public shared ({ caller }) func generateOTP(phone : Text) : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can generate OTP");
+    };
+
     let otp = "123456";
     let expiresAt = Time.now() + 300_000_000_000;
 
@@ -97,8 +111,11 @@ actor {
     otp;
   };
 
-  // OTP verification (public for customer use)
   public shared ({ caller }) func verifyOTP(phone : Text, submittedOTP : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can verify OTP");
+    };
+
     switch (otpEntries.get(phone)) {
       case (?entry) {
         if (Time.now() > entry.expiresAt) {
@@ -117,7 +134,6 @@ actor {
     };
   };
 
-  // ADMIN ONLY: View all customer registrations
   public query ({ caller }) func getRegistrations() : async [(Text, Registration)] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can view customer submissions");
@@ -125,13 +141,60 @@ actor {
     registrations.toVarArray().toArray();
   };
 
-  // ADMIN ONLY: View individual customer registration
   public query ({ caller }) func getRegistration(id : Text) : async Registration {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can view customer submissions");
     };
     switch (registrations.get(id)) {
       case (?registration) { registration };
+      case (null) { Runtime.trap("Registration not found") };
+    };
+  };
+
+  // ADMIN ONLY: Update existing customer registration fields (excluding documents/receipt)
+  public shared ({ caller }) func updateCustomerRegistration(
+    id : Text,
+    name : Text,
+    category : Text,
+    paymentMethod : Text,
+    router : Text,
+  ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admin can update customer submissions");
+    };
+    switch (registrations.get(id)) {
+      case (?existing) {
+        let updated : Registration = {
+          existing with
+          name;
+          category;
+          paymentMethod;
+          router;
+        };
+        registrations.add(id, updated);
+      };
+      case (null) {
+        Runtime.trap("Registration not found");
+      };
+    };
+  };
+
+  public query ({ caller }) func hasReceipt(id : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admin can check receipts");
+    };
+    switch (registrations.get(id)) {
+      case (?registration) { ?registration.receipt != null };
+      case (null) { false };
+    };
+  };
+
+  public query ({ caller }) func getRegistrationWithReceiptInfo(id : Text) : async (Registration, Bool) {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admin can view customer submissions");
+    };
+    switch (registrations.get(id)) {
+      case (?registration) { (registration, ?registration.receipt != null) };
       case (null) { Runtime.trap("Registration not found") };
     };
   };

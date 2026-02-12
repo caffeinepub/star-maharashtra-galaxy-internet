@@ -1,52 +1,78 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update splash screen company name font and add color styling",
+  "title": "Stabilize registration Step 1 rendering and validation callbacks",
   "requirements": [
     {
-      "id": "REQ-41",
-      "summary": "Apply a stylized display font to the splash screen company name text without changing copy or behavior.",
+      "id": "REQ-52",
+      "summary": "Fix unreliable rendering/opening of Step 1 (Customer Details) in the registration flow, including when returning from the Admin Panel.",
       "acceptanceCriteria": [
-        "On the splash screen, the company name text renders with a clearly different font style than the current default (e.g., a display/branding font feel).",
-        "The company name text remains exactly: \"STAR MAHARASHTRA GALAXY INTERNET\" (spelling/case/wording unchanged).",
-        "The splash screen continues to auto-transition, fade out, and allow skipping as before."
+        "Launching the app always renders the registration view with Step 1 (Customer Details) visible after the splash completes.",
+        "Switching between Admin Panel and Registration always returns the user to a working registration view where Step 1 can be opened and used.",
+        "No infinite render loops or UI freezes occur when StepCustomerDetails calls onValidationChange as the user types."
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Load a chosen display/branding webfont (e.g., via hosted font stylesheet links in <head>) so the splash company name can reliably render in a non-default stylized font while keeping all text English-only and preserving existing splash behavior."
+          "description": "Ensure returning from the Admin Panel reliably remounts the registration flow (e.g., via a key/reset signal) so Step 1 always initializes and renders after the splash completes."
         },
         {
-          "path": "frontend/tailwind.config.js",
+          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
           "operation": "modify",
-          "description": "Extend Tailwind fontFamily with a dedicated display font stack (e.g., fontFamily.display) that uses the newly loaded webfont with sensible fallbacks, enabling consistent styling for the splash company name."
+          "description": "Add defensive guards for step selection (avoid out-of-range step indices) and ensure the flow initializes to Step 1 on mount/reset; also prepare wiring for stable validation callback handling and error fallback wrapper (see REQ-53/REQ-54)."
         },
         {
-          "path": "frontend/src/components/SplashScreen.tsx",
+          "path": "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
           "operation": "modify",
-          "description": "Update the company name <h1> styling to use the new Tailwind display font class (keeping the rendered text exactly \"STAR MAHARASHTRA GALAXY INTERNET\") and ensure no changes to the existing auto-transition, fade-out, or skip interactions."
+          "description": "Prevent Step 1 from triggering parent state churn during typing by reducing redundant validation updates and avoiding effect re-triggers tied to changing callback identities."
         }
       ]
     },
     {
-      "id": "REQ-42",
-      "summary": "Add clearly noticeable multi-color/gradient styling to the splash screen company name while leaving the tagline unchanged and honoring reduced-motion behavior.",
+      "id": "REQ-53",
+      "summary": "Make registration step validation callbacks referentially stable (or make step effects resilient) to prevent repeated validation effects and input lag/freezing.",
       "acceptanceCriteria": [
-        "The company name text displays visible color styling (multi-color or gradient) across the words, and the result is clearly noticeable.",
-        "The tagline remains exactly: \"Connect to the Future with Internet at Light Speed.\" and remains readable against the background.",
-        "In reduced-motion mode (`prefers-reduced-motion: reduce`), the new font and color styling still apply, and animations remain disabled as currently implemented."
+        "The callback passed as onValidationChange to step components is referentially stable across renders (or each step safely avoids depending on a changing callback reference).",
+        "Step 1 validation state updates do not trigger repeated unnecessary effects when formData is unchanged.",
+        "The Step 1 page remains responsive while typing in any field (no input lag/freezing)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
           "operation": "modify",
-          "description": "Add CSS rules for the existing splash word span classes (e.g., .splash-word-star/.splash-word-maharashtra/.splash-word-galaxy/.splash-word-internet) to apply multi-color styling (per-word colors or a text gradient effect) that remains readable on the splash background; ensure reduced-motion media query continues to disable animations while still applying the new font/color styling."
+          "description": "Replace the inline onValidationChange handler with memoized, step-aware callbacks (e.g., useCallback) so the function identity is stable across renders and does not retrigger child validation effects unnecessarily."
         },
         {
-          "path": "frontend/src/components/SplashScreen.tsx",
+          "path": "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
           "operation": "modify",
-          "description": "Adjust company-name markup/classes only as needed to support the new multi-color/gradient styling (e.g., ensure span classes are retained/used and do not affect the tagline); keep existing reduced-motion logic and the splash timing/transition/skip behavior unchanged."
+          "description": "Stabilize validation side-effects by (a) not depending on a changing onValidationChange reference (e.g., store latest callback in a ref), and (b) only calling onValidationChange when computed validity/data meaningfully changes to avoid repeated effects when formData is unchanged."
+        },
+        {
+          "path": "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
+          "operation": "modify",
+          "description": "Apply the same callback-stability pattern used in Step 1 (avoid effect dependency on changing callbacks and avoid redundant onValidationChange calls) to prevent similar render/validation churn in later steps."
+        }
+      ]
+    },
+    {
+      "id": "REQ-54",
+      "summary": "Add an English fallback UI for unexpected registration step rendering errors with a clear recovery action (Refresh).",
+      "acceptanceCriteria": [
+        "If an unexpected error occurs while rendering the registration flow/Step 1, the UI shows an English error message (e.g., \"Customer Details page failed to load. Please refresh the page.\") instead of a blank screen.",
+        "The fallback UI provides a clear recovery action (at minimum: a Refresh button that reloads the page).",
+        "Normal behavior is unchanged when no error occurs."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
+          "operation": "create",
+          "description": "Create a registration-scoped React Error Boundary that renders an English error message and a Refresh button (reloads the page) when a step throws during render."
+        },
+        {
+          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
+          "operation": "modify",
+          "description": "Wrap the step renderer (including Step 1) with the new RegistrationStepErrorBoundary so unexpected step rendering errors show the English fallback UI instead of a blank screen."
         }
       ]
     }

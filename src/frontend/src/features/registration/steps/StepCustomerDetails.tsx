@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 import type { StepProps, CustomerDetailsData } from '../types';
 import { validateCustomerDetails } from '../validation';
 
@@ -21,13 +23,35 @@ export function StepCustomerDetails({ onValidationChange }: StepProps) {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Store the latest callback in a ref to avoid effect dependency issues
+  const onValidationChangeRef = useRef(onValidationChange);
+  
+  useEffect(() => {
+    onValidationChangeRef.current = onValidationChange;
+  }, [onValidationChange]);
+
+  // Track previous validation state to avoid redundant calls
+  const prevValidationRef = useRef<{ isValid: boolean; data?: CustomerDetailsData }>({
+    isValid: false,
+    data: undefined,
+  });
 
   useEffect(() => {
     const validationErrors = validateCustomerDetails(formData);
     setErrors(validationErrors);
     const isValid = Object.keys(validationErrors).length === 0;
-    onValidationChange(isValid, isValid ? formData : undefined);
-  }, [formData, onValidationChange]);
+    
+    // Only call onValidationChange if the validation state actually changed
+    const prev = prevValidationRef.current;
+    const dataChanged = isValid && JSON.stringify(prev.data) !== JSON.stringify(formData);
+    const validityChanged = prev.isValid !== isValid;
+    
+    if (validityChanged || dataChanged) {
+      prevValidationRef.current = { isValid, data: isValid ? formData : undefined };
+      onValidationChangeRef.current(isValid, isValid ? formData : undefined);
+    }
+  }, [formData]);
 
   const handleChange = (field: keyof CustomerDetailsData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -197,6 +221,15 @@ export function StepCustomerDetails({ onValidationChange }: StepProps) {
             </Label>
           </div>
         </RadioGroup>
+        
+        {formData.paymentOption === 'UPI' && (
+          <Alert className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertDescription className="text-blue-800 dark:text-blue-300">
+              Note: You will be required to upload a payment receipt photo (PhonePe/Google Pay) in the next step.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Router Provision */}

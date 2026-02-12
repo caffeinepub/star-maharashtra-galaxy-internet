@@ -24,13 +24,17 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const UserProfile = IDL.Record({
+  'name' : IDL.Text,
+  'hasSubmittedDocuments' : IDL.Bool,
+});
 export const Time = IDL.Int;
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const Registration = IDL.Record({
   'termsAcceptedAt' : Time,
   'documents' : IDL.Vec(ExternalBlob),
   'paymentMethod' : IDL.Text,
+  'receipt' : IDL.Opt(ExternalBlob),
   'name' : IDL.Text,
   'category' : IDL.Text,
   'phone' : IDL.Text,
@@ -70,6 +74,11 @@ export const idlService = IDL.Service({
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getRegistration' : IDL.Func([IDL.Text], [Registration], ['query']),
+  'getRegistrationWithReceiptInfo' : IDL.Func(
+      [IDL.Text],
+      [Registration, IDL.Bool],
+      ['query'],
+    ),
   'getRegistrations' : IDL.Func(
       [],
       [IDL.Vec(IDL.Tuple(IDL.Text, Registration))],
@@ -80,6 +89,7 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'hasReceipt' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'submitRegistration' : IDL.Func(
@@ -90,9 +100,15 @@ export const idlService = IDL.Service({
         IDL.Text,
         IDL.Text,
         Time,
+        IDL.Opt(ExternalBlob),
         IDL.Vec(ExternalBlob),
       ],
       [IDL.Text],
+      [],
+    ),
+  'updateCustomerRegistration' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [],
       [],
     ),
   'verifyOTP' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
@@ -117,13 +133,17 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const UserProfile = IDL.Record({
+    'name' : IDL.Text,
+    'hasSubmittedDocuments' : IDL.Bool,
+  });
   const Time = IDL.Int;
   const ExternalBlob = IDL.Vec(IDL.Nat8);
   const Registration = IDL.Record({
     'termsAcceptedAt' : Time,
     'documents' : IDL.Vec(ExternalBlob),
     'paymentMethod' : IDL.Text,
+    'receipt' : IDL.Opt(ExternalBlob),
     'name' : IDL.Text,
     'category' : IDL.Text,
     'phone' : IDL.Text,
@@ -163,6 +183,11 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getRegistration' : IDL.Func([IDL.Text], [Registration], ['query']),
+    'getRegistrationWithReceiptInfo' : IDL.Func(
+        [IDL.Text],
+        [Registration, IDL.Bool],
+        ['query'],
+      ),
     'getRegistrations' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, Registration))],
@@ -173,6 +198,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'hasReceipt' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitRegistration' : IDL.Func(
@@ -183,9 +209,15 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           IDL.Text,
           Time,
+          IDL.Opt(ExternalBlob),
           IDL.Vec(ExternalBlob),
         ],
         [IDL.Text],
+        [],
+      ),
+    'updateCustomerRegistration' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
         [],
       ),
     'verifyOTP' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),

@@ -15,13 +15,17 @@ export interface Registration {
   'termsAcceptedAt' : Time,
   'documents' : Array<ExternalBlob>,
   'paymentMethod' : string,
+  'receipt' : [] | [ExternalBlob],
   'name' : string,
   'category' : string,
   'phone' : string,
   'router' : string,
 }
 export type Time = bigint;
-export interface UserProfile { 'name' : string }
+export interface UserProfile {
+  'name' : string,
+  'hasSubmittedDocuments' : boolean,
+}
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -58,13 +62,31 @@ export interface _SERVICE {
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getRegistration' : ActorMethod<[string], Registration>,
+  'getRegistrationWithReceiptInfo' : ActorMethod<
+    [string],
+    [Registration, boolean]
+  >,
   'getRegistrations' : ActorMethod<[], Array<[string, Registration]>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'hasReceipt' : ActorMethod<[string], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitRegistration' : ActorMethod<
-    [string, string, string, string, string, Time, Array<ExternalBlob>],
+    [
+      string,
+      string,
+      string,
+      string,
+      string,
+      Time,
+      [] | [ExternalBlob],
+      Array<ExternalBlob>,
+    ],
     string
+  >,
+  'updateCustomerRegistration' : ActorMethod<
+    [string, string, string, string, string],
+    undefined
   >,
   'verifyOTP' : ActorMethod<[string, string], boolean>,
 }

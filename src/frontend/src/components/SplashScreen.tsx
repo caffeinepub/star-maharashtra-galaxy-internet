@@ -42,7 +42,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-primary via-accent to-primary transition-opacity duration-500 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center splash-galaxy-bg transition-opacity duration-500 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={handleComplete}

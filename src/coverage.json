@@ -1,41 +1,56 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T06:33:36.285Z",
+  "generatedAt": "2026-02-12T07:28:25.824Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-41",
-        "summary": "Update the splash screen company name styling in `frontend/src/components/SplashScreen.tsx` to use a different, more stylized display font (different from the default sans) for the text \"STAR MAHARASHTRA GALAXY INTERNET\".",
+        "id": "REQ-52",
+        "summary": "Fix the bug that prevents the Step 1 \"Customer Details\" page from opening/rendering reliably in the registration flow.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/index.html",
-          "frontend/tailwind.config.js",
-          "frontend/src/components/SplashScreen.tsx"
+          "frontend/src/App.tsx",
+          "frontend/src/features/registration/RegistrationFlow.tsx",
+          "frontend/src/features/registration/steps/StepCustomerDetails.tsx"
         ],
         "matchedFiles": [
-          "frontend/index.html",
-          "frontend/tailwind.config.js",
-          "frontend/src/components/SplashScreen.tsx"
+          "frontend/src/App.tsx",
+          "frontend/src/features/registration/RegistrationFlow.tsx",
+          "frontend/src/features/registration/steps/StepCustomerDetails.tsx"
         ]
       },
       {
-        "id": "REQ-42",
-        "summary": "Add color styling to the splash screen company name text so it is no longer a single flat color (e.g., multi-color per word or a gradient effect), while keeping the tagline text unchanged.",
+        "id": "REQ-53",
+        "summary": "Stabilize Step validation callbacks in the registration flow so step components do not re-run validation effects due to changing function identities on every parent render.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/SplashScreen.tsx"
+          "frontend/src/features/registration/RegistrationFlow.tsx",
+          "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
+          "frontend/src/features/registration/steps/StepVerificationDocuments.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/SplashScreen.tsx"
+          "frontend/src/features/registration/RegistrationFlow.tsx",
+          "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
+          "frontend/src/features/registration/steps/StepVerificationDocuments.tsx"
+        ]
+      },
+      {
+        "id": "REQ-54",
+        "summary": "Add a user-visible fallback UI for unexpected registration-step rendering errors so the app does not appear blank when Step 1 fails; all user-facing text must be in English.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
+          "frontend/src/features/registration/RegistrationFlow.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
+          "frontend/src/features/registration/RegistrationFlow.tsx"
         ]
       }
     ]
@@ -45,10 +60,11 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
-    "frontend/src/components/SplashScreen.tsx",
-    "frontend/src/index.css",
-    "frontend/tailwind.config.js",
+    "frontend/src/App.tsx",
+    "frontend/src/features/registration/RegistrationFlow.tsx",
+    "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
+    "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
+    "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

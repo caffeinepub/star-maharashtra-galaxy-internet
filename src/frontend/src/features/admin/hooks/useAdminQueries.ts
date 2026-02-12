@@ -56,24 +56,51 @@ export function useAdminQueries() {
     retry: false,
   });
 
-  // Fetch single registration by ID (admin only)
-  const useRegistrationQuery = (id: string | null) => {
-    return useQuery<Registration>({
-      queryKey: ['registration', id],
+  // Fetch single registration with receipt info (admin only)
+  const useRegistrationWithReceiptQuery = (id: string | null) => {
+    return useQuery<[Registration, boolean]>({
+      queryKey: ['registration', id, 'withReceipt'],
       queryFn: async () => {
         if (!actor || !id) throw new Error('Actor or ID not available');
-        return await actor.getRegistration(id);
+        return await actor.getRegistrationWithReceiptInfo(id);
       },
       enabled: !!actor && !actorFetching && !!id && isAdminQuery.data === true,
       retry: false,
     });
   };
 
+  // Update customer registration mutation
+  const updateRegistrationMutation = useMutation({
+    mutationFn: async ({
+      id,
+      name,
+      category,
+      paymentMethod,
+      router,
+    }: {
+      id: string;
+      name: string;
+      category: string;
+      paymentMethod: string;
+      router: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.updateCustomerRegistration(id, name, category, paymentMethod, router);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate registrations list to refresh the list view
+      queryClient.invalidateQueries({ queryKey: ['registrations'] });
+      // Invalidate the specific registration detail to refresh the detail view
+      queryClient.invalidateQueries({ queryKey: ['registration', variables.id, 'withReceipt'] });
+    },
+  });
+
   return {
     isAdminQuery,
     userRoleQuery,
     claimAdminMutation,
     registrationsQuery,
-    useRegistrationQuery,
+    useRegistrationWithReceiptQuery,
+    updateRegistrationMutation,
   };
 }

@@ -1,54 +1,70 @@
 {
   "kind": "build_request",
-  "title": "Update splash screen company name font and add color styling",
-  "priority": "normal",
+  "title": "Fix Registration Flow: Customer Details page sometimes fails to open",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-41",
-      "text": "Update the splash screen company name styling in `frontend/src/components/SplashScreen.tsx` to use a different, more stylized display font (different from the default sans) for the text \"STAR MAHARASHTRA GALAXY INTERNET\".",
+      "id": "REQ-52",
+      "text": "Fix the bug that prevents the Step 1 \"Customer Details\" page from opening/rendering reliably in the registration flow.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-3"
+          "msg-4"
         ],
         "quotes": [
-          "font change kar aur colour add kar name mai"
+          "FIRSE OPRN NHI HO RAHA HAI CUSTOMER DETILS PAGE"
         ]
       },
       "acceptanceCriteria": [
-        "On the splash screen, the company name text renders with a clearly different font style than the current default (e.g., a display/branding font feel).",
-        "The company name text remains exactly: \"STAR MAHARASHTRA GALAXY INTERNET\" (spelling/case/wording unchanged).",
-        "The splash screen continues to auto-transition, fade out, and allow skipping as before."
+        "Launching the app always renders the registration view with Step 1 (Customer Details) visible after the splash completes.",
+        "Switching between Admin Panel and Registration always returns the user to a working registration view where Step 1 can be opened and used.",
+        "No infinite render loops or UI freezes occur when StepCustomerDetails calls onValidationChange as the user types."
       ]
     },
     {
-      "id": "REQ-42",
-      "text": "Add color styling to the splash screen company name text so it is no longer a single flat color (e.g., multi-color per word or a gradient effect), while keeping the tagline text unchanged.",
+      "id": "REQ-53",
+      "text": "Stabilize Step validation callbacks in the registration flow so step components do not re-run validation effects due to changing function identities on every parent render.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-3"
+          "msg-4"
         ],
         "quotes": [
-          "font change kar aur colour add kar name mai"
+          "FIRSE OPRN NHI HO RAHA HAI CUSTOMER DETILS PAGE"
         ]
       },
       "acceptanceCriteria": [
-        "The company name text displays visible color styling (multi-color or gradient) across the words, and the result is clearly noticeable.",
-        "The tagline remains exactly: \"Connect to the Future with Internet at Light Speed.\" and remains readable against the background.",
-        "In reduced-motion mode (`prefers-reduced-motion: reduce`), the new font and color styling still apply, and animations remain disabled as currently implemented."
+        "The callback passed as onValidationChange to step components is referentially stable across renders (or each step safely avoids depending on a changing callback reference).",
+        "Step 1 validation state updates do not trigger repeated unnecessary effects when formData is unchanged.",
+        "The Step 1 page remains responsive while typing in any field (no input lag/freezing)."
+      ]
+    },
+    {
+      "id": "REQ-54",
+      "text": "Add a user-visible fallback UI for unexpected registration-step rendering errors so the app does not appear blank when Step 1 fails; all user-facing text must be in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "FIRSE OPRN NHI HO RAHA HAI CUSTOMER DETILS PAGE"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If an unexpected error occurs while rendering the registration flow/Step 1, the UI shows an English error message (e.g., \"Customer Details page failed to load. Please refresh the page.\") instead of a blank screen.",
+        "The fallback UI provides a clear recovery action (at minimum: a Refresh button that reloads the page).",
+        "Normal behavior is unchanged when no error occurs."
       ]
     }
   ],
   "constraints": [
-    "Do not make any backend changes for this request.",
-    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or anything under `frontend/src/components/ui`.",
-    "Keep all user-facing text in English (no new non-English UI copy)."
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui (immutable paths).",
+    "Use English for any new user-facing UI text."
   ],
   "nonGoals": [
-    "Changing the splash screen timing/transition behavior beyond preserving existing behavior.",
-    "Changing the tagline text or overall app theme outside the splash company name styling.",
-    "Adding or reintroducing a logo image on the splash screen."
+    "Do not change the registration form fields/requirements or add new registration steps.",
+    "Do not introduce any new backend APIs or modify backend state for this fix unless proven necessary to resolve the Step 1 opening issue."
   ],
   "imageRequirements": {
     "required": [],

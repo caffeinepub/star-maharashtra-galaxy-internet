@@ -67,6 +67,87 @@
     }
 }
 
+/* Print Styles */
+@media print {
+    /* Hide non-essential UI elements */
+    .no-print {
+        display: none !important;
+    }
+
+    /* Show print-only content */
+    .print-only {
+        display: block !important;
+    }
+
+    /* Reset page styles for printing */
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    /* Ensure proper page layout */
+    @page {
+        margin: 2cm;
+        size: A4;
+    }
+
+    /* Prevent page breaks inside important elements */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+
+    ul, ol {
+        page-break-inside: avoid;
+    }
+
+    /* Ensure readable font sizes */
+    body, p, li, span {
+        font-size: 12pt !important;
+        line-height: 1.5 !important;
+    }
+
+    h1 {
+        font-size: 20pt !important;
+    }
+
+    h2 {
+        font-size: 18pt !important;
+    }
+
+    h3 {
+        font-size: 16pt !important;
+    }
+
+    h4 {
+        font-size: 14pt !important;
+    }
+
+    /* Remove shadows and backgrounds for clean print */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /* Ensure borders are visible */
+    .border, [class*="border-"] {
+        border-color: #000 !important;
+    }
+}
+
+/* Hide print-only content on screen */
+.print-only {
+    display: none;
+}
+
+/* Space Galaxy Blue Background for Splash Screen */
+.splash-galaxy-bg {
+    background: radial-gradient(ellipse at 20% 30%, oklch(0.35 0.15 250) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, oklch(0.30 0.18 240) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, oklch(0.25 0.12 260) 0%, transparent 70%),
+                linear-gradient(135deg, oklch(0.18 0.10 250) 0%, oklch(0.12 0.08 240) 50%, oklch(0.08 0.05 260) 100%);
+}
+
 /* Splash Screen Animations */
 @keyframes splash-fade-in {
     from {

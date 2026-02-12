@@ -19,6 +19,7 @@ export interface Registration {
     termsAcceptedAt: Time;
     documents: Array<ExternalBlob>;
     paymentMethod: string;
+    receipt?: ExternalBlob;
     name: string;
     category: string;
     phone: string;
@@ -26,6 +27,7 @@ export interface Registration {
 }
 export interface UserProfile {
     name: string;
+    hasSubmittedDocuments: boolean;
 }
 export enum UserRole {
     admin = "admin",
@@ -38,10 +40,13 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getRegistration(id: string): Promise<Registration>;
+    getRegistrationWithReceiptInfo(id: string): Promise<[Registration, boolean]>;
     getRegistrations(): Promise<Array<[string, Registration]>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    hasReceipt(id: string): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    submitRegistration(name: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, documents: Array<ExternalBlob>): Promise<string>;
+    submitRegistration(name: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>): Promise<string>;
+    updateCustomerRegistration(id: string, name: string, category: string, paymentMethod: string, router: string): Promise<void>;
     verifyOTP(phone: string, submittedOTP: string): Promise<boolean>;
 }

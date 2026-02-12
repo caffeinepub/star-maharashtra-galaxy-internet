@@ -39,6 +39,13 @@ export function useRegistrationMutations() {
       const aadhaarBlob = ExternalBlob.fromBytes(aadhaarBytes);
       const panBlob = ExternalBlob.fromBytes(panBytes);
 
+      // Handle payment receipt for UPI payments
+      let receiptBlob: ExternalBlob | null = null;
+      if (customerDetails.paymentOption === 'UPI' && documents.paymentReceipt) {
+        const receiptBytes = new Uint8Array(await documents.paymentReceipt.arrayBuffer());
+        receiptBlob = ExternalBlob.fromBytes(receiptBytes);
+      }
+
       // Construct full name
       const fullName = [
         customerDetails.firstName,
@@ -56,6 +63,7 @@ export function useRegistrationMutations() {
         customerDetails.paymentOption,
         customerDetails.routerProvision,
         termsAcceptedAt,
+        receiptBlob,
         [aadhaarBlob, panBlob]
       );
     },

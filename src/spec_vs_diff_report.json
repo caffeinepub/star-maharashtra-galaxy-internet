@@ -1,58 +1,50 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T06:33:36.282Z",
-  "summary": "REQ-41 and REQ-42 are largely implemented: SplashScreen company name is split into words with a new display font class (font-display) and multi-color styling per word via new CSS classes. However, the diff also introduces broader theme/style changes and additional splash animations, and it is not clearly shown that reduced-motion mode disables animations while keeping the new font/color styling.",
-  "missing_requirements": [
-    {
-      "id": "REQ-42",
-      "requirement": "In reduced-motion mode (prefers-reduced-motion: reduce), the new font and color styling still apply, and animations remain disabled as currently implemented.",
-      "reason": "The diff adds multiple splash animations (e.g., shimmer, entrance, fade-in) but the provided CSS does not show any @media (prefers-reduced-motion: reduce) overrides to disable these animations. SplashScreen.tsx reads the preference, but only uses it to shorten the auto-complete duration, not to disable CSS animations.",
-      "evidence": [
-        "frontend/src/index.css",
-        "frontend/src/components/SplashScreen.tsx"
-      ]
-    },
-    {
-      "id": "REQ-41",
-      "requirement": "The splash screen continues to auto-transition, fade out, and allow skipping as before (preserve existing behavior).",
-      "reason": "SplashScreen.tsx changes the auto-complete timing based on reduced-motion (2000ms vs 4000ms). If the prior behavior was a fixed duration, this is a behavior change; the diff does not provide evidence that this matches the previous behavior.",
-      "evidence": [
-        "frontend/src/components/SplashScreen.tsx"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-12T07:28:25.820Z",
+  "summary": "REQ-53 and REQ-54 appear implemented via referentially-stable validation callbacks (useCallback in RegistrationFlow and ref-based callback usage in step components) and a new RegistrationStepErrorBoundary with English error text + Refresh action. REQ-52 appears partially addressed by forcing a RegistrationFlow remount when navigating back from Admin to Registration and guarding step range, but the diff is truncated so full confirmation of Step 1 always rendering after splash is limited. The diff also introduces multiple unrequested functional changes (notably a new conditional payment receipt requirement in Step 2 and substantial Admin/print/CSS/Tailwind changes).",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Global theme/token changes (OKLCH color system variables) beyond splash company name styling.",
-      "reason": "The request is limited to splash company name font/color styling and explicitly avoids changing the overall app theme outside that scope. index.css shows extensive changes to :root and .dark CSS variables (primary/accent/etc.) which affect the whole app.",
+      "description": "Changed registration requirements by adding a conditionally required “payment receipt” upload when UPI is selected in Step 2.",
+      "reason": "Non-goal explicitly says not to change registration form fields/requirements or add steps; BuildRequest did not request adding any new document requirement.",
       "evidence": [
-        "frontend/src/index.css"
+        "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
+        "frontend-file-summaries.txt (mentions: \"conditionally required payment receipt upload ... when UPI payment option is selected\")",
+        "frontend/src/features/registration/hooks/useRegistrationMutations.ts (summary mentions optional payment receipt blob handling)",
+        "frontend/src/features/registration/types.ts (summary mentions documents data now includes optional paymentReceipt)"
       ]
     },
     {
-      "description": "Added/expanded splash animations (text shimmer, glow effects, multiple keyframes) beyond the requested font and color styling.",
-      "reason": "REQ-41/42 ask for font and color styling while preserving existing behavior; the diff adds new keyframes and applies new animations to company name and tagline.",
+      "description": "Added a print/proof-generation feature in Step 3 (Print/Save Proof button opening browser print dialog with terms + customer details + timestamp).",
+      "reason": "Not requested by REQ-52/53/54 and appears to add new behavior to the registration flow beyond fixing Step 1 rendering and callback stability.",
       "evidence": [
-        "frontend/src/index.css"
+        "frontend-file-summaries.txt (StepTermsAndConditions description)"
       ]
     },
     {
-      "description": "Unrequested unrelated feature summaries/state updates mentioning admin panel and other functionality.",
-      "reason": "The build request is only about splash screen styling, but the modified summary/state files describe admin panel/navigation features unrelated to the request.",
+      "description": "Substantial Admin Panel expansion including new queries/mutations and edit mode for updating customer registration details.",
+      "reason": "Not requested (scope is registration Step 1 rendering reliability, validation callback stability, and error fallback UI). Also potentially conflicts with the constraint to avoid backend/API changes unless necessary for Step 1 opening issue.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "project_state.json"
+        "frontend-file-summaries.txt (mentions: useAdminQueries new mutation for updating customer registration details; AdminPanel dual-pane UI and edit mode; AdminAccessRecoveryCard enhancements)"
+      ]
+    },
+    {
+      "description": "Global styling and Tailwind theme changes unrelated to the registration Step 1 opening bug (OKLCH color system, splash animations, new fonts, comprehensive print media queries).",
+      "reason": "Not requested by the BuildRequest and goes beyond the targeted fix.",
+      "evidence": [
+        "frontend-file-summaries.txt (mentions: frontend/src/index.css and frontend/tailwind.config.js changes)"
       ]
     }
   ],
-  "confidence": 0.66,
+  "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/index.html",
-    "frontend/src/components/SplashScreen.tsx",
-    "frontend/src/index.css",
-    "frontend/tailwind.config.js",
+    "frontend/src/App.tsx",
+    "frontend/src/features/registration/RegistrationFlow.tsx",
+    "frontend/src/features/registration/components/RegistrationStepErrorBoundary.tsx",
+    "frontend/src/features/registration/steps/StepCustomerDetails.tsx",
+    "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
     "project_state.json"
   ]
 }

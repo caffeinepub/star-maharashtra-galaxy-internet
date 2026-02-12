@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { StepCustomerDetails } from './steps/StepCustomerDetails';
 import { StepVerificationDocuments } from './steps/StepVerificationDocuments';
 import { StepTermsAndConditions } from './steps/StepTermsAndConditions';
 import { StepOTPVerification } from './steps/StepOTPVerification';
+import { RegistrationStepErrorBoundary } from './components/RegistrationStepErrorBoundary';
 import type { CustomerDetailsData, DocumentsData } from './types';
 
 interface RegistrationFlowProps {
@@ -26,6 +27,15 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
     { number: 3, title: 'Terms and Conditions', component: StepTermsAndConditions },
     { number: 4, title: 'OTP Verification', component: StepOTPVerification },
   ];
+
+  // Ensure step is always in valid range
+  useEffect(() => {
+    if (currentStep < 1) {
+      setCurrentStep(1);
+    } else if (currentStep > steps.length) {
+      setCurrentStep(steps.length);
+    }
+  }, [currentStep, steps.length]);
 
   const canProceedToStep2 = customerDetails !== null;
   const canProceedToStep3 = documents !== null;
@@ -58,12 +68,50 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
     }
   };
 
-  const CurrentStepComponent = steps[currentStep - 1].component;
+  // Create stable, memoized validation callbacks for each step
+  const handleStep1ValidationChange = useCallback((isValid: boolean, data?: any) => {
+    setCustomerDetails(isValid ? (data as CustomerDetailsData) : null);
+  }, []);
+
+  const handleStep2ValidationChange = useCallback((isValid: boolean, data?: any) => {
+    setDocuments(isValid ? (data as DocumentsData) : null);
+  }, []);
+
+  const handleStep3ValidationChange = useCallback((isValid: boolean, data?: any) => {
+    setTermsAccepted(isValid);
+    if (isValid && data) {
+      setTermsAcceptedAt((data as { timestamp: bigint }).timestamp);
+    }
+  }, []);
+
+  // Dummy callback for step 4 (OTP doesn't use validation callback)
+  const handleStep4ValidationChange = useCallback(() => {
+    // No-op
+  }, []);
+
+  // Map step number to appropriate validation handler
+  const getValidationHandler = (stepNumber: number) => {
+    switch (stepNumber) {
+      case 1:
+        return handleStep1ValidationChange;
+      case 2:
+        return handleStep2ValidationChange;
+      case 3:
+        return handleStep3ValidationChange;
+      case 4:
+        return handleStep4ValidationChange;
+      default:
+        return handleStep1ValidationChange;
+    }
+  };
+
+  const CurrentStepComponent = steps[currentStep - 1]?.component || StepCustomerDetails;
+  const currentValidationHandler = getValidationHandler(currentStep);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="no-print border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -91,7 +139,7 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Progress Indicator */}
-        <div className="mb-8">
+        <div className="no-print mb-8">
           <div className="flex justify-between mb-3">
             {steps.map((step) => (
               <div
@@ -125,59 +173,50 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
         </div>
 
         {/* Step Content */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl">
-              Step {currentStep}: {steps[currentStep - 1].title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <CurrentStepComponent
-              onValidationChange={(isValid, data) => {
-                if (currentStep === 1) {
-                  setCustomerDetails(isValid ? (data as CustomerDetailsData) : null);
-                } else if (currentStep === 2) {
-                  setDocuments(isValid ? (data as DocumentsData) : null);
-                } else if (currentStep === 3) {
-                  setTermsAccepted(isValid);
-                  if (isValid && data) {
-                    setTermsAcceptedAt((data as { timestamp: bigint }).timestamp);
-                  }
-                }
-              }}
-              customerDetails={customerDetails}
-              documents={documents}
-              termsAcceptedAt={termsAcceptedAt}
-            />
+        <RegistrationStepErrorBoundary>
+          <Card className="shadow-lg">
+            <CardHeader className="no-print">
+              <CardTitle className="text-2xl">
+                Step {currentStep}: {steps[currentStep - 1]?.title || 'Customer Details'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <CurrentStepComponent
+                onValidationChange={currentValidationHandler}
+                customerDetails={customerDetails}
+                documents={documents}
+                termsAcceptedAt={termsAcceptedAt}
+              />
 
-            {/* Navigation Buttons */}
-            {currentStep < 4 && (
-              <div className="flex justify-between pt-6 border-t">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  disabled={currentStep === 1}
-                  className="gap-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Back
-                </Button>
-                <Button
-                  onClick={handleNext}
-                  disabled={!canGoNext()}
-                  className="gap-2"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              {/* Navigation Buttons */}
+              {currentStep < 4 && (
+                <div className="no-print flex justify-between pt-6 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={currentStep === 1}
+                    className="gap-2"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleNext}
+                    disabled={!canGoNext()}
+                    className="gap-2"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </RegistrationStepErrorBoundary>
       </main>
 
       {/* Footer */}
-      <footer className="border-t mt-16 py-6 bg-card/30">
+      <footer className="no-print border-t mt-16 py-6 bg-card/30">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
             © {new Date().getFullYear()} Star Maharashtra Galaxy Internet. Built with ❤️ using{' '}

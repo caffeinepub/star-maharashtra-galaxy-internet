@@ -1,16 +1,21 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 29,
+  "projectStateVersion": 39,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
     "Add an Admin Panel for viewing saved registrations, restricted to a single admin user (access control mechanism TBD).",
     "Add an animated splash screen shown on app launch before navigating to the main registration flow/admin panel.",
     "Splash/intro screen should remove the logo and instead display the company name in stylized/design lettering (text-based branding).",
-    "Splash screen company name text (no logo) should use an updated font and include color styling."
+    "Splash screen company name text (no logo) should use an updated font and include color styling.",
+    "Add conditional receipt upload: when Payment Option = Online, require user to upload a payment-success receipt photo (PhonePe/Google Pay) before completing registration.",
+    "Provide a printable/exportable Terms & Conditions proof for the customer (e.g., print dialog / downloadable receipt) from the Terms step after acceptance.",
+    "Splash/intro screen animation background should use a space/galaxy blue color theme."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Customer Details page is not opening (user reports it 'again' not opening)."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
@@ -307,6 +312,94 @@
         "REQ-42"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-step-1-customer-details-so-that-when-the-user-selects-the-online-payment-option-current-ui-option-upi-the-app-clearly-indicates-that-a-payment-success-receipt-photo-e-g-phonepe-google-pay-will-be-required-in-the-document-upload-step",
+      "title": "Update Step 1 (Customer Details) so that when the user selects the online payment option (current UI option: \"UPI\"), the app clearly indicates that a payment-success receipt photo (e.g., PhonePe/Google Pay) will be required in the document upload step.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-step-2-verification-documents-to-conditionally-require-uploading-a-third-file-a-payment-success-receipt-photo-only-when-step-1-payment-option-is-upi-the-ui-must-show-the-selected-receipt-filename-allow-replacing-removing-it-before-submission-and-block-moving-to-step-3-until-the-receipt-is-provided-when-required",
+      "title": "Extend Step 2 (Verification Documents) to conditionally require uploading a third file: a payment-success receipt photo, only when Step 1 Payment Option is \"UPI\". The UI must show the selected receipt filename, allow replacing/removing it before submission, and block moving to Step 3 until the receipt is provided when required.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-registration-data-model-and-submission-wiring-so-that-when-a-receipt-file-is-provided-it-is-uploaded-and-persisted-with-the-registration-record-and-when-it-is-not-required-it-is-omitted-update-admin-registration-detail-viewing-to-show-whether-a-receipt-was-uploaded-for-the-registration",
+      "title": "Update the registration data model and submission wiring so that when a receipt file is provided it is uploaded and persisted with the registration record, and when it is not required it is omitted. Update admin registration detail viewing to show whether a receipt was uploaded for the registration.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-customer-facing-print-save-option-on-step-3-terms-and-conditions-so-that-after-the-customer-accepts-the-terms-they-can-open-the-browser-print-dialog-to-print-or-save-a-pdf-copy-as-proof",
+      "title": "Add a customer-facing \"Print / Save\" option on Step 3 (Terms and Conditions) so that after the customer accepts the terms, they can open the browser print dialog to print or save a PDF copy as proof.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-print-friendly-layout-styling-for-the-terms-and-conditions-proof-so-that-the-printed-page-is-readable-proper-margins-legible-font-sizes-no-clipped-content-while-keeping-the-existing-on-screen-terms-step-layout-unchanged-for-normal-usage",
+      "title": "Create a print-friendly layout/styling for the Terms and Conditions proof so that the printed page is readable (proper margins, legible font sizes, no clipped content), while keeping the existing on-screen Terms step layout unchanged for normal usage.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-screen-animation-background-to-use-a-space-galaxy-blue-color-theme-instead-of-the-current-primary-accent-gradient-while-preserving-all-existing-splash-behavior-auto-transition-timing-fade-out-click-to-skip-and-reduced-motion-support",
+      "title": "Update the Splash Screen animation background to use a space/galaxy blue color theme instead of the current primary/accent gradient, while preserving all existing splash behavior (auto-transition timing, fade-out, click-to-skip, and reduced-motion support).",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-edit-details-option-in-the-admin-panel-registration-detail-view-that-lets-an-authorized-admin-edit-and-save-the-selected-registration-s-editable-fields-using-english-ui-text",
+      "title": "Add an “Edit Details” option in the Admin Panel registration detail view that lets an authorized admin edit and save the selected registration’s editable fields using English UI text.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-the-existing-admin-react-query-hooks-to-include-a-mutation-for-updating-a-registration-and-to-invalidate-the-relevant-admin-queries-after-success",
+      "title": "Extend the existing admin React Query hooks to include a mutation for updating a registration and to invalidate the relevant admin queries after success.",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-bug-that-prevents-the-step-1-customer-details-page-from-opening-rendering-reliably-in-the-registration-flow",
+      "title": "Fix the bug that prevents the Step 1 \"Customer Details\" page from opening/rendering reliably in the registration flow.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-stabilize-step-validation-callbacks-in-the-registration-flow-so-step-components-do-not-re-run-validation-effects-due-to-changing-function-identities-on-every-parent-render",
+      "title": "Stabilize Step validation callbacks in the registration flow so step components do not re-run validation effects due to changing function identities on every parent render.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-user-visible-fallback-ui-for-unexpected-registration-step-rendering-errors-so-the-app-does-not-appear-blank-when-step-1-fails-all-user-facing-text-must-be-in-english",
+      "title": "Add a user-visible fallback UI for unexpected registration-step rendering errors so the app does not appear blank when Step 1 fails; all user-facing text must be in English.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -402,6 +495,38 @@
       "id": "AR-21",
       "summary": "Update splash screen company name styling: change font and add color to the displayed company name text (stylized lettering).",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "If the user selects an Online payment option, require uploading a payment-success receipt photo (e.g., PhonePe/Google Pay receipt) as part of the registration flow.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Add a 'Print' option on the Terms & Conditions step so the customer can print/save the accepted terms as proof (after agreeing).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Change the splash/intro animation background to a space/galaxy blue color theme.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Add an Admin Panel option to edit/update a customer's profile/registration details while viewing that customer's details.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Add an admin-only backend method to update an existing customer registration’s editable fields (name, category, paymentMethod, router) for a given registration id, while keeping documents/receipt/termsAcceptedAt unchanged.",
+      "reqIds": [
+        "REQ-49"
+      ],
       "status": "pending"
     }
   ],

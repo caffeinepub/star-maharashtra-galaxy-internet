@@ -1,156 +1,306 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FileText, Upload, X, CheckCircle2 } from 'lucide-react';
+import { FileText, Upload, X, CheckCircle2, Receipt } from 'lucide-react';
 import type { StepProps, DocumentsData } from '../types';
 
-export function StepVerificationDocuments({ onValidationChange }: StepProps) {
+export function StepVerificationDocuments({ onValidationChange, customerDetails }: StepProps) {
   const [aadhaarCard, setAadhaarCard] = useState<File | null>(null);
   const [panCard, setPanCard] = useState<File | null>(null);
+  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
+  const [aadhaarPreview, setAadhaarPreview] = useState<string | null>(null);
+  const [panPreview, setPanPreview] = useState<string | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+
+  const requiresPaymentReceipt = customerDetails?.paymentOption === 'UPI';
+
+  // Store the latest callback in a ref to avoid effect dependency issues
+  const onValidationChangeRef = useRef(onValidationChange);
+  
+  useEffect(() => {
+    onValidationChangeRef.current = onValidationChange;
+  }, [onValidationChange]);
+
+  // Track previous validation state to avoid redundant calls
+  const prevValidationRef = useRef<{ isValid: boolean; data?: DocumentsData }>({
+    isValid: false,
+    data: undefined,
+  });
 
   useEffect(() => {
-    const isValid = aadhaarCard !== null && panCard !== null;
+    const isValid =
+      aadhaarCard !== null &&
+      panCard !== null &&
+      (!requiresPaymentReceipt || paymentReceipt !== null);
+
     const data: DocumentsData | undefined = isValid
-      ? { aadhaarCard: aadhaarCard!, panCard: panCard! }
+      ? {
+          aadhaarCard: aadhaarCard!,
+          panCard: panCard!,
+          ...(requiresPaymentReceipt && paymentReceipt ? { paymentReceipt } : {}),
+        }
       : undefined;
-    onValidationChange(isValid, data);
-  }, [aadhaarCard, panCard, onValidationChange]);
+
+    // Only call onValidationChange if the validation state actually changed
+    const prev = prevValidationRef.current;
+    const validityChanged = prev.isValid !== isValid;
+    const dataChanged = isValid && (
+      prev.data?.aadhaarCard !== aadhaarCard ||
+      prev.data?.panCard !== panCard ||
+      prev.data?.paymentReceipt !== paymentReceipt
+    );
+    
+    if (validityChanged || dataChanged) {
+      prevValidationRef.current = { isValid, data };
+      onValidationChangeRef.current(isValid, data);
+    }
+  }, [aadhaarCard, panCard, paymentReceipt, requiresPaymentReceipt]);
 
   const handleFileChange = (
-    type: 'aadhaar' | 'pan',
-    event: React.ChangeEvent<HTMLInputElement>
+    file: File | null,
+    setFile: (file: File | null) => void,
+    setPreview: (preview: string | null) => void
   ) => {
-    const file = event.target.files?.[0];
+    setFile(file);
     if (file) {
-      if (type === 'aadhaar') {
-        setAadhaarCard(file);
-      } else {
-        setPanCard(file);
-      }
-    }
-  };
-
-  const removeFile = (type: 'aadhaar' | 'pan') => {
-    if (type === 'aadhaar') {
-      setAadhaarCard(null);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     } else {
-      setPanCard(null);
+      setPreview(null);
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  const handleRemoveFile = (
+    setFile: (file: File | null) => void,
+    setPreview: (preview: string | null) => void
+  ) => {
+    setFile(null);
+    setPreview(null);
   };
-
-  const FileUploadCard = ({
-    title,
-    file,
-    type,
-    inputId,
-  }: {
-    title: string;
-    file: File | null;
-    type: 'aadhaar' | 'pan';
-    inputId: string;
-  }) => (
-    <div className="border rounded-lg p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <FileText className="w-5 h-5 text-primary" />
-        <Label htmlFor={inputId} className="text-base font-semibold">
-          {title} <span className="text-destructive">*</span>
-        </Label>
-      </div>
-
-      {!file ? (
-        <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-          <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-          <Label
-            htmlFor={inputId}
-            className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
-          >
-            Click to upload or drag and drop
-            <br />
-            <span className="text-xs">PDF, JPG, PNG (Max 10MB)</span>
-          </Label>
-          <Input
-            id={inputId}
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png"
-            onChange={(e) => handleFileChange(type, e)}
-            className="hidden"
-          />
-        </div>
-      ) : (
-        <div className="bg-accent/30 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{file.name}</p>
-              <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Label htmlFor={inputId}>
-              <Button variant="outline" size="sm" type="button" asChild>
-                <span className="cursor-pointer">Replace</span>
-              </Button>
-            </Label>
-            <Input
-              id={inputId}
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={(e) => handleFileChange(type, e)}
-              className="hidden"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => removeFile(type)}
-              type="button"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="space-y-6">
       <Alert>
+        <FileText className="h-4 w-4" />
         <AlertDescription>
-          Please upload clear copies of your Aadhaar Card and PAN Card. Accepted formats: PDF,
-          JPG, PNG (Maximum size: 10MB per file)
+          Please upload clear photos or scans of your Aadhaar Card and PAN Card.
+          {requiresPaymentReceipt && ' Also upload your UPI payment receipt (PhonePe/Google Pay).'}
         </AlertDescription>
       </Alert>
 
-      <div className="space-y-4">
-        <FileUploadCard
-          title="Aadhaar Card"
-          file={aadhaarCard}
-          type="aadhaar"
-          inputId="aadhaar-upload"
-        />
-        <FileUploadCard
-          title="PAN Card"
-          file={panCard}
-          type="pan"
-          inputId="pan-upload"
-        />
+      {/* Aadhaar Card Upload */}
+      <div className="space-y-3">
+        <Label htmlFor="aadhaar" className="text-base font-semibold">
+          Aadhaar Card <span className="text-destructive">*</span>
+        </Label>
+        {!aadhaarCard ? (
+          <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors">
+            <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+            <Label
+              htmlFor="aadhaar"
+              className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+            >
+              Click to upload Aadhaar Card
+            </Label>
+            <Input
+              id="aadhaar"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handleFileChange(
+                  e.target.files?.[0] || null,
+                  setAadhaarCard,
+                  setAadhaarPreview
+                )
+              }
+            />
+          </div>
+        ) : (
+          <div className="border rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="text-sm font-medium">{aadhaarCard.name}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleRemoveFile(setAadhaarCard, setAadhaarPreview)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            {aadhaarPreview && (
+              <img
+                src={aadhaarPreview}
+                alt="Aadhaar preview"
+                className="w-full max-h-48 object-contain rounded"
+              />
+            )}
+            <Label htmlFor="aadhaar-replace" className="cursor-pointer">
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <span>Replace File</span>
+              </Button>
+            </Label>
+            <Input
+              id="aadhaar-replace"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handleFileChange(
+                  e.target.files?.[0] || null,
+                  setAadhaarCard,
+                  setAadhaarPreview
+                )
+              }
+            />
+          </div>
+        )}
       </div>
 
-      {aadhaarCard && panCard && (
-        <Alert className="bg-primary/10 border-primary/20">
-          <CheckCircle2 className="w-4 h-4 text-primary" />
-          <AlertDescription className="text-primary">
-            Both documents uploaded successfully. You can proceed to the next step.
-          </AlertDescription>
-        </Alert>
+      {/* PAN Card Upload */}
+      <div className="space-y-3">
+        <Label htmlFor="pan" className="text-base font-semibold">
+          PAN Card <span className="text-destructive">*</span>
+        </Label>
+        {!panCard ? (
+          <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors">
+            <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+            <Label
+              htmlFor="pan"
+              className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+            >
+              Click to upload PAN Card
+            </Label>
+            <Input
+              id="pan"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handleFileChange(e.target.files?.[0] || null, setPanCard, setPanPreview)
+              }
+            />
+          </div>
+        ) : (
+          <div className="border rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="text-sm font-medium">{panCard.name}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleRemoveFile(setPanCard, setPanPreview)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            {panPreview && (
+              <img
+                src={panPreview}
+                alt="PAN preview"
+                className="w-full max-h-48 object-contain rounded"
+              />
+            )}
+            <Label htmlFor="pan-replace" className="cursor-pointer">
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <span>Replace File</span>
+              </Button>
+            </Label>
+            <Input
+              id="pan-replace"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handleFileChange(e.target.files?.[0] || null, setPanCard, setPanPreview)
+              }
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Payment Receipt Upload (conditional) */}
+      {requiresPaymentReceipt && (
+        <div className="space-y-3">
+          <Label htmlFor="receipt" className="text-base font-semibold">
+            Payment Receipt (PhonePe/Google Pay) <span className="text-destructive">*</span>
+          </Label>
+          {!paymentReceipt ? (
+            <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors bg-blue-50/50 dark:bg-blue-950/20">
+              <Receipt className="w-8 h-8 mx-auto mb-2 text-blue-600 dark:text-blue-400" />
+              <Label
+                htmlFor="receipt"
+                className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+              >
+                Click to upload Payment Receipt
+              </Label>
+              <Input
+                id="receipt"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) =>
+                  handleFileChange(
+                    e.target.files?.[0] || null,
+                    setPaymentReceipt,
+                    setReceiptPreview
+                  )
+                }
+              />
+            </div>
+          ) : (
+            <div className="border rounded-lg p-4 space-y-3 bg-blue-50/50 dark:bg-blue-950/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-medium">{paymentReceipt.name}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveFile(setPaymentReceipt, setReceiptPreview)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              {receiptPreview && (
+                <img
+                  src={receiptPreview}
+                  alt="Receipt preview"
+                  className="w-full max-h-48 object-contain rounded"
+                />
+              )}
+              <Label htmlFor="receipt-replace" className="cursor-pointer">
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <span>Replace File</span>
+                </Button>
+              </Label>
+              <Input
+                id="receipt-replace"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) =>
+                  handleFileChange(
+                    e.target.files?.[0] || null,
+                    setPaymentReceipt,
+                    setReceiptPreview
+                  )
+                }
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

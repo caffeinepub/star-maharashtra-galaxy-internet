@@ -457,6 +457,7 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
               passwordError={passwordLoginMutation.isError ? (passwordLoginMutation.error instanceof Error ? passwordLoginMutation.error.message : 'Login failed') : null}
               success={codeAppliedSuccess && !showAccessStillDenied}
               passwordSuccess={false}
+              isAdmin={isAdmin}
             />
             {showAccessStillDenied && (
               <Alert variant="destructive" className="mt-4">
@@ -470,7 +471,7 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
                     <li>There was a system error</li>
                   </ul>
                   <div className="mt-3">
-                    <strong>Next steps:</strong> Try signing out and signing back in with the correct Internet Identity, or contact support.
+                    <strong>Next steps:</strong> Check the "Current Status" section above to verify your signed-in principal matches the expected admin identity, or contact support.
                   </div>
                 </AlertDescription>
               </Alert>
@@ -482,6 +483,8 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
   }
 
   // Main admin panel UI
+  const principal = identity?.getPrincipal().toString() || 'Unknown';
+  
   return (
     <div className="admin-theme-wrapper">
       {/* Header */}
@@ -500,23 +503,22 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs text-muted-foreground">Signed in as</p>
+                <Badge variant="outline" className="font-mono text-xs max-w-[200px] truncate" title={principal}>
+                  {principal}
+                </Badge>
+              </div>
+              <Badge variant="default" className="hidden sm:flex">
+                <Shield className="w-3 h-3 mr-1" />
+                Admin
+              </Badge>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onNavigateToRegistration}
-                className="gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Back to Registration</span>
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
                 onClick={handleSignOut}
-                className="gap-2"
               >
-                <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign Out</span>
+                Sign Out
               </Button>
             </div>
           </div>
@@ -524,78 +526,68 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Panel - Registrations List */}
+      <div className="container mx-auto p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Left Panel - Registration List */}
           <div className="lg:col-span-1">
-            <Card className="admin-card shadow-lg border">
+            <Card className="admin-card">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Customer Registrations</span>
-                  <Badge variant="secondary">
-                    {registrationsQuery.data?.length || 0}
-                  </Badge>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Registrations
                 </CardTitle>
                 <CardDescription>
-                  Select a registration to view details
+                  {registrationsQuery.data?.length || 0} total registrations
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
-                {registrationsQuery.isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <CardContent>
+                {registrationsQuery.isLoading && (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
                   </div>
-                ) : registrationsQuery.isError ? (
-                  <div className="p-4">
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>
-                        {registrationsQuery.error instanceof Error
-                          ? registrationsQuery.error.message
-                          : 'Failed to load registrations'}
-                      </AlertDescription>
-                    </Alert>
+                )}
+
+                {registrationsQuery.isError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                      {registrationsQuery.error instanceof Error
+                        ? registrationsQuery.error.message
+                        : 'Failed to load registrations'}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {registrationsQuery.data && registrationsQuery.data.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>No registrations yet</p>
                   </div>
-                ) : !registrationsQuery.data || registrationsQuery.data.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                    <FileText className="w-12 h-12 text-muted-foreground mb-3" />
-                    <p className="text-sm text-muted-foreground">
-                      No customer registrations yet
-                    </p>
-                  </div>
-                ) : (
+                )}
+
+                {registrationsQuery.data && registrationsQuery.data.length > 0 && (
                   <ScrollArea className="h-[calc(100vh-280px)]">
-                    <div className="divide-y divide-border">
+                    <div className="space-y-2">
                       {registrationsQuery.data.map(([id, registration]) => (
                         <button
                           key={id}
                           onClick={() => setSelectedRegistrationId(id)}
-                          className={`w-full text-left p-4 hover:bg-accent/50 transition-colors ${
+                          className={`w-full text-left p-3 rounded-lg border transition-colors ${
                             selectedRegistrationId === id
-                              ? 'bg-accent/70 border-l-4 border-primary'
-                              : ''
+                              ? 'bg-primary/20 border-primary'
+                              : 'hover:bg-accent border-border'
                           }`}
                         >
-                          <div className="flex items-start gap-3">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary flex-shrink-0">
-                              <User className="w-5 h-5" />
-                            </div>
+                          <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">
-                                {registration.name}
-                              </p>
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                                <Phone className="w-3 h-3" />
-                                <span className="truncate">{registration.phone}</span>
+                              <div className="flex items-center gap-2 mb-1">
+                                <User className="w-4 h-4 flex-shrink-0" />
+                                <p className="font-medium truncate">{registration.name}</p>
                               </div>
-                              <div className="flex items-center gap-2 mt-2">
-                                <Badge variant="outline" className="text-xs">
-                                  {registration.category}
-                                </Badge>
-                                <Badge variant="secondary" className="text-xs">
-                                  {registration.router}
-                                </Badge>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="w-3 h-3 flex-shrink-0" />
+                                <p className="truncate">{registration.phone}</p>
                               </div>
                             </div>
                           </div>
@@ -610,18 +602,27 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
 
           {/* Right Panel - Registration Details or Edit Form */}
           <div className="lg:col-span-2">
-            {isEditMode && registrationData && selectedRegistrationId ? (
-              <EditRegistrationDetailsForm
-                registration={registrationData}
-                registrationId={selectedRegistrationId}
-                onSave={handleEditSave}
-                onCancel={handleEditCancel}
-                isSaving={updateRegistrationMutation.isPending}
-                error={updateError}
-                success={updateSuccess}
-              />
-            ) : (
-              <AdminDetailErrorBoundary onRetry={handleErrorBoundaryRetry}>
+            <AdminDetailErrorBoundary onRetry={handleErrorBoundaryRetry}>
+              {!selectedRegistrationId ? (
+                <Card className="admin-card">
+                  <CardContent className="flex items-center justify-center py-16">
+                    <div className="text-center text-muted-foreground">
+                      <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">Select a registration to view details</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : isEditMode && registrationData ? (
+                <EditRegistrationDetailsForm
+                  registration={registrationData}
+                  registrationId={selectedRegistrationId}
+                  onCancel={handleEditCancel}
+                  onSave={handleEditSave}
+                  isSaving={updateRegistrationMutation.isPending}
+                  success={updateSuccess}
+                  error={updateError}
+                />
+              ) : (
                 <RegistrationDetailPanel
                   selectedRegistrationId={selectedRegistrationId}
                   isLoading={selectedRegistrationQuery.isLoading}
@@ -643,22 +644,11 @@ export function AdminPanel({ onNavigateToRegistration }: AdminPanelProps) {
                   selectedRegistrationName={selectedRegistrationName}
                   selectedRegistrationPhone={selectedRegistrationPhone}
                 />
-              </AdminDetailErrorBoundary>
-            )}
-
-            {/* Success Message */}
-            {updateSuccess && !isEditMode && (
-              <Alert className="mt-4 border-green-500 bg-green-950/50">
-                <AlertCircle className="h-4 w-4 text-green-400" />
-                <AlertTitle className="text-green-400">Success</AlertTitle>
-                <AlertDescription className="text-green-400">
-                  Registration updated successfully
-                </AlertDescription>
-              </Alert>
-            )}
+              )}
+            </AdminDetailErrorBoundary>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

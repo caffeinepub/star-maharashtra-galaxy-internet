@@ -1,67 +1,95 @@
 {
   "kind": "build_request",
-  "title": "Remove the Terms & Conditions print/PDF link and revert the app to the previous behavior",
-  "priority": "normal",
+  "title": "Fix Admin Panel login/setup code unlock failures and guide users to sign in with Internet Identity",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-115",
-      "text": "Remove the website link from the Step 3 Terms and Conditions print/PDF proof content so that no custom link is printed at the end of the document, restoring the prior (link-free) proof layout.",
-      "target": "frontend",
+      "id": "REQ-119",
+      "text": "Fix the backend `loginAdmin(username, password)` flow so that a successful login with username `PrabhaPerkar@6` and password `Prabha@1991` reliably grants admin access for the signed-in Internet Identity principal, without failing due to internal role-assignment authorization errors.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-20"
         ],
         "quotes": [
-          "jo link bole the wo nikal do aur pahele jasa he app bana do"
+          "username : PrabhaPerkar@6 password : Prabha@1991 aur code : Aniket@1991 aur internet identity muze nahi pata mai continue par click karta hu"
         ]
       },
       "acceptanceCriteria": [
-        "In `frontend/src/features/registration/steps/StepTermsAndConditions.tsx`, the print-only proof content no longer renders the hardcoded anchor link `http://star-maharashtra-galaxy-network`.",
-        "When using “Print / Save Proof”, the generated print/PDF content does not include `http://star-maharashtra-galaxy-network` anywhere in the document body.",
-        "The on-screen Step 3 Terms and Conditions UI remains functional and continues to allow printing after the user checks the agreement checkbox."
+        "Calling `loginAdmin(\"PrabhaPerkar@6\", \"Prabha@1991\")` while authenticated with Internet Identity succeeds (does not trap) and results in the caller being treated as admin immediately afterward (e.g., admin checks return true and admin-only APIs like registrations listing work).",
+        "Calling `loginAdmin` with an anonymous caller traps with a clear error message indicating Internet Identity sign-in is required.",
+        "Calling `loginAdmin` with incorrect credentials traps with a clear error message indicating credentials are invalid.",
+        "The fix does not weaken admin security: only callers with correct username+password can become admin."
       ]
     },
     {
-      "id": "REQ-116",
-      "text": "Ensure the Step 3 print flow remains safe and does not leak the deployment URL or any `caffeineAdminToken` hash fragments in printed/PDF content, while keeping the app behavior consistent with how it worked before the recent link-related change.",
-      "target": "frontend",
+      "id": "REQ-120",
+      "text": "Ensure the backend admin username/password credentials are configured as username `PrabhaPerkar@6` and password `Prabha@1991` after canister upgrades as well as fresh deployments (add conditional state migration if existing persisted credentials would otherwise override the intended values).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-20"
         ],
         "quotes": [
-          "jo link bole the wo nikal do aur pahele jasa he app bana do"
+          "username : PrabhaPerkar@6 password : Prabha@1991"
         ]
       },
       "acceptanceCriteria": [
-        "The print flow continues to call `sanitizeUrlForPrint('caffeineAdminToken')` before opening the print dialog and during the print lifecycle.",
-        "The printed/PDF document body does not include the deployment URL (e.g., `https://decisive-scarlet-bm7-draft.caffeine.xyz`) or any `#caffeineAdminToken=...` fragment."
+        "After an upgrade, the canister still accepts `PrabhaPerkar@6` / `Prabha@1991` for admin login (unless the admin explicitly changed credentials via an admin-only endpoint, if such behavior already exists).",
+        "If a migration is required, it is implemented via the project’s conditional migration policy and does not break existing registrations or stored blobs."
+      ]
+    },
+    {
+      "id": "REQ-121",
+      "text": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "internet identity muze nahi pata mai continue par click karta hu"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a user reaches the Admin Panel unauthenticated, the UI clearly shows an English call-to-action to “Sign In with Internet Identity” (using the existing flow) and does not suggest that username/password or setup code will work without signing in first.",
+        "If the user attempts username/password login or applies a setup code while the backend actor/identity is not available, the UI shows a clear English message instructing the user to sign in with Internet Identity first (no blank states).",
+        "If backend returns rate-limit / too-many-attempts, the UI shows an English message telling the user to wait a few minutes and retry.",
+        "The UI does not display misleading troubleshooting text (e.g., “Try signing out and signing back in with the correct Internet Identity…”) when credentials were accepted and the system is still verifying admin status."
+      ]
+    },
+    {
+      "id": "REQ-122",
+      "text": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "internet identity muze nahi pata"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On the access recovery screen, the UI displays “Signed in as: <principal>” (or equivalent) when authenticated, and clearly indicates “Admin: Yes/No”.",
+        "All displayed text is in English and does not expose any secrets (no setup codes or tokens are echoed automatically)."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text.",
-    "Do not edit files under `frontend/src/components/ui` (read-only UI component sources).",
-    "Do not edit immutable hook files under `frontend/src/hooks/` listed in SYSTEM_CONTEXT.",
-    "No backend changes are required for this request."
+    "Backend must remain single-actor Motoko; keep all Motoko logic in `backend/main.mo`.",
+    "Only create `backend/migration.mo` if required by conditional migration policy for an upgrade-state change.",
+    "Do not edit frontend files under the immutable paths listed in SYSTEM_CONTEXT.",
+    "Use English for all user-facing UI text.",
+    "No external authentication providers; Internet Identity only."
   ],
   "nonGoals": [
-    "Do not remove the existing Terms & Conditions “Print / Save Proof” feature.",
-    "Do not add new admin/authentication features.",
-    "Do not introduce any external integrations (email/SMS/third-party auth)."
+    "Implementing SMS delivery for OTPs.",
+    "Adding any third-party login providers (Google/Facebook/etc.).",
+    "Adding external databases or server infrastructure."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

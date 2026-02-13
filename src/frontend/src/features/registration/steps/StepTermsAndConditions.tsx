@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Printer, Info } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import type { StepProps } from '../types';
 import { TERMS_AND_CONDITIONS } from '../terms';
 import { sanitizeUrlForPrint } from '@/utils/urlParams';
@@ -23,15 +23,24 @@ export function StepTermsAndConditions({ onValidationChange, customerDetails, te
 
   const handlePrint = () => {
     // Sanitize URL before printing to prevent sensitive tokens from appearing in PDF
-    sanitizeUrlForPrint('caffeineAdminToken');
+    const sanitizedUrl = sanitizeUrlForPrint();
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', sanitizedUrl);
+    }
     
     // Set up event listeners to keep URL sanitized during print lifecycle
     const handleBeforePrint = () => {
-      sanitizeUrlForPrint('caffeineAdminToken');
+      const sanitizedUrl = sanitizeUrlForPrint();
+      if (window.history.replaceState) {
+        window.history.replaceState(null, '', sanitizedUrl);
+      }
     };
 
     const handleAfterPrint = () => {
-      sanitizeUrlForPrint('caffeineAdminToken');
+      const sanitizedUrl = sanitizeUrlForPrint();
+      if (window.history.replaceState) {
+        window.history.replaceState(null, '', sanitizedUrl);
+      }
       // Clean up listeners
       window.removeEventListener('beforeprint', handleBeforePrint);
       window.removeEventListener('afterprint', handleAfterPrint);
@@ -171,28 +180,18 @@ export function StepTermsAndConditions({ onValidationChange, customerDetails, te
           </div>
         </div>
 
-        {/* Print/Save Proof Button with helper note */}
-        <div className="space-y-3 mt-4">
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrint}
-              disabled={!agreed}
-              className="gap-2"
-            >
-              <Printer className="w-4 h-4" />
-              Print / Save Proof
-            </Button>
-          </div>
-
-          {/* Helper note for disabling browser headers/footers */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-blue-900 dark:text-blue-100">
-              <strong>Tip:</strong> If a website link appears in your saved PDF, you can disable it by unchecking the "Headers and footers" option in your browser's print dialog before saving.
-            </p>
-          </div>
+        {/* Print/Save Proof Button */}
+        <div className="flex justify-end mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            disabled={!agreed}
+            className="gap-2"
+          >
+            <Printer className="w-4 h-4" />
+            Print / Save Proof
+          </Button>
         </div>
       </div>
     </div>

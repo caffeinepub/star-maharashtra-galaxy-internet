@@ -208,85 +208,50 @@ export function getSecretParameter(paramName: string): string | null {
 }
 
 /**
- * Sanitizes the URL by removing sensitive parameters before printing
- * Handles all URL formats: bare hash (#token=xxx), route+query hash (#/route?token=xxx), and regular query string (?token=xxx)
- * Updates the URL without page reload to prevent sensitive data from appearing in printed PDFs
+ * Sanitizes the current URL for printing by removing sensitive parameters
+ * Handles all URL formats: bare hash, route+query hash, and regular query string
+ * Does not reload the page; only modifies the URL in the address bar
  *
- * @param paramName - The sensitive parameter to remove (e.g., 'caffeineAdminToken')
- *
- * @example
- * // Before: https://app.com/#caffeineAdminToken=secret123
- * sanitizeUrlForPrint('caffeineAdminToken');
- * // After: https://app.com/
- *
- * @example
- * // Before: https://app.com/#/dashboard?caffeineAdminToken=secret123&other=value
- * sanitizeUrlForPrint('caffeineAdminToken');
- * // After: https://app.com/#/dashboard?other=value
+ * @returns The sanitized URL string
  */
-export function sanitizeUrlForPrint(paramName: string): void {
-    if (!window.history.replaceState) {
-        return;
-    }
-
-    let newUrl = window.location.pathname;
-    let hasChanges = false;
-
-    // Handle regular query string parameters
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.has(paramName)) {
-        searchParams.delete(paramName);
-        hasChanges = true;
-    }
-    const newSearch = searchParams.toString();
-    if (newSearch) {
-        newUrl += '?' + newSearch;
-    }
-
-    // Handle hash-based parameters
-    const hash = window.location.hash;
-    if (hash && hash.length > 1) {
-        const hashContent = hash.substring(1); // Remove leading #
-
-        // Check if it's a bare parameter (e.g., #token=xxx)
-        const bareParams = new URLSearchParams(hashContent);
-        if (bareParams.has(paramName)) {
-            bareParams.delete(paramName);
-            const newBareParams = bareParams.toString();
-            if (newBareParams) {
-                newUrl += '#' + newBareParams;
-            }
-            hasChanges = true;
-        } else {
-            // Check if it's a route with query string (e.g., #/route?token=xxx)
-            const queryStartIndex = hashContent.indexOf('?');
-            if (queryStartIndex !== -1) {
-                const routePath = hashContent.substring(0, queryStartIndex);
-                const queryString = hashContent.substring(queryStartIndex + 1);
-                const hashParams = new URLSearchParams(queryString);
-
-                if (hashParams.has(paramName)) {
-                    hashParams.delete(paramName);
-                    hasChanges = true;
-                }
-
-                const newQueryString = hashParams.toString();
-                let newHash = routePath;
-                if (newQueryString) {
-                    newHash += '?' + newQueryString;
-                }
-                if (newHash) {
-                    newUrl += '#' + newHash;
-                }
-            } else {
-                // Just a route path, keep it
-                newUrl += hash;
-            }
+export function sanitizeUrlForPrint(): string {
+    const sensitiveParams = ['caffeineAdminToken', 'adminToken', 'token', 'secret'];
+    
+    let url = window.location.href;
+    
+    // Handle hash-based routing with query params
+    const hashIndex = url.indexOf('#');
+    if (hashIndex !== -1) {
+        const beforeHash = url.substring(0, hashIndex + 1);
+        const afterHash = url.substring(hashIndex + 1);
+        const queryIndex = afterHash.indexOf('?');
+        
+        if (queryIndex !== -1) {
+            const route = afterHash.substring(0, queryIndex);
+            const queryString = afterHash.substring(queryIndex + 1);
+            const params = new URLSearchParams(queryString);
+            
+            // Remove sensitive params
+            sensitiveParams.forEach(param => params.delete(param));
+            
+            const newQuery = params.toString();
+            url = beforeHash + route + (newQuery ? '?' + newQuery : '');
         }
     }
-
-    // Only update if we actually removed something
-    if (hasChanges) {
-        window.history.replaceState(null, '', newUrl);
+    
+    // Handle regular query string
+    const queryIndex = url.indexOf('?');
+    if (queryIndex !== -1 && !url.includes('#')) {
+        const beforeQuery = url.substring(0, queryIndex);
+        const queryString = url.substring(queryIndex + 1);
+        const params = new URLSearchParams(queryString);
+        
+        // Remove sensitive params
+        sensitiveParams.forEach(param => params.delete(param));
+        
+        const newQuery = params.toString();
+        url = beforeQuery + (newQuery ? '?' + newQuery : '');
     }
+    
+    return url;
 }

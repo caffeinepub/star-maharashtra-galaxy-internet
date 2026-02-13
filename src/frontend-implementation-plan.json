@@ -1,36 +1,52 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove Step 3 proof link and keep the print flow sanitized",
+  "title": "Admin Panel access recovery UX: require Internet Identity, actionable English errors, and principal/admin diagnostics",
   "requirements": [
     {
-      "id": "REQ-115",
-      "summary": "Remove the hardcoded website link from the Step 3 print/PDF proof layout while keeping the on-screen Terms step and printing behavior intact.",
+      "id": "REQ-121",
+      "summary": "Clarify Admin Panel access recovery: require Internet Identity sign-in before using username/password or setup code; ensure actionable English errors including rate-limit messaging; avoid misleading troubleshooting while verifying admin access.",
       "acceptanceCriteria": [
-        "In `frontend/src/features/registration/steps/StepTermsAndConditions.tsx`, the print-only proof content no longer renders the hardcoded anchor link `http://star-maharashtra-galaxy-network`.",
-        "When using “Print / Save Proof”, the generated print/PDF content does not include `http://star-maharashtra-galaxy-network` anywhere in the document body.",
-        "The on-screen Step 3 Terms and Conditions UI remains functional and continues to allow printing after the user checks the agreement checkbox."
+        "When a user reaches the Admin Panel unauthenticated, the UI clearly shows an English call-to-action to “Sign In with Internet Identity” (using the existing flow) and does not suggest that username/password or setup code will work without signing in first.",
+        "If the user attempts username/password login or applies a setup code while the backend actor/identity is not available, the UI shows a clear English message instructing the user to sign in with Internet Identity first (no blank states).",
+        "If backend returns rate-limit / too-many-attempts, the UI shows an English message telling the user to wait a few minutes and retry.",
+        "The UI does not display misleading troubleshooting text (e.g., “Try signing out and signing back in with the correct Internet Identity…”) when credentials were accepted and the system is still verifying admin status."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
           "operation": "modify",
-          "description": "Remove the print-only footer section that renders the hardcoded `http://star-maharashtra-galaxy-network` anchor so the proof returns to the prior link-free layout, without changing the on-screen Step 3 interaction and \"Print / Save Proof\" enablement behavior."
+          "description": "Adjust Admin Panel unauthenticated + access-recovery messaging to explicitly state that Internet Identity sign-in is required before username/password or setup code can work; refine the post-success verification state copy to be neutral (no misleading troubleshooting while verification is in progress), and revise the 'Access Still Denied' guidance to be actionable and English (e.g., reference checking the currently signed-in principal shown on-screen). Use existing authentication flow from the authorization system (via useInternetIdentity). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+          "operation": "modify",
+          "description": "Update access-recovery copy to clearly state that Internet Identity sign-in is required before using Username/Password or Admin Setup Code; ensure all helper/error text is English, actionable, and avoids misleading steps during verification. Remove/replace conditional troubleshooting that instructs sign-out/sign-in in a way that could contradict the 'verifying admin access' state. Use existing shadcn-ui components (Card, Alert, Button, Input, etc.) for consistent presentation. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
+          "operation": "modify",
+          "description": "Normalize setup-code apply errors into actionable English messages consistent with password login: (1) if actor is unavailable, instruct the user to sign in with Internet Identity first, (2) if rate-limited / too many attempts, instruct to wait a few minutes and retry, (3) provide a safe generic fallback. Ensure the hook returns user-friendly Error messages that the UI can display directly. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-116",
-      "summary": "Keep the Step 3 print flow sanitized so printed/PDF output never contains the deployment URL or caffeineAdminToken fragments, consistent with the pre-link-change behavior.",
+      "id": "REQ-122",
+      "summary": "Show clear diagnostics in Admin Panel: prominently display signed-in principal and admin status on access recovery and in the authorized admin view, without exposing secrets.",
       "acceptanceCriteria": [
-        "The print flow continues to call `sanitizeUrlForPrint('caffeineAdminToken')` before opening the print dialog and during the print lifecycle.",
-        "The printed/PDF document body does not include the deployment URL (e.g., `https://decisive-scarlet-bm7-draft.caffeine.xyz`) or any `#caffeineAdminToken=...` fragment."
+        "On the access recovery screen, the UI displays “Signed in as: <principal>” (or equivalent) when authenticated, and clearly indicates “Admin: Yes/No”.",
+        "All displayed text is in English and does not expose any secrets (no setup codes or tokens are echoed automatically)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
+          "path": "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
           "operation": "modify",
-          "description": "Preserve and (if needed) strengthen the existing print lifecycle sanitization by ensuring `sanitizeUrlForPrint('caffeineAdminToken')` is invoked before `window.print()` and via `beforeprint`/`afterprint` listeners, so the browser print/PDF output does not leak the deployment URL or any `#caffeineAdminToken=...` fragments."
+          "description": "Add a prominent diagnostics section to the access recovery screen that displays the currently signed-in Internet Identity principal (string) and current admin status (Yes/No). Ensure no secrets are displayed (do not echo setup code). Use existing shadcn-ui components (e.g., Badge/Alert/Separator) for emphasis and clarity. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
+          "operation": "modify",
+          "description": "Display the signed-in principal and admin status in the authorized admin view (e.g., in the header area) so admins can confirm which Internet Identity is active. Keep text English and avoid exposing secrets. Use existing shadcn-ui components already used in the file (e.g., Badge) for status labels. Verify the component's usage instructions before implementing."
         }
       ]
     }

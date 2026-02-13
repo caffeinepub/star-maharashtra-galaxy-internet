@@ -1,44 +1,69 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T12:34:43.954Z",
+  "generatedAt": "2026-02-13T13:32:23.533Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 4,
     "implemented": 2,
     "items": [
       {
-        "id": "REQ-115",
-        "summary": "Remove the website link from the Step 3 Terms and Conditions print/PDF proof content so that no custom link is printed at the end of the document, restoring the prior (link-free) proof layout.",
+        "id": "REQ-119",
+        "summary": "Fix the backend `loginAdmin(username, password)` flow so that a successful login with username `PrabhaPerkar@6` and password `Prabha@1991` reliably grants admin access for the signed-in Internet Identity principal, without failing due to internal role-assignment authorization errors.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-120",
+        "summary": "Ensure the backend admin username/password credentials are configured as username `PrabhaPerkar@6` and password `Prabha@1991` after canister upgrades as well as fresh deployments (add conditional state migration if existing persisted credentials would otherwise override the intended values).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-121",
+        "summary": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/registration/steps/StepTermsAndConditions.tsx"
+          "frontend/src/features/admin/AdminPanel.tsx",
+          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+          "frontend/src/features/admin/hooks/useAdminSetupCode.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/registration/steps/StepTermsAndConditions.tsx"
+          "frontend/src/features/admin/AdminPanel.tsx",
+          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+          "frontend/src/features/admin/hooks/useAdminSetupCode.ts"
         ]
       },
       {
-        "id": "REQ-116",
-        "summary": "Ensure the Step 3 print flow remains safe and does not leak the deployment URL or any `caffeineAdminToken` hash fragments in printed/PDF content, while keeping the app behavior consistent with how it worked before the recent link-related change.",
+        "id": "REQ-122",
+        "summary": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/registration/steps/StepTermsAndConditions.tsx"
+          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+          "frontend/src/features/admin/AdminPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/registration/steps/StepTermsAndConditions.tsx"
+          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+          "frontend/src/features/admin/AdminPanel.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/features/admin/AdminPanel.tsx",
+    "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+    "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
     "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
     "frontend/src/utils/urlParams.ts",
     "project_state.json",

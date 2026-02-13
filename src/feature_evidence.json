@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-website-link-from-the-step-3-terms-and-conditions-print-pdf-proof-content-so-that-no-custom-link-is-printed-at-the-end-of-the-document-restoring-the-prior-link-free-proof-layout",
-      "featureTitle": "Remove the website link from the Step 3 Terms and Conditions print/PDF proof content so that no custom link is printed at the end of the document, restoring the prior (link-free) proof layout.",
+      "featureId": "feature-update-the-admin-panel-access-recovery-experience-so-it-clearly-explains-that-internet-identity-sign-in-is-required-before-using-either-username-password-or-admin-setup-code-and-ensure-all-error-messages-are-actionable-and-in-english",
+      "featureTitle": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
       "files": [
-        "frontend/src/features/registration/steps/StepTermsAndConditions.tsx"
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+        "frontend/src/features/admin/hooks/useAdminSetupCode.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -17,15 +19,16 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-115"
+        "REQ-121"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-step-3-print-flow-remains-safe-and-does-not-leak-the-deployment-url-or-any-caffeineadmintoken-hash-fragments-in-printed-pdf-content-while-keeping-the-app-behavior-consistent-with-how-it-worked-before-the-recent-link-related-change",
-      "featureTitle": "Ensure the Step 3 print flow remains safe and does not leak the deployment URL or any `caffeineAdminToken` hash fragments in printed/PDF content, while keeping the app behavior consistent with how it worked before the recent link-related change.",
+      "featureId": "feature-improve-diagnostics-in-the-admin-panel-to-reduce-confusion-about-which-internet-identity-is-currently-being-used-during-login-unlock-attempts-by-prominently-displaying-the-signed-in-principal-and-admin-status-on-the-access-recovery-screen-as-well-as-the-authorized-admin-view",
+      "featureTitle": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
       "files": [
-        "frontend/src/features/registration/steps/StepTermsAndConditions.tsx"
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -37,7 +40,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-116"
+        "REQ-122"
       ],
       "confidence": "high"
     }

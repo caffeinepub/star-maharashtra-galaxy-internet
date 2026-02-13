@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Remove the hardcoded Terms & Conditions website link from the Step 3 print/PDF proof and restore the prior (link-free) proof layout while keeping the print flow safe.
+**Goal:** Fix Admin Panel login/setup unlock failures by ensuring Internet Identity sign-in is required and by making admin credential + role assignment work reliably across upgrades, with clearer English guidance and diagnostics.
 
 **Planned changes:**
-- Update Step 3 Terms & Conditions print-only proof content to stop rendering the hardcoded `http://star-maharashtra-galaxy-network` link.
-- Ensure the Step 3 print flow continues to sanitize the URL for print so no deployment URL or any `#caffeineAdminToken=...` fragment can appear in the printed/PDF output.
-- Keep the on-screen Step 3 Terms & Conditions UI and “Print / Save Proof” functionality working as before (including printing after the agreement checkbox is checked).
+- Backend: Fix `loginAdmin(username, password)` so that when called by an Internet Identity–authenticated principal with valid credentials (`PrabhaPerkar@6` / `Prabha@1991`), it consistently grants admin access without internal authorization/role-assignment traps.
+- Backend: Ensure `loginAdmin` traps with clear errors for anonymous callers (Internet Identity required) and for invalid credentials.
+- Backend: Ensure the intended admin credentials (`PrabhaPerkar@6` / `Prabha@1991`) remain configured after upgrades and fresh deployments, adding conditional state migration if needed without breaking existing stored data.
+- Frontend: Update Admin Panel access-recovery UI to clearly instruct users (in English) to sign in with Internet Identity before using username/password or setup code, and make all error states actionable (including rate-limit/too-many-attempts messaging).
+- Frontend: Show diagnostics on access recovery and admin views: “Signed in as: <principal>” and “Admin: Yes/No”, without exposing secrets.
 
-**User-visible outcome:** Users can still print/save the Step 3 proof after agreeing, and the printed/PDF proof no longer contains the website link, deployment URL, or any admin-token hash fragment.
+**User-visible outcome:** Users are clearly guided to sign in with Internet Identity first, can reliably log in to the Admin Panel using the provided admin credentials, see which principal is signed in and whether they are admin, and receive clear English error messages (including for anonymous access, invalid credentials, and rate limits).

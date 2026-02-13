@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 95,
+  "projectStateVersion": 99,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -819,6 +819,38 @@
         "REQ-116"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-remove-the-customer-facing-helper-tip-note-shown-at-the-bottom-of-the-step-3-terms-and-conditions-page-near-the-print-save-proof-button-that-instructs-users-to-disable-headers-and-footers-in-the-browser-print-dialog",
+      "title": "Remove the customer-facing helper tip/note shown at the bottom of the Step 3 Terms and Conditions page (near the “Print / Save Proof” button) that instructs users to disable “Headers and footers” in the browser print dialog.",
+      "reqIds": [
+        "REQ-117"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-src-features-registration-steps-steptermsandconditions-tsx-to-remove-any-now-unused-imports-or-code-related-only-to-the-removed-helper-note-e-g-the-info-icon-import-and-ensure-the-file-builds-cleanly-with-no-lint-type-errors",
+      "title": "Update `frontend/src/features/registration/steps/StepTermsAndConditions.tsx` to remove any now-unused imports or code related only to the removed helper note (e.g., the `Info` icon import), and ensure the file builds cleanly with no lint/type errors.",
+      "reqIds": [
+        "REQ-118"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-access-recovery-experience-so-it-clearly-explains-that-internet-identity-sign-in-is-required-before-using-either-username-password-or-admin-setup-code-and-ensure-all-error-messages-are-actionable-and-in-english",
+      "title": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
+      "reqIds": [
+        "REQ-121"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-diagnostics-in-the-admin-panel-to-reduce-confusion-about-which-internet-identity-is-currently-being-used-during-login-unlock-attempts-by-prominently-displaying-the-signed-in-principal-and-admin-status-on-the-access-recovery-screen-as-well-as-the-authorized-admin-view",
+      "title": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
+      "reqIds": [
+        "REQ-122"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -1136,6 +1168,30 @@
       "id": "AR-57",
       "summary": "Update the Terms & Conditions Print/PDF output footer so the ONLY link shown at the end is exactly \"http://star-maharashtra-galaxy-network\" (no deployment URL, no #caffeineAdminToken link, nothing else).",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-58",
+      "summary": "Remove the customer-facing tip/note added at the end of the Terms & Conditions page (near the Print/Save Proof button) about disabling browser print headers/footers.",
+      "reqIds": [
+        "REQ-113"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-59",
+      "summary": "Fix the backend `loginAdmin(username, password)` flow so that a successful login with username `PrabhaPerkar@6` and password `Prabha@1991` reliably grants admin access for the signed-in Internet Identity principal, without failing due to internal role-assignment authorization errors.",
+      "reqIds": [
+        "REQ-119"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-60",
+      "summary": "Ensure the backend admin username/password credentials are configured as username `PrabhaPerkar@6` and password `Prabha@1991` after canister upgrades as well as fresh deployments (add conditional state migration if existing persisted credentials would otherwise override the intended values).",
+      "reqIds": [
+        "REQ-120"
+      ],
       "status": "pending"
     }
   ],

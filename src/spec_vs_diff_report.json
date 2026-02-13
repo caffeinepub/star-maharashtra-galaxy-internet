@@ -1,13 +1,68 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T12:34:43.949Z",
-  "summary": "Step 3 Terms & Conditions print flow was updated to sanitize the URL before printing and during the print lifecycle, and the print-only proof content shown in the diff no longer includes the previously hardcoded website anchor link. No clearly unrequested features are evident from the provided diff summary.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.66,
+  "generatedAt": "2026-02-13T13:32:23.527Z",
+  "summary": "Diff adds a backend migration that force-resets admin credentials to the requested defaults, introduces backend state for admin credentials and login attempt tracking, and updates Admin Panel UI to show principal/admin status plus clearer English guidance/errors about requiring Internet Identity before using setup code or password login. Diff also includes unrelated URL/print sanitization changes in registration terms flow.",
+  "missing_requirements": [
+    {
+      "id": "REQ-119",
+      "requirement": "Fix backend loginAdmin(username, password) so correct credentials grant admin access for the signed-in Internet Identity principal; anonymous traps with clear II-required error; incorrect credentials traps with clear invalid-credentials error; no security weakening.",
+      "reason": "The diff excerpt of backend/main.mo is truncated before any loginAdmin implementation or related authorization/role-assignment logic is shown. There is no explicit evidence that loginAdmin was changed to (a) reject anonymous with a clear message, (b) accept the specified credentials, and (c) immediately grant admin without internal authorization errors.",
+      "evidence": [
+        "backend/main.mo (truncated; no loginAdmin shown)"
+      ]
+    },
+    {
+      "id": "REQ-120",
+      "requirement": "Ensure backend admin username/password remain PrabhaPerkar@6 / Prabha@1991 after upgrades as well as fresh deployments, without overriding admin-changed credentials (if such behavior already exists), using conditional migration policy as needed.",
+      "reason": "backend/migration.mo overwrites persisted credentials whenever they differ from defaults, which would also overwrite any admin-updated credentials after upgrade. The requirement allows preserving admin-changed credentials if that behavior already exists; the migration does not appear to detect/avoid overwriting an intentional admin change.",
+      "evidence": [
+        "backend/migration.mo (shouldOverwrite if old != default => overwrite)",
+        "backend/main.mo (uses Migration.run; indicates migration will apply on upgrade)"
+      ]
+    },
+    {
+      "id": "REQ-122",
+      "requirement": "Prominently display signed-in principal and admin status on both the access-recovery screen and the authorized admin view.",
+      "reason": "Evidence shows principal and admin status displayed in the access-recovery card, but the diff summary does not show corresponding diagnostics in the authorized admin view of AdminPanel (the AdminPanel.tsx excerpt is truncated before its admin view render sections).",
+      "evidence": [
+        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx (shows “Signed in as” and “Admin: Yes/No”)",
+        "frontend/src/features/admin/AdminPanel.tsx (truncated; authorized admin view not evidenced)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Sanitize URL during print workflow (beforeprint/afterprint listeners) and related URL parameter utilities changes in registration Terms & Conditions step.",
+      "reason": "BuildRequest is focused on Admin Panel login/setup unlock and Internet Identity guidance/diagnostics. These print/URL sanitization changes are not mentioned in REQ-119—REQ-122.",
+      "evidence": [
+        "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
+        "frontend/src/utils/urlParams.ts"
+      ]
+    },
+    {
+      "description": "Backend login-attempt tracking map for basic rate limiting (loginAttempts state).",
+      "reason": "While the frontend requirement mentions showing a message if backend returns rate-limit/too-many-attempts, the BuildRequest does not require implementing new backend rate limiting logic; the diff shows new rate-limit tracking state but no corresponding requested backend requirement.",
+      "evidence": [
+        "backend/main.mo (\"Track failed login attempts for basic rate limiting\" and loginAttempts map)"
+      ]
+    },
+    {
+      "description": "Admin setup code flow stores token in sessionStorage and aggressively invalidates/refetches multiple react-query keys with a delay.",
+      "reason": "REQ-121 asks for clearer UX and actionable English errors when unauthenticated and on rate-limit; it does not request changing persistence of setup codes or aggressive query invalidation behavior.",
+      "evidence": [
+        "frontend/src/features/admin/hooks/useAdminSetupCode.ts (storeSessionParameter('caffeineAdminToken', setupCode); invalidate/refetch queries)"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/features/admin/AdminPanel.tsx",
+    "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
+    "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
     "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
     "frontend/src/utils/urlParams.ts",
     "project_state.json"

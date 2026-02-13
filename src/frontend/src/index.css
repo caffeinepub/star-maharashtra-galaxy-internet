@@ -116,7 +116,8 @@
 }
 
 /* Ensure text is above overlay */
-.splash-name-area h1 {
+.splash-name-area h1,
+.splash-name-area p {
   position: relative;
   z-index: 1;
 }
@@ -126,6 +127,16 @@
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
                0 0 40px rgba(255, 255, 255, 0.2);
   letter-spacing: 0.05em;
+}
+
+/* Splash tagline styling */
+.splash-tagline {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  max-width: 90vw;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Splash screen animations */
@@ -195,5 +206,20 @@
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Suppress URL display in print headers/footers */
+  @page {
+    margin: 1cm;
+  }
+
+  /* Prevent anchor URLs from being displayed after links */
+  a[href]::after {
+    content: none !important;
+  }
+
+  /* Prevent abbreviation expansions */
+  abbr[title]::after {
+    content: none !important;
   }
 }

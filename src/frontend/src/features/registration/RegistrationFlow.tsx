@@ -8,6 +8,7 @@ import { StepVerificationDocuments } from './steps/StepVerificationDocuments';
 import { StepTermsAndConditions } from './steps/StepTermsAndConditions';
 import { StepOTPVerification } from './steps/StepOTPVerification';
 import { RegistrationStepErrorBoundary } from './components/RegistrationStepErrorBoundary';
+import { useDoubleInteraction } from './hooks/useDoubleInteraction';
 import type { CustomerDetailsData, DocumentsData } from './types';
 
 interface RegistrationFlowProps {
@@ -27,6 +28,13 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
     { number: 3, title: 'Terms and Conditions', component: StepTermsAndConditions },
     { number: 4, title: 'OTP Verification', component: StepOTPVerification },
   ];
+
+  // Double-interaction hook for Admin Panel access
+  const { showHint, handleClick, handleDoubleClick, handleTouchStart } = useDoubleInteraction({
+    onDoubleInteraction: onNavigateToAdmin,
+    hintDuration: 2000,
+    doubleClickThreshold: 300,
+  });
 
   // Ensure step is always in valid range
   useEffect(() => {
@@ -119,19 +127,28 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
                 <Wifi className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-white">Star Maharashtra Galaxy Internet</h1>
+                <h1 className="text-xl font-bold tracking-tight text-white">Galaxy Internet</h1>
                 <p className="text-sm text-gray-200">Customer Registration</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNavigateToAdmin}
-              className="gap-2 border-white/40 text-white hover:bg-white/20 hover:text-white hover:border-white/60"
-            >
-              <Shield className="w-4 h-4" />
-              Admin Panel
-            </Button>
+            <div className="relative">
+              <button
+                onClick={handleClick}
+                onDoubleClick={handleDoubleClick}
+                onTouchStart={handleTouchStart}
+                aria-label="Open Admin Panel"
+                title="Open Admin Panel"
+                className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-white/40 text-white hover:bg-white/20 hover:border-white/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <Shield className="w-5 h-5" />
+              </button>
+              {showHint && (
+                <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-white text-gray-900 text-xs font-medium rounded-lg shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-top-2 duration-200">
+                  Double-click to open Admin Panel
+                  <div className="absolute -top-1 right-4 w-2 h-2 bg-white transform rotate-45" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -214,25 +231,6 @@ export function RegistrationFlow({ onNavigateToAdmin }: RegistrationFlowProps) {
           </Card>
         </RegistrationStepErrorBoundary>
       </main>
-
-      {/* Footer */}
-      <footer className="no-print border-t mt-16 py-6 bg-card/30">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>
-            © {new Date().getFullYear()} Star Maharashtra Galaxy Internet. Built with ❤️ using{' '}
-            <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
-                typeof window !== 'undefined' ? window.location.hostname : 'star-maharashtra-galaxy'
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              caffeine.ai
-            </a>
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

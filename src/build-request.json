@@ -1,74 +1,57 @@
 {
   "kind": "build_request",
-  "title": "Update Splash Screen name to “GALAXY INTERNET” and add galaxy image background behind the name",
+  "title": "Remove the Terms & Conditions print/PDF link and revert the app to the previous behavior",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-98",
-      "text": "Update the splash/intro screen company name text in `frontend/src/components/SplashScreen.tsx` to display exactly: \"GALAXY INTERNET\" (replace the current \"Star Maharashtra Galaxy Internet\" text).",
+      "id": "REQ-115",
+      "text": "Remove the website link from the Step 3 Terms and Conditions print/PDF proof content so that no custom link is printed at the end of the document, restoring the prior (link-free) proof layout.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-4"
         ],
         "quotes": [
-          "font is ok but chnage into company name is GALAXY INTERNET"
+          "jo link bole the wo nikal do aur pahele jasa he app bana do"
         ]
       },
       "acceptanceCriteria": [
-        "On app launch, the splash screen headline text reads exactly \"GALAXY INTERNET\".",
-        "No other branding text is shown in place of the company name on the splash screen.",
-        "Existing splash behaviors remain unchanged: auto-transition timing, fade-out, click/tap to skip, and reduced-motion support."
+        "In `frontend/src/features/registration/steps/StepTermsAndConditions.tsx`, the print-only proof content no longer renders the hardcoded anchor link `http://star-maharashtra-galaxy-network`.",
+        "When using “Print / Save Proof”, the generated print/PDF content does not include `http://star-maharashtra-galaxy-network` anywhere in the document body.",
+        "The on-screen Step 3 Terms and Conditions UI remains functional and continues to allow printing after the user checks the agreement checkbox."
       ]
     },
     {
-      "id": "REQ-99",
-      "text": "Add a galaxy-themed background image behind the splash screen company name area (the text block containing the \"GALAXY INTERNET\" headline), using a static frontend asset under `frontend/public/assets/generated/`, and style it so the headline remains readable with sufficient contrast across breakpoints.",
+      "id": "REQ-116",
+      "text": "Ensure the Step 3 print flow remains safe and does not leak the deployment URL or any `caffeineAdminToken` hash fragments in printed/PDF content, while keeping the app behavior consistent with how it worked before the recent link-related change.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-4"
         ],
         "quotes": [
-          "background of name is galaxy image"
+          "jo link bole the wo nikal do aur pahele jasa he app bana do"
         ]
       },
       "acceptanceCriteria": [
-        "A galaxy image is used as a background behind the company-name area (not just a flat gradient).",
-        "The \"GALAXY INTERNET\" text remains clearly legible on top of the galaxy image on mobile and desktop.",
-        "Reduced-motion mode still shows a minimal/non-animated variant and still transitions quickly (no animation required for the galaxy image itself).",
-        "The galaxy background image is served as a static asset from `frontend/public/assets/generated/` and is not fetched from the backend."
-      ]
-    },
-    {
-      "id": "REQ-100",
-      "text": "Update splash screen styling (in `frontend/src/index.css` and/or Tailwind classes in `frontend/src/components/SplashScreen.tsx`) to integrate the galaxy image background behind the name area while keeping existing splash layout, fade-out behavior, and Skip button behavior unchanged.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The splash screen still fades out when completing.",
-        "The Skip button still works and remains readable/usable on top of the updated design.",
-        "No backend changes are introduced for this update."
+        "The print flow continues to call `sanitizeUrlForPrint('caffeineAdminToken')` before opening the print dialog and during the print lifecycle.",
+        "The printed/PDF document body does not include the deployment URL (e.g., `https://decisive-scarlet-bm7-draft.caffeine.xyz`) or any `#caffeineAdminToken=...` fragment."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under `frontend/src/components/ui` (read-only UI library components).",
-    "Do not serve images from the backend; all splash images must be static assets under `frontend/public/assets/generated/`.",
-    "Preserve existing splash behavior: auto-transition after a short delay, fade-out on completion, click/tap to skip, and reduced-motion accessibility support."
+    "Use English for any user-facing text.",
+    "Do not edit files under `frontend/src/components/ui` (read-only UI component sources).",
+    "Do not edit immutable hook files under `frontend/src/hooks/` listed in SYSTEM_CONTEXT.",
+    "No backend changes are required for this request."
   ],
   "nonGoals": [
-    "Do not change the Registration flow UI or Admin Panel UI as part of this request.",
-    "Do not add or modify backend/canister logic for the splash screen."
+    "Do not remove the existing Terms & Conditions “Print / Save Proof” feature.",
+    "Do not add new admin/authentication features.",
+    "Do not introduce any external integrations (email/SMS/third-party auth)."
   ],
   "imageRequirements": {
-    "required": [
-      "Galaxy background image (smgi-galaxy-name-bg.dim_1920x1080.png)"
-    ],
+    "required": [],
     "edits": []
   },
   "userProfileUpdate": {

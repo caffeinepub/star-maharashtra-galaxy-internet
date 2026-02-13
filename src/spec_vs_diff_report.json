@@ -1,48 +1,15 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T21:59:53.257Z",
-  "summary": "Splash screen headline text was updated to “GALAXY INTERNET” and CSS/classes were added to place a galaxy image background behind the name area with an overlay for readability. However, the required static image asset itself was not added in this diff, and there are additional unrelated styling/UI changes (e.g., admin theme CSS and decorative floating circles) not requested by the BuildRequest.",
-  "missing_requirements": [
-    {
-      "id": "REQ-99",
-      "requirement": "Add the galaxy background image as a static frontend asset under `frontend/public/assets/generated/` (smgi-galaxy-name-bg.dim_1920x1080.png) and serve it from there (no backend fetch).",
-      "reason": "The CSS references `/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png`, but the diff shows no new/added file under `frontend/public/assets/generated/` (Added: 0 files). Without the asset being present, the requirement is not fully implemented/verified from this diff.",
-      "evidence": [
-        "frontend/src/index.css (references url('/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png'))",
-        "file-diff summary: Added: 0"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "Added decorative floating circle elements and associated float animations on the splash screen.",
-      "reason": "The BuildRequest only asked to change the splash name text and add a galaxy background image behind the name area while preserving existing behavior; it did not request new decorative elements/animations.",
-      "evidence": [
-        "frontend/src/components/SplashScreen.tsx (\"Decorative floating circles\" divs with animate-float)",
-        "frontend/src/index.css (@keyframes float, .animate-float)"
-      ]
-    },
-    {
-      "description": "Introduced/modified Admin Panel theme CSS in `index.css` (\"Admin Panel Theme - Force dark mode styling\").",
-      "reason": "Non-goals explicitly state not to change Admin Panel UI as part of this request; adding/changing admin theme styling is outside the requested splash-screen-only update.",
-      "evidence": [
-        "frontend/src/index.css (\"Admin Panel Theme - Force dark mode styling\" and .admin-theme-wrapper styles)"
-      ]
-    },
-    {
-      "description": "Updated `frontend-file-summaries.txt` content describing Registration Flow UI changes (e.g., sticky header with splash background).",
-      "reason": "Non-goals state not to change the Registration flow UI; even though this is documentation/summary, it introduces unrequested scope and implies changes unrelated to the splash requirements.",
-      "evidence": [
-        "frontend-file-summaries.txt (RegistrationFlow description mentions sticky header and splash-galaxy-bg usage)"
-      ]
-    }
-  ],
-  "confidence": 0.72,
+  "generatedAt": "2026-02-13T12:34:43.949Z",
+  "summary": "Step 3 Terms & Conditions print flow was updated to sanitize the URL before printing and during the print lifecycle, and the print-only proof content shown in the diff no longer includes the previously hardcoded website anchor link. No clearly unrequested features are evident from the provided diff summary.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.66,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/SplashScreen.tsx",
-    "frontend/src/index.css",
+    "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }

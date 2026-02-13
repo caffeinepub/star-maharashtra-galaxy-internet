@@ -1,64 +1,36 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Splash screen: rename to “GALAXY INTERNET” and add galaxy image background behind name",
+  "title": "Remove Step 3 proof link and keep the print flow sanitized",
   "requirements": [
     {
-      "id": "REQ-98",
-      "summary": "Change splash screen headline text to exactly “GALAXY INTERNET” while preserving all existing splash behaviors.",
+      "id": "REQ-115",
+      "summary": "Remove the hardcoded website link from the Step 3 print/PDF proof layout while keeping the on-screen Terms step and printing behavior intact.",
       "acceptanceCriteria": [
-        "On app launch, the splash screen headline text reads exactly \"GALAXY INTERNET\".",
-        "No other branding text is shown in place of the company name on the splash screen.",
-        "Existing splash behaviors remain unchanged: auto-transition timing, fade-out, click/tap to skip, and reduced-motion support."
+        "In `frontend/src/features/registration/steps/StepTermsAndConditions.tsx`, the print-only proof content no longer renders the hardcoded anchor link `http://star-maharashtra-galaxy-network`.",
+        "When using “Print / Save Proof”, the generated print/PDF content does not include `http://star-maharashtra-galaxy-network` anywhere in the document body.",
+        "The on-screen Step 3 Terms and Conditions UI remains functional and continues to allow printing after the user checks the agreement checkbox."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/SplashScreen.tsx",
+          "path": "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
           "operation": "modify",
-          "description": "Replace the current company name string with the exact text \"GALAXY INTERNET\" (and remove/adjust any related comment) without changing existing timing, fade-out, click-to-skip, Skip button behavior, or reduced-motion handling."
+          "description": "Remove the print-only footer section that renders the hardcoded `http://star-maharashtra-galaxy-network` anchor so the proof returns to the prior link-free layout, without changing the on-screen Step 3 interaction and \"Print / Save Proof\" enablement behavior."
         }
       ]
     },
     {
-      "id": "REQ-99",
-      "summary": "Add a static galaxy background image behind the splash screen company-name area and ensure readable contrast across breakpoints.",
+      "id": "REQ-116",
+      "summary": "Keep the Step 3 print flow sanitized so printed/PDF output never contains the deployment URL or caffeineAdminToken fragments, consistent with the pre-link-change behavior.",
       "acceptanceCriteria": [
-        "A galaxy image is used as a background behind the company-name area (not just a flat gradient).",
-        "The \"GALAXY INTERNET\" text remains clearly legible on top of the galaxy image on mobile and desktop.",
-        "Reduced-motion mode still shows a minimal/non-animated variant and still transitions quickly (no animation required for the galaxy image itself).",
-        "The galaxy background image is served as a static asset from `frontend/public/assets/generated/` and is not fetched from the backend."
+        "The print flow continues to call `sanitizeUrlForPrint('caffeineAdminToken')` before opening the print dialog and during the print lifecycle.",
+        "The printed/PDF document body does not include the deployment URL (e.g., `https://decisive-scarlet-bm7-draft.caffeine.xyz`) or any `#caffeineAdminToken=...` fragment."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png",
-          "operation": "create",
-          "description": "Add the required static galaxy background image asset to be used for the splash screen company-name area: frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png."
-        },
-        {
-          "path": "frontend/src/components/SplashScreen.tsx",
+          "path": "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
           "operation": "modify",
-          "description": "Wrap the headline block in a dedicated 'company-name area' container that uses the static galaxy background image (from frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png) behind the text, and add appropriate layering/overlay (e.g., dark scrim) so the title remains readable on mobile/desktop. Ensure reduced-motion mode does not introduce additional animations for this background."
-        }
-      ]
-    },
-    {
-      "id": "REQ-100",
-      "summary": "Integrate the galaxy name-area background into existing splash styling without altering layout, fade-out, or Skip button behavior.",
-      "acceptanceCriteria": [
-        "The splash screen still fades out when completing.",
-        "The Skip button still works and remains readable/usable on top of the updated design.",
-        "No backend changes are introduced for this update."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add/adjust splash-specific CSS classes to support the name-area galaxy background (using frontend/public/assets/generated/smgi-galaxy-name-bg.dim_1920x1080.png) and ensure sufficient contrast (e.g., overlay/scrim, border-radius, padding) across breakpoints while leaving existing global splash behaviors (fade-out, reduced-motion) unchanged."
-        },
-        {
-          "path": "frontend/src/components/SplashScreen.tsx",
-          "operation": "modify",
-          "description": "Update Tailwind classes/structure to apply the new name-area background styling and maintain existing layout, z-index layering, and Skip button readability/interaction (no changes to the underlying completion/skip logic)."
+          "description": "Preserve and (if needed) strengthen the existing print lifecycle sanitization by ensuring `sanitizeUrlForPrint('caffeineAdminToken')` is invoked before `window.print()` and via `beforeprint`/`afterprint` listeners, so the browser print/PDF output does not leak the deployment URL or any `#caffeineAdminToken=...` fragments."
         }
       ]
     }

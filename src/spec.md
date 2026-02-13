@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Update the app splash screen to show the company name as “GALAXY INTERNET” and display a galaxy image background behind the name area while preserving existing splash behavior.
+**Goal:** Remove the hardcoded Terms & Conditions website link from the Step 3 print/PDF proof and restore the prior (link-free) proof layout while keeping the print flow safe.
 
 **Planned changes:**
-- Replace the splash screen headline text in `frontend/src/components/SplashScreen.tsx` from “Star Maharashtra Galaxy Internet” to exactly “GALAXY INTERNET”.
-- Add a static galaxy-themed background image behind the company-name text block, served from `frontend/public/assets/generated/`.
-- Adjust splash screen CSS/Tailwind styling (in `frontend/src/index.css` and/or `frontend/src/components/SplashScreen.tsx`) to ensure readability/contrast across breakpoints while keeping fade-out, skip, auto-transition timing, and reduced-motion behavior unchanged.
+- Update Step 3 Terms & Conditions print-only proof content to stop rendering the hardcoded `http://star-maharashtra-galaxy-network` link.
+- Ensure the Step 3 print flow continues to sanitize the URL for print so no deployment URL or any `#caffeineAdminToken=...` fragment can appear in the printed/PDF output.
+- Keep the on-screen Step 3 Terms & Conditions UI and “Print / Save Proof” functionality working as before (including printing after the agreement checkbox is checked).
 
-**User-visible outcome:** On launch, users see a splash screen with the headline “GALAXY INTERNET” displayed over a galaxy image background behind the name area, with the same skip and transition behavior as before.
+**User-visible outcome:** Users can still print/save the Step 3 proof after agreeing, and the printed/PDF proof no longer contains the website link, deployment URL, or any admin-token hash fragment.

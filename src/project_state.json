@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 77,
+  "projectStateVersion": 95,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -26,8 +26,7 @@
     "Admin Panel: \"Error loading details\" occurs only for a specific single customer registration (one record), suggesting record-specific data/loading issue; user also cannot access Edit/Delete on that record due to the details error.",
     "Admin Panel: Uploaded document photos (Aadhaar/PAN/receipt) are not visible in the registration detail view (user reports they cannot see the document photos)."
   ],
-  "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Galaxy background image (smgi-galaxy-name-bg.dim_1920x1080.png)",
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-a-multi-step-customer-registration-flow-for-star-maharashtra-galaxy-internet-with-4-steps-1-customer-details-2-verification-documents-3-terms-and-conditions-4-otp-verification-use-english-for-all-user-facing-ui-text",
@@ -700,6 +699,126 @@
         "REQ-100"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-splash-intro-screen-frontend-src-components-splashscreen-tsx-to-display-the-tagline-text-directly-beneath-the-company-name-headline-with-the-layout-clearly-reading-as-a-single-name-tagline-unit-across-responsive-breakpoints-the-tagline-text-must-be-exactly-connect-to-the-future-with-internet-at-light-speed",
+      "title": "Update the splash/intro screen (`frontend/src/components/SplashScreen.tsx`) to display the tagline text directly beneath the company name headline, with the layout clearly reading as a single name+tagline unit across responsive breakpoints. The tagline text must be exactly: \"Connect to the Future with Internet at Light Speed.\"",
+      "reqIds": [
+        "REQ-101"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-main-customer-registration-page-the-sticky-top-header-in-frontend-src-features-registration-registrationflow-tsx-to-display-the-company-name-as-exactly-galaxy-internet-instead-of-star-maharashtra-galaxy-internet",
+      "title": "Update the main customer registration page (the sticky top header in `frontend/src/features/registration/RegistrationFlow.tsx`) to display the company name as exactly \"Galaxy Internet\" instead of \"Star Maharashtra Galaxy Internet\".",
+      "reqIds": [
+        "REQ-102"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-registration-flow-footer-in-frontend-src-features-registration-registrationflow-tsx-so-the-displayed-copyright-company-name-text-uses-galaxy-internet-instead-of-star-maharashtra-galaxy-internet",
+      "title": "Update the registration flow footer in `frontend/src/features/registration/RegistrationFlow.tsx` so the displayed copyright/company name text uses \"Galaxy Internet\" instead of \"Star Maharashtra Galaxy Internet\".",
+      "reqIds": [
+        "REQ-103"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-customer-registration-flow-header-in-frontend-src-features-registration-registrationflow-tsx-so-the-admin-panel-entry-shows-only-an-icon-remove-the-visible-admin-panel-text-label-while-keeping-the-control-clearly-discoverable-and-accessible-e-g-provide-an-english-tooltip-accessible-label-such-as-admin-panel-or-open-admin-panel",
+      "title": "Update the customer Registration flow header (in `frontend/src/features/registration/RegistrationFlow.tsx`) so the Admin Panel entry shows only an icon (remove the visible \"Admin Panel\" text label) while keeping the control clearly discoverable and accessible (e.g., provide an English tooltip/accessible label such as \"Admin Panel\" or \"Open Admin Panel\").",
+      "reqIds": [
+        "REQ-104"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-change-the-registration-flow-header-admin-icon-behavior-so-it-opens-the-admin-panel-only-on-a-deliberate-double-interaction-double-click-for-mouse-trackpad-and-double-tap-for-touch-a-single-click-tap-must-not-navigate-to-the-admin-panel-instead-it-should-provide-a-small-english-hint-telling-the-user-to-double-click-double-tap-to-open",
+      "title": "Change the Registration flow header Admin icon behavior so it opens the Admin Panel only on a deliberate double interaction (double-click for mouse/trackpad and double-tap for touch). A single click/tap must not navigate to the Admin Panel; instead it should provide a small English hint telling the user to double-click/double-tap to open.",
+      "reqIds": [
+        "REQ-105"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-customer-facing-footer-credit-line-shown-at-the-bottom-of-the-registration-flow-that-reads-year-galaxy-internet-built-with-using-caffeine-ai-including-the-caffeine-ai-outbound-link-so-this-branding-line-no-longer-appears-when-the-app-is-opened-used",
+      "title": "Remove the customer-facing footer/credit line shown at the bottom of the Registration flow that reads “© <year> Galaxy Internet. Built with ❤️ using caffeine.ai” (including the caffeine.ai outbound link), so this branding line no longer appears when the app is opened/used.",
+      "reqIds": [
+        "REQ-106"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-url-hash-secret-clearing-so-that-when-the-url-uses-the-format-caffeineadmintoken-token-no-route-path-and-no-query-segment-the-caffeineadmintoken-parameter-is-removed-from-the-address-bar-after-being-read-so-it-cannot-appear-as-a-printed-footer-link-in-the-terms-conditions-print-save-output",
+      "title": "Fix URL hash secret-clearing so that when the URL uses the format `#caffeineAdminToken=<token>` (no route path and no `?` query segment), the `caffeineAdminToken` parameter is removed from the address bar after being read, so it cannot appear as a printed footer/link in the Terms & Conditions Print / Save output.",
+      "reqIds": [
+        "REQ-107"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-terms-conditions-print-save-proof-output-does-not-include-the-tokenized-application-url-e-g-caffeineadmintoken-at-the-end-of-the-printed-pdf-document-by-guaranteeing-the-address-bar-url-is-sanitized-before-printing",
+      "title": "Ensure the Terms & Conditions “Print / Save Proof” output does not include the tokenized application URL (e.g., `.../#caffeineAdminToken=...`) at the end of the printed/PDF document by guaranteeing the address bar URL is sanitized before printing.",
+      "reqIds": [
+        "REQ-108"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-step-3-print-save-proof-behavior-so-the-printed-pdf-output-does-not-include-the-application-url-including-https-decisive-scarlet-bm7-draft-caffeine-xyz-anywhere-in-the-generated-print-pdf-content",
+      "title": "Update the Step 3 \"Print / Save Proof\" behavior so the printed/PDF output does not include the application URL (including `https://decisive-scarlet-bm7-draft.caffeine.xyz`) anywhere in the generated print/PDF content.",
+      "reqIds": [
+        "REQ-110"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-url-sanitization-so-that-sensitive-hash-parameters-specifically-caffeineadmintoken-are-removed-from-the-address-bar-for-all-supported-hash-formats-including-the-format-caffeineadmintoken-token-no-route-path-and-no-query-segment-not-only-route-caffeineadmintoken",
+      "title": "Fix URL sanitization so that sensitive hash parameters (specifically `caffeineAdminToken`) are removed from the address bar for ALL supported hash formats, including the format `#caffeineAdminToken=<token>` (no route path and no `?` query segment), not only `#/route?caffeineAdminToken=...`.",
+      "reqIds": [
+        "REQ-111"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-step-3-terms-conditions-print-save-proof-flow-frontend-src-features-registration-steps-steptermsandconditions-tsx-so-it-reliably-sanitizes-the-address-bar-url-before-opening-the-print-dialog-and-keeps-it-sanitized-for-the-duration-of-printing",
+      "title": "Update the Step 3 Terms & Conditions “Print / Save Proof” flow (`frontend/src/features/registration/steps/StepTermsAndConditions.tsx`) so it reliably sanitizes the address bar URL BEFORE opening the print dialog and keeps it sanitized for the duration of printing.",
+      "reqIds": [
+        "REQ-112"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-small-english-customer-facing-note-on-step-3-near-the-print-save-proof-button-explaining-how-to-prevent-any-browser-header-footer-url-from-appearing-in-the-pdf-by-disabling-the-print-setting-e-g-headers-and-footers-if-the-browser-still-shows-the-site-link",
+      "title": "Add a small, English, customer-facing note on Step 3 near the “Print / Save Proof” button explaining how to prevent any browser header/footer URL from appearing in the PDF by disabling the print setting (e.g., “Headers and footers”) if the browser still shows the site link.",
+      "reqIds": [
+        "REQ-113"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-step-3-terms-conditions-print-pdf-proof-content-so-that-the-only-link-shown-at-the-end-of-the-printed-document-is-exactly-http-star-maharashtra-galaxy-network-no-deployment-url-no-caffeineadmintoken-fragment-and-no-other-links",
+      "title": "Update the Step 3 Terms & Conditions print/PDF proof content so that the ONLY link shown at the end of the printed document is exactly: \"http://star-maharashtra-galaxy-network\" (no deployment URL, no `#caffeineAdminToken` fragment, and no other links).",
+      "reqIds": [
+        "REQ-114"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-website-link-from-the-step-3-terms-and-conditions-print-pdf-proof-content-so-that-no-custom-link-is-printed-at-the-end-of-the-document-restoring-the-prior-link-free-proof-layout",
+      "title": "Remove the website link from the Step 3 Terms and Conditions print/PDF proof content so that no custom link is printed at the end of the document, restoring the prior (link-free) proof layout.",
+      "reqIds": [
+        "REQ-115"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-step-3-print-flow-remains-safe-and-does-not-leak-the-deployment-url-or-any-caffeineadmintoken-hash-fragments-in-printed-pdf-content-while-keeping-the-app-behavior-consistent-with-how-it-worked-before-the-recent-link-related-change",
+      "title": "Ensure the Step 3 print flow remains safe and does not leak the deployment URL or any `caffeineAdminToken` hash fragments in printed/PDF content, while keeping the app behavior consistent with how it worked before the recent link-related change.",
+      "reqIds": [
+        "REQ-116"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -972,6 +1091,50 @@
     {
       "id": "AR-50",
       "summary": "Update the splash/intro screen so the background behind the company name uses a galaxy image (galaxy-themed image background for the name area).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Add the tagline text \"Connect to the Future with Internet at Light Speed.\" directly beneath the splash/intro screen company name text (name on top, tagline underneath).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Change the main registration page/header displayed company name text from \"Star Maharashtra Galaxy Internet\" to \"Galaxy Internet\".",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Change the customer-facing Admin Panel entry in the corner so it shows only an icon/logo (remove the \"Admin Panel\" text), and require a double-click/double-tap on that icon to open the Admin Panel.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-54",
+      "summary": "Remove the footer/credit text shown at app bottom: \"© 2026 Galaxy Internet. Built with ❤️ using caffeine.ai\" (do not display this branding line in the app UI).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-55",
+      "summary": "Remove the auto-generated app URL/token link that appears at the end of the Terms & Conditions PDF/print output (do not include the `#caffeineAdminToken=...` link in the generated document).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-56",
+      "summary": "Ensure the deployment URL `https://decisive-scarlet-bm7-draft.caffeine.xyz` is not displayed anywhere in the customer-facing Registration flow UI, including the Terms & Conditions step (both on-screen and print-only content).",
+      "reqIds": [
+        "REQ-109"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-57",
+      "summary": "Update the Terms & Conditions Print/PDF output footer so the ONLY link shown at the end is exactly \"http://star-maharashtra-galaxy-network\" (no deployment URL, no #caffeineAdminToken link, nothing else).",
       "reqIds": [],
       "status": "pending"
     }

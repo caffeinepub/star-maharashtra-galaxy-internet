@@ -61,6 +61,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           <h1 className="splash-company-title text-4xl font-bold tracking-wide text-white font-display sm:text-5xl md:text-6xl lg:text-7xl">
             GALAXY INTERNET
           </h1>
+          <p className="splash-tagline text-base text-white/90 mt-3 sm:text-lg md:text-xl lg:text-2xl">
+            Connect to the Future with Internet at Light Speed.
+          </p>
         </div>
       </div>
 

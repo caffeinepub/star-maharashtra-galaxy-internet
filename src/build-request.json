@@ -1,95 +1,104 @@
 {
   "kind": "build_request",
-  "title": "Fix Admin Panel login/setup code unlock failures and guide users to sign in with Internet Identity",
+  "title": "Fix Admin Panel: customer details, documents, and Terms & Conditions not showing in Registration Details",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-119",
-      "text": "Fix the backend `loginAdmin(username, password)` flow so that a successful login with username `PrabhaPerkar@6` and password `Prabha@1991` reliably grants admin access for the signed-in Internet Identity principal, without failing due to internal role-assignment authorization errors.",
-      "target": "backend",
+      "id": "REQ-140",
+      "text": "Fix the Admin Panel Registration Details view so it reliably displays the submitted customer details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address, Phone) for every registration where those fields exist in stored data, instead of showing only “N/A” or appearing missing.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-1"
         ],
         "quotes": [
-          "username : PrabhaPerkar@6 password : Prabha@1991 aur code : Aniket@1991 aur internet identity muze nahi pata mai continue par click karta hu"
+          "In my admin panel, customer details, documents, and Terms & Conditions form submissions are not showing. Please check and resolve the issue."
         ]
       },
       "acceptanceCriteria": [
-        "Calling `loginAdmin(\"PrabhaPerkar@6\", \"Prabha@1991\")` while authenticated with Internet Identity succeeds (does not trap) and results in the caller being treated as admin immediately afterward (e.g., admin checks return true and admin-only APIs like registrations listing work).",
-        "Calling `loginAdmin` with an anonymous caller traps with a clear error message indicating Internet Identity sign-in is required.",
-        "Calling `loginAdmin` with incorrect credentials traps with a clear error message indicating credentials are invalid.",
-        "The fix does not weaken admin security: only callers with correct username+password can become admin."
+        "When an admin selects a registration in the Admin Panel, the Registration Details view shows the actual stored values for the customer’s personal details when present in the canister record.",
+        "If a registration is in a legacy/older format where some fields were not collected/stored, the UI still renders the section and shows a clear English fallback value (e.g., “Not provided”) rather than appearing blank or broken.",
+        "No runtime errors or blank panels occur when opening Registration Details for any registration in the list."
       ]
     },
     {
-      "id": "REQ-120",
-      "text": "Ensure the backend admin username/password credentials are configured as username `PrabhaPerkar@6` and password `Prabha@1991` after canister upgrades as well as fresh deployments (add conditional state migration if existing persisted credentials would otherwise override the intended values).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "username : PrabhaPerkar@6 password : Prabha@1991"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After an upgrade, the canister still accepts `PrabhaPerkar@6` / `Prabha@1991` for admin login (unless the admin explicitly changed credentials via an admin-only endpoint, if such behavior already exists).",
-        "If a migration is required, it is implemented via the project’s conditional migration policy and does not break existing registrations or stored blobs."
-      ]
-    },
-    {
-      "id": "REQ-121",
-      "text": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
+      "id": "REQ-141",
+      "text": "Fix the Admin Panel Registration Details view so it reliably displays the Terms & Conditions information for the selected registration, including (a) the stored terms acceptance timestamp and (b) the same Terms & Conditions text that customers see during registration.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-1"
         ],
         "quotes": [
-          "internet identity muze nahi pata mai continue par click karta hu"
+          "In my admin panel, customer details, documents, and Terms & Conditions form submissions are not showing. Please check and resolve the issue."
         ]
       },
       "acceptanceCriteria": [
-        "When a user reaches the Admin Panel unauthenticated, the UI clearly shows an English call-to-action to “Sign In with Internet Identity” (using the existing flow) and does not suggest that username/password or setup code will work without signing in first.",
-        "If the user attempts username/password login or applies a setup code while the backend actor/identity is not available, the UI shows a clear English message instructing the user to sign in with Internet Identity first (no blank states).",
-        "If backend returns rate-limit / too-many-attempts, the UI shows an English message telling the user to wait a few minutes and retry.",
-        "The UI does not display misleading troubleshooting text (e.g., “Try signing out and signing back in with the correct Internet Identity…”) when credentials were accepted and the system is still verifying admin status."
+        "The Registration Details view contains a clearly labeled “Terms and Conditions” section.",
+        "The section displays the stored `termsAcceptedAt` timestamp for the selected registration in a readable format.",
+        "The section displays the Terms & Conditions content from `frontend/src/features/registration/terms.ts` (same wording/sections as customer flow)."
       ]
     },
     {
-      "id": "REQ-122",
-      "text": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
-      "target": "frontend",
+      "id": "REQ-142",
+      "text": "Fix Admin Panel document visibility so uploaded verification documents (Aadhaar Card, PAN Card) and the optional payment receipt image (when present) reliably render as image previews in the Registration Details view for authorized admins.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-1"
         ],
         "quotes": [
-          "internet identity muze nahi pata"
+          "In my admin panel, customer details, documents, and Terms & Conditions form submissions are not showing. Please check and resolve the issue."
         ]
       },
       "acceptanceCriteria": [
-        "On the access recovery screen, the UI displays “Signed in as: <principal>” (or equivalent) when authenticated, and clearly indicates “Admin: Yes/No”.",
-        "All displayed text is in English and does not expose any secrets (no setup codes or tokens are echoed automatically)."
+        "For a registration that has Aadhaar and PAN blobs stored, the Admin Panel shows both document previews under a clearly labeled “Verification Documents” section.",
+        "If a registration includes an optional receipt blob, the receipt preview is shown; if it does not, the UI shows an English placeholder (e.g., “Receipt not provided”) without errors.",
+        "If a document preview cannot be loaded, the UI shows a clear English error state and a Retry action (no silent failures, no blank area).",
+        "Blob/document access works for authorized admins (i.e., admin can fetch/render the same stored blobs that were uploaded during registration)."
+      ]
+    },
+    {
+      "id": "REQ-143",
+      "text": "Add an Admin Panel diagnostics-friendly, user-visible non-sensitive warning when the selected registration data is incomplete or in an unexpected/legacy shape, without exposing document contents or secrets.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "In my admin panel, customer details, documents, and Terms & Conditions form submissions are not showing. Please check and resolve the issue."
+        ]
+      },
+      "acceptanceCriteria": [
+        "If the selected registration is missing expected fields (e.g., missing `personalInfo` or missing `documents` entries), the detail panel shows a concise English warning (e.g., “This submission was created with an older version and may not include all fields.”).",
+        "The warning does not include sensitive data (no tokens, no raw blob IDs/URLs if they are sensitive, no stack traces in normal mode)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain single-actor Motoko; keep all Motoko logic in `backend/main.mo`.",
-    "Only create `backend/migration.mo` if required by conditional migration policy for an upgrade-state change.",
-    "Do not edit frontend files under the immutable paths listed in SYSTEM_CONTEXT.",
     "Use English for all user-facing UI text.",
-    "No external authentication providers; Internet Identity only."
+    "Do not edit files under `frontend/src/components/ui` (compose them only).",
+    "Do not edit immutable hook files listed in SYSTEM_CONTEXT (e.g., `frontend/src/hooks/useActor.ts`, `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/main.tsx`).",
+    "Backend must remain a single Motoko actor in `backend/main.mo`; only add/adjust `backend/migration.mo` if a state upgrade is required to fix legacy records."
   ],
   "nonGoals": [
-    "Implementing SMS delivery for OTPs.",
-    "Adding any third-party login providers (Google/Facebook/etc.).",
-    "Adding external databases or server infrastructure."
+    "Adding new registration steps or changing the customer registration UX beyond what is necessary to fix Admin Panel visibility issues.",
+    "Integrating external SMS, email, or any third-party storage/CDN for documents.",
+    "Introducing new backend services, databases, or non-Motoko backends."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

@@ -46,18 +46,14 @@ export function useRegistrationMutations() {
         receiptBlob = ExternalBlob.fromBytes(receiptBytes);
       }
 
-      // Construct full name
-      const fullName = [
-        customerDetails.firstName,
-        customerDetails.middleName,
-        customerDetails.surname,
-      ]
-        .filter(Boolean)
-        .join(' ');
-
-      // Submit registration
+      // Submit registration with individual personal info fields
       return await actor.submitRegistration(
-        fullName,
+        customerDetails.firstName,
+        customerDetails.middleName || '',
+        customerDetails.surname,
+        customerDetails.dateOfBirth,
+        customerDetails.email,
+        customerDetails.address,
         customerDetails.phone,
         customerDetails.category,
         customerDetails.paymentOption,

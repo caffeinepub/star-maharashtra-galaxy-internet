@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RegistrationFlow } from './features/registration/RegistrationFlow';
-import { AdminPanel } from './features/admin/AdminPanel';
+import AdminPanel from './features/admin/AdminPanel';
 import { SplashScreen } from './components/SplashScreen';
 
 type View = 'registration' | 'admin';
@@ -36,7 +36,7 @@ function App() {
           onNavigateToAdmin={handleNavigateToAdmin} 
         />
       ) : (
-        <AdminPanel onNavigateToRegistration={handleNavigateToRegistration} />
+        <AdminPanel onBackToRegistration={handleNavigateToRegistration} />
       )}
     </div>
   );

@@ -1,115 +1,107 @@
-import { useState } from 'react';
-import { ExternalBlob } from '../../../backend';
-import { Loader2, AlertCircle, FileImage, RefreshCw } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, AlertCircle, RefreshCw, FileX } from 'lucide-react';
+import type { ExternalBlob } from '../../../backend';
 
 interface DocumentImagePreviewProps {
-  blob: ExternalBlob | null | undefined;
+  document: ExternalBlob | null | undefined;
   label: string;
-  documentType: 'Aadhaar' | 'PAN' | 'Receipt';
-  className?: string;
+  onRefetch?: () => void;
 }
 
-export function DocumentImagePreview({ blob, label, documentType, className = '' }: DocumentImagePreviewProps) {
+export function DocumentImagePreview({ document, label, onRefetch }: DocumentImagePreviewProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
-  // If blob is null or undefined, show placeholder
-  if (!blob) {
-    return <DocumentImagePreviewPlaceholder label={label} message="Document not provided" />;
-  }
-
-  let imageUrl: string;
-  try {
-    imageUrl = blob.getDirectURL();
-    if (!imageUrl) {
-      console.error(`[DocumentImagePreview] ${documentType}: getDirectURL() returned empty string`);
-      return <DocumentImagePreviewPlaceholder label={label} message="Unable to generate preview URL" />;
+  useEffect(() => {
+    if (!document) {
+      setIsLoading(false);
+      setError(`${label} not available`);
+      return;
     }
-  } catch (error) {
-    console.error(`[DocumentImagePreview] ${documentType}: Failed to get direct URL`, error);
-    return <DocumentImagePreviewPlaceholder label={label} message="Failed to load document" />;
-  }
 
-  const handleLoad = () => {
-    console.log(`[DocumentImagePreview] ${documentType}: Image loaded successfully`);
-    setIsLoading(false);
-    setHasError(false);
-  };
-
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.error(`[DocumentImagePreview] ${documentType}: Image load error`, {
-      src: (e.target as HTMLImageElement).src,
-      error: e,
-    });
-    setIsLoading(false);
-    setHasError(true);
-  };
+    try {
+      // Use direct URL for streaming and caching
+      const url = document.getDirectURL();
+      setImageUrl(url);
+      setIsLoading(false);
+      setError(null);
+    } catch (err) {
+      console.error(`[DocumentImagePreview] Error loading ${label}:`, err);
+      setError(`Failed to load ${label}`);
+      setIsLoading(false);
+    }
+  }, [document, label]);
 
   const handleRetry = () => {
-    console.log(`[DocumentImagePreview] ${documentType}: Retrying image load (attempt ${retryCount + 1})`);
     setIsLoading(true);
-    setHasError(false);
-    setRetryCount(prev => prev + 1);
+    setError(null);
+    if (onRefetch) {
+      onRefetch();
+    }
   };
 
-  return (
-    <div className={`space-y-2 ${className}`}>
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <Card className="overflow-hidden bg-muted/30">
-        <div className="relative aspect-[4/3] w-full">
-          {isLoading && !hasError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-          )}
-          {hasError ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/50 p-4 text-center gap-3">
-              <AlertCircle className="w-8 h-8 text-destructive" />
-              <div>
-                <p className="text-sm font-medium text-foreground">Failed to load image</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  The {documentType} document may be corrupted or unavailable
-                </p>
-              </div>
-              <Button
-                onClick={handleRetry}
-                size="sm"
-                variant="outline"
-                className="gap-2"
-              >
-                <RefreshCw className="w-3 h-3" />
-                Retry
-              </Button>
-            </div>
-          ) : (
-            <img
-              key={`${imageUrl}-${retryCount}`}
-              src={imageUrl}
-              alt={label}
-              className="w-full h-full object-contain"
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          )}
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48 bg-muted rounded-lg">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">Loading {label}...</p>
         </div>
-      </Card>
+      </div>
+    );
+  }
+
+  if (error || !imageUrl) {
+    return (
+      <div className="space-y-2">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>{error || `${label} could not be loaded`}</span>
+          </AlertDescription>
+        </Alert>
+        {onRefetch && (
+          <Button
+            onClick={handleRetry}
+            variant="outline"
+            size="sm"
+            className="w-full gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="relative rounded-lg overflow-hidden border bg-muted">
+        <img
+          src={imageUrl}
+          alt={label}
+          className="w-full h-auto object-contain max-h-96"
+          onError={() => {
+            setError(`Failed to display ${label}`);
+            setImageUrl(null);
+          }}
+        />
+      </div>
     </div>
   );
 }
 
-export function DocumentImagePreviewPlaceholder({ label, message }: { label: string; message: string }) {
+export function DocumentImagePreviewPlaceholder({ message }: { message: string }) {
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <Card className="overflow-hidden bg-muted/30">
-        <div className="relative aspect-[4/3] w-full flex flex-col items-center justify-center p-4 text-center">
-          <FileImage className="w-8 h-8 text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">{message}</p>
-        </div>
-      </Card>
+    <div className="flex items-center justify-center h-48 bg-muted rounded-lg border border-dashed">
+      <div className="text-center">
+        <FileX className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">{message}</p>
+      </div>
     </div>
   );
 }

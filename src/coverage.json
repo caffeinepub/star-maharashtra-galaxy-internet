@@ -1,70 +1,84 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T13:32:23.533Z",
+  "generatedAt": "2026-02-14T06:30:13.788Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 4,
-    "implemented": 2,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-119",
-        "summary": "Fix the backend `loginAdmin(username, password)` flow so that a successful login with username `PrabhaPerkar@6` and password `Prabha@1991` reliably grants admin access for the signed-in Internet Identity principal, without failing due to internal role-assignment authorization errors.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-120",
-        "summary": "Ensure the backend admin username/password credentials are configured as username `PrabhaPerkar@6` and password `Prabha@1991` after canister upgrades as well as fresh deployments (add conditional state migration if existing persisted credentials would otherwise override the intended values).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-121",
-        "summary": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
+        "id": "REQ-140",
+        "summary": "Fix the Admin Panel Registration Details view so it reliably displays the submitted customer details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address, Phone) for every registration where those fields exist in stored data, instead of showing only “N/A” or appearing missing.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-          "frontend/src/features/admin/hooks/useAdminSetupCode.ts"
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "frontend/src/features/admin/utils/registrationDetails.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-          "frontend/src/features/admin/hooks/useAdminSetupCode.ts"
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "frontend/src/features/admin/utils/registrationDetails.ts"
         ]
       },
       {
-        "id": "REQ-122",
-        "summary": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
+        "id": "REQ-141",
+        "summary": "Fix the Admin Panel Registration Details view so it reliably displays the Terms & Conditions information for the selected registration, including (a) the stored terms acceptance timestamp and (b) the same Terms & Conditions text that customers see during registration.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-          "frontend/src/features/admin/AdminPanel.tsx"
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-          "frontend/src/features/admin/AdminPanel.tsx"
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
+        ]
+      },
+      {
+        "id": "REQ-142",
+        "summary": "Fix Admin Panel document visibility so uploaded verification documents (Aadhaar Card, PAN Card) and the optional payment receipt image (when present) reliably render as image previews in the Registration Details view for authorized admins.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "frontend/src/features/admin/utils/registrationDetails.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+          "frontend/src/features/admin/utils/registrationDetails.ts"
+        ]
+      },
+      {
+        "id": "REQ-143",
+        "summary": "Add an Admin Panel diagnostics-friendly, user-visible non-sensitive warning when the selected registration data is incomplete or in an unexpected/legacy shape, without exposing document contents or secrets.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/admin/AdminPanel.tsx",
+          "frontend/src/features/admin/utils/registrationDetails.ts",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/admin/AdminPanel.tsx",
+          "frontend/src/features/admin/utils/registrationDetails.ts",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
     "frontend/src/features/admin/AdminPanel.tsx",
-    "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-    "frontend/src/features/admin/hooks/useAdminSetupCode.ts",
-    "frontend/src/features/registration/steps/StepTermsAndConditions.tsx",
+    "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+    "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+    "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+    "frontend/src/features/admin/hooks/useAdminQueries.ts",
+    "frontend/src/features/admin/utils/registrationDetails.ts",
     "frontend/src/utils/urlParams.ts",
     "project_state.json",
     "scratch/component-selection.json",

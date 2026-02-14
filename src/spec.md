@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix Admin Panel login/setup unlock failures by ensuring Internet Identity sign-in is required and by making admin credential + role assignment work reliably across upgrades, with clearer English guidance and diagnostics.
+**Goal:** Fix the Admin Panel “Registration Details” view so it reliably shows customer personal details, Terms & Conditions acceptance/text, and uploaded document previews for each registration (including legacy/incomplete submissions) without runtime errors.
 
 **Planned changes:**
-- Backend: Fix `loginAdmin(username, password)` so that when called by an Internet Identity–authenticated principal with valid credentials (`PrabhaPerkar@6` / `Prabha@1991`), it consistently grants admin access without internal authorization/role-assignment traps.
-- Backend: Ensure `loginAdmin` traps with clear errors for anonymous callers (Internet Identity required) and for invalid credentials.
-- Backend: Ensure the intended admin credentials (`PrabhaPerkar@6` / `Prabha@1991`) remain configured after upgrades and fresh deployments, adding conditional state migration if needed without breaking existing stored data.
-- Frontend: Update Admin Panel access-recovery UI to clearly instruct users (in English) to sign in with Internet Identity before using username/password or setup code, and make all error states actionable (including rate-limit/too-many-attempts messaging).
-- Frontend: Show diagnostics on access recovery and admin views: “Signed in as: <principal>” and “Admin: Yes/No”, without exposing secrets.
+- Update the Admin Panel Registration Details view to correctly read and display stored customer personal details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address, Phone) when present, instead of showing “N/A”.
+- Add/repair a clearly labeled “Terms and Conditions” section in Registration Details that shows the stored `termsAcceptedAt` timestamp (readable format) and the same Terms & Conditions text used in the customer registration flow (`frontend/src/features/registration/terms.ts`).
+- Fix document rendering in Registration Details so Aadhaar, PAN, and optional receipt blobs (when present) load as image previews for authorized admins, with clear placeholder text when missing.
+- Add a non-sensitive, user-visible warning in Registration Details when the selected registration is missing expected fields or appears to be a legacy/older submission shape, without exposing sensitive data.
 
-**User-visible outcome:** Users are clearly guided to sign in with Internet Identity first, can reliably log in to the Admin Panel using the provided admin credentials, see which principal is signed in and whether they are admin, and receive clear English error messages (including for anonymous access, invalid credentials, and rate limits).
+**User-visible outcome:** Admins can open any registration and reliably see the saved personal information, Terms & Conditions acceptance details/text, and verification document/receipt previews (or clear English placeholders/warnings), with no blank panels or silent failures.

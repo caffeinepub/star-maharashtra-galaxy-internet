@@ -2,12 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-admin-panel-access-recovery-experience-so-it-clearly-explains-that-internet-identity-sign-in-is-required-before-using-either-username-password-or-admin-setup-code-and-ensure-all-error-messages-are-actionable-and-in-english",
-      "featureTitle": "Update the Admin Panel access-recovery experience so it clearly explains that Internet Identity sign-in is required before using either Username/Password or Admin Setup Code, and ensure all error messages are actionable and in English.",
+      "featureId": "feature-fix-the-admin-panel-registration-details-view-so-it-reliably-displays-the-submitted-customer-details-first-name-middle-name-surname-date-of-birth-email-id-address-phone-for-every-registration-where-those-fields-exist-in-stored-data-instead-of-showing-only-n-a-or-appearing-missing",
+      "featureTitle": "Fix the Admin Panel Registration Details view so it reliably displays the submitted customer details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address, Phone) for every registration where those fields exist in stored data, instead of showing only “N/A” or appearing missing.",
       "files": [
-        "frontend/src/features/admin/AdminPanel.tsx",
-        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx",
-        "frontend/src/features/admin/hooks/useAdminSetupCode.ts"
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+        "frontend/src/features/admin/utils/registrationDetails.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -19,16 +18,15 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-121"
+        "REQ-140"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-improve-diagnostics-in-the-admin-panel-to-reduce-confusion-about-which-internet-identity-is-currently-being-used-during-login-unlock-attempts-by-prominently-displaying-the-signed-in-principal-and-admin-status-on-the-access-recovery-screen-as-well-as-the-authorized-admin-view",
-      "featureTitle": "Improve diagnostics in the Admin Panel to reduce confusion about which Internet Identity is currently being used during login/unlock attempts, by prominently displaying the signed-in principal and admin status on the access-recovery screen as well as the authorized admin view.",
+      "featureId": "feature-fix-the-admin-panel-registration-details-view-so-it-reliably-displays-the-terms-conditions-information-for-the-selected-registration-including-a-the-stored-terms-acceptance-timestamp-and-b-the-same-terms-conditions-text-that-customers-see-during-registration",
+      "featureTitle": "Fix the Admin Panel Registration Details view so it reliably displays the Terms & Conditions information for the selected registration, including (a) the stored terms acceptance timestamp and (b) the same Terms & Conditions text that customers see during registration.",
       "files": [
-        "frontend/src/features/admin/AdminPanel.tsx",
-        "frontend/src/features/admin/components/AdminAccessRecoveryCard.tsx"
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -40,7 +38,51 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-122"
+        "REQ-141"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-admin-panel-document-visibility-so-uploaded-verification-documents-aadhaar-card-pan-card-and-the-optional-payment-receipt-image-when-present-reliably-render-as-image-previews-in-the-registration-details-view-for-authorized-admins",
+      "featureTitle": "Fix Admin Panel document visibility so uploaded verification documents (Aadhaar Card, PAN Card) and the optional payment receipt image (when present) reliably render as image previews in the Registration Details view for authorized admins.",
+      "files": [
+        "frontend/src/features/admin/components/DocumentImagePreview.tsx",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+        "frontend/src/features/admin/utils/registrationDetails.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-142"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-admin-panel-diagnostics-friendly-user-visible-non-sensitive-warning-when-the-selected-registration-data-is-incomplete-or-in-an-unexpected-legacy-shape-without-exposing-document-contents-or-secrets",
+      "featureTitle": "Add an Admin Panel diagnostics-friendly, user-visible non-sensitive warning when the selected registration data is incomplete or in an unexpected/legacy shape, without exposing document contents or secrets.",
+      "files": [
+        "frontend/src/features/admin/AdminPanel.tsx",
+        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+        "frontend/src/features/admin/utils/registrationDetails.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-143"
       ],
       "confidence": "high"
     }

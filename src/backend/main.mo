@@ -3,18 +3,13 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
+import Iter "mo:core/Iter";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
-import Nat "mo:core/Nat";
-import Iter "mo:core/Iter";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-// Improved persistent state migration
-
-(with migration = Migration.run)
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();
@@ -27,8 +22,17 @@ actor {
     hasSubmittedDocuments : Bool;
   };
 
+  public type PersonalInfo = {
+    firstName : Text;
+    middleName : Text;
+    surname : Text;
+    dateOfBirth : Text;
+    emailId : Text;
+    address : Text;
+  };
+
   public type Registration = {
-    name : Text;
+    personalInfo : PersonalInfo;
     phone : Text;
     category : Text;
     paymentMethod : Text;
@@ -43,7 +47,6 @@ actor {
     expiresAt : Time.Time;
   };
 
-  // Admin login credentials type
   type AdminLoginCredentials = {
     username : Text;
     password : Text;
@@ -53,13 +56,11 @@ actor {
   let otpEntries = Map.empty<Text, OTPEntry>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // Store admin credentials with PrabhaPerkar@6 and Prabha@1991 as default for new deployments
   var adminLoginCredentials : AdminLoginCredentials = {
     username = "PrabhaPerkar@6";
     password = "Prabha@1991";
   };
 
-  // Track failed login attempts for basic rate limiting
   let loginAttempts = Map.empty<Principal, { count : Nat; lastAttempt : Time.Time }>();
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -84,7 +85,12 @@ actor {
   };
 
   public shared ({ caller }) func submitRegistration(
-    name : Text,
+    firstName : Text,
+    middleName : Text,
+    surname : Text,
+    dateOfBirth : Text,
+    emailId : Text,
+    address : Text,
     phone : Text,
     category : Text,
     paymentMethod : Text,
@@ -99,8 +105,17 @@ actor {
 
     let registrationId = phone;
 
+    let personalInfo : PersonalInfo = {
+      firstName;
+      middleName;
+      surname;
+      dateOfBirth;
+      emailId;
+      address;
+    };
+
     let registration : Registration = {
-      name;
+      personalInfo;
       phone;
       category;
       paymentMethod;
@@ -168,10 +183,43 @@ actor {
     registrations.get(id);
   };
 
-  // ADMIN ONLY: Update existing customer registration fields (excluding documents/receipt)
+  public shared ({ caller }) func updateCustomerPersonalInfo(
+    id : Text,
+    firstName : Text,
+    middleName : Text,
+    surname : Text,
+    dateOfBirth : Text,
+    emailId : Text,
+    address : Text,
+  ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admin can update customer submissions");
+    };
+    switch (registrations.get(id)) {
+      case (?existing) {
+        let updatedPersonalInfo : PersonalInfo = {
+          firstName;
+          middleName;
+          surname;
+          dateOfBirth;
+          emailId;
+          address;
+        };
+
+        let updated : Registration = {
+          existing with
+          personalInfo = updatedPersonalInfo;
+        };
+        registrations.add(id, updated);
+      };
+      case (null) {
+        Runtime.trap("Registration not found");
+      };
+    };
+  };
+
   public shared ({ caller }) func updateCustomerRegistration(
     id : Text,
-    name : Text,
     category : Text,
     paymentMethod : Text,
     router : Text,
@@ -183,7 +231,6 @@ actor {
       case (?existing) {
         let updated : Registration = {
           existing with
-          name;
           category;
           paymentMethod;
           router;
@@ -216,7 +263,6 @@ actor {
     };
   };
 
-  // Helper function to check and update rate limiting
   private func checkRateLimit(caller : Principal) : Bool {
     let now = Time.now();
     let maxAttempts = 5;
@@ -242,38 +288,27 @@ actor {
     };
   };
 
-  // Backend support for admin login with credentials
-  // This function validates credentials and grants admin role upon successful authentication
-  // No prior admin role is required for the initial login with valid credentials
   public shared ({ caller }) func loginAdmin(username : Text, password : Text) : async () {
-    // Prevent anonymous access
     if (caller.isAnonymous()) {
       Runtime.trap("Unauthorized: Anonymous users cannot login as admin");
     };
 
-    // Check rate limiting
     if (not checkRateLimit(caller)) {
       Runtime.trap("Too many login attempts. Please try again later.");
     };
 
-    // Validate credentials
     if (username != adminLoginCredentials.username or password != adminLoginCredentials.password) {
       Runtime.trap("Invalid admin credentials");
     };
 
-    // Grant admin role to this principal after successful credential validation
-    // This is a special case where credential validation serves as authorization
-    // to assign the admin role, bypassing the normal admin-only guard
     AccessControl.assignRole(accessControlState, caller, caller, #admin);
   };
 
-  // ADMIN ONLY: Update admin login credentials and store updates persistently
   public shared ({ caller }) func updateAdminCredentials(newUsername : Text, newPassword : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can update credentials");
     };
 
-    // Validate password strength
     if (newPassword.size() < 8) {
       Runtime.trap("Password must be at least 8 characters long");
     };
@@ -284,7 +319,6 @@ actor {
     };
   };
 
-  // Fetch current admin username; password remains secret
   public query ({ caller }) func getAdminUsername() : async Text {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can access");
@@ -292,7 +326,6 @@ actor {
     adminLoginCredentials.username;
   };
 
-  // ADMIN ONLY: Delete customer registration
   public shared ({ caller }) func deleteCustomerRegistration(id : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can delete customer submissions");
@@ -306,6 +339,26 @@ actor {
         Runtime.trap("Registration not found. Cannot delete non-existent entry.");
       };
     };
+  };
+
+  // Admin-only: Fetch all registration IDs for synchronization
+  public query ({ caller }) func getRegistrationIds() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admin can access registration IDs");
+    };
+    registrations.keys().toArray();
+  };
+
+  //-----------------------------------------
+  //    Role Check Endpoints
+  //-----------------------------------------
+
+  public query ({ caller }) func checkIsAdmin() : async { isAdmin : Bool } {
+    { isAdmin = AccessControl.isAdmin(accessControlState, caller) };
+  };
+
+  public query ({ caller }) func checkUserRole() : async { role : AccessControl.UserRole } {
+    { role = AccessControl.getUserRole(accessControlState, caller) };
   };
 };
 

@@ -1,191 +1,125 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from '../../../hooks/useActor';
-import type { Registration, UserRole } from '../../../backend';
+import type { Registration } from '../../../backend';
 
-export function useAdminQueries() {
+// Check if current user is admin (non-trapping)
+export function useCheckIsAdmin() {
   const { actor, isFetching: actorFetching } = useActor();
-  const queryClient = useQueryClient();
 
-  // Check if the current user is admin
-  const isAdminQuery = useQuery<boolean>({
+  return useQuery({
     queryKey: ['isAdmin'],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.isCallerAdmin();
+      if (!actor) throw new Error('Actor not initialized');
+      try {
+        const result = await actor.checkIsAdmin();
+        return result;
+      } catch (error: any) {
+        // If the error is "Unauthorized", return false instead of throwing
+        if (error?.message?.includes('Unauthorized')) {
+          return { isAdmin: false };
+        }
+        // For other errors, throw to trigger error state
+        throw new Error(error?.message || 'Failed to check admin status');
+      }
     },
     enabled: !!actor && !actorFetching,
-    retry: false,
+    retry: 1,
+    staleTime: 30000,
   });
+}
 
-  // Get caller's user role
-  const userRoleQuery = useQuery<UserRole>({
-    queryKey: ['userRole'],
+// Get all registrations
+export function useGetRegistrations(isAdmin: boolean) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<[string, Registration][]>({
+    queryKey: ['registrations'],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.getCallerUserRole();
+      if (!actor) throw new Error('Actor not initialized');
+      try {
+        return await actor.getRegistrations();
+      } catch (error: any) {
+        throw new Error(error?.message || 'Failed to load registrations');
+      }
     },
-    enabled: !!actor && !actorFetching,
-    retry: false,
+    enabled: !!actor && !actorFetching && isAdmin === true,
+    retry: 2,
   });
+}
 
-  // Claim admin access
-  const claimAdminMutation = useMutation({
-    mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return true;
+// Delete registration mutation with optimistic update
+export function useDeleteCustomerRegistration() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error('Actor not initialized');
+      try {
+        await actor.deleteCustomerRegistration(id);
+      } catch (error: any) {
+        throw new Error(error?.message || 'Failed to delete registration');
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['isAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['userRole'] });
+    onMutate: async (deletedId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['registrations'] });
+
+      // Snapshot the previous value
+      const previousRegistrations = queryClient.getQueryData<[string, Registration][]>(['registrations']);
+
+      // Optimistically update the list (remove the deleted item)
+      if (previousRegistrations) {
+        queryClient.setQueryData<[string, Registration][]>(
+          ['registrations'],
+          previousRegistrations.filter(([id]) => id !== deletedId)
+        );
+      }
+
+      // Return context with the snapshot
+      return { previousRegistrations };
+    },
+    onError: (err, deletedId, context) => {
+      // Rollback on error
+      if (context?.previousRegistrations) {
+        queryClient.setQueryData(['registrations'], context.previousRegistrations);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['registrations'] });
     },
   });
+}
 
-  // Fetch all registrations (admin only)
-  const registrationsQuery = useQuery<Array<[string, Registration]>>({
-    queryKey: ['registrations'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.getRegistrations();
-    },
-    enabled: !!actor && !actorFetching && isAdminQuery.data === true,
-    retry: false,
-  });
+// Update registration mutation
+export function useUpdateCustomerRegistration() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
 
-  // Fetch single registration with receipt info (admin only) - with resilient error handling
-  const useRegistrationWithReceiptQuery = (id: string | null) => {
-    return useQuery<{ registration: Registration | null; hasReceipt: boolean; error?: string }>({
-      queryKey: ['registration', id, 'withReceipt'],
-      queryFn: async () => {
-        if (!actor || !id) throw new Error('Actor or ID not available');
-        
-        try {
-          // Try the primary method first
-          const [registration, hasReceipt] = await actor.getRegistrationWithReceiptInfo(id);
-          
-          // Log document structure for debugging
-          console.log('[useAdminQueries] Registration fetched:', {
-            id,
-            hasDocuments: !!registration.documents,
-            documentCount: registration.documents?.length || 0,
-            hasReceipt: !!registration.receipt,
-          });
-          
-          return { registration, hasReceipt };
-        } catch (primaryError) {
-          console.error('[useAdminQueries] Primary fetch failed, trying fallback:', primaryError);
-          
-          // If primary method fails, try fallback: fetch basic registration
-          try {
-            const registration = await actor.getRegistration(id);
-            if (registration) {
-              // Try to check receipt separately
-              try {
-                const hasReceipt = await actor.hasReceipt(id);
-                
-                console.log('[useAdminQueries] Fallback fetch succeeded:', {
-                  id,
-                  hasDocuments: !!registration.documents,
-                  documentCount: registration.documents?.length || 0,
-                  hasReceipt,
-                });
-                
-                return { 
-                  registration, 
-                  hasReceipt,
-                  error: 'Some fields may be unavailable due to legacy data format'
-                };
-              } catch {
-                // If receipt check fails, assume no receipt
-                console.log('[useAdminQueries] Fallback fetch succeeded (no receipt check):', {
-                  id,
-                  hasDocuments: !!registration.documents,
-                  documentCount: registration.documents?.length || 0,
-                });
-                
-                return { 
-                  registration, 
-                  hasReceipt: false,
-                  error: 'Some fields may be unavailable due to legacy data format'
-                };
-              }
-            } else {
-              throw new Error('Registration not found');
-            }
-          } catch (fallbackError) {
-            console.error('[useAdminQueries] All fetch methods failed:', fallbackError);
-            // If all methods fail, throw the original error
-            throw primaryError;
-          }
-        }
-      },
-      enabled: !!actor && !actorFetching && !!id && isAdminQuery.data === true,
-      retry: 2, // Retry twice on failure for better reliability
-      staleTime: 0, // Always fetch fresh data when selection changes
-      gcTime: 0, // Don't cache old registration data
-    });
-  };
-
-  // Update customer registration mutation
-  const updateRegistrationMutation = useMutation({
+  return useMutation({
     mutationFn: async ({
       id,
-      name,
       category,
       paymentMethod,
       router,
     }: {
       id: string;
-      name: string;
       category: string;
       paymentMethod: string;
       router: string;
     }) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.updateCustomerRegistration(id, name, category, paymentMethod, router);
-    },
-    onSuccess: (_, variables) => {
-      // Invalidate registrations list to refresh the list view
-      queryClient.invalidateQueries({ queryKey: ['registrations'] });
-      // Invalidate the specific registration detail to refresh the detail view
-      queryClient.invalidateQueries({ queryKey: ['registration', variables.id, 'withReceipt'] });
-    },
-  });
-
-  // Delete customer registration mutation
-  const deleteRegistrationMutation = useMutation({
-    mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error('Actor not initialized');
       try {
-        await actor.deleteCustomerRegistration(id);
-      } catch (error: unknown) {
-        // Normalize backend errors into readable Error messages
-        if (error instanceof Error) {
-          throw error;
-        } else if (typeof error === 'object' && error !== null && 'message' in error) {
-          throw new Error(String((error as { message: unknown }).message));
-        } else if (typeof error === 'string') {
-          throw new Error(error);
-        } else {
-          throw new Error('Failed to delete registration');
-        }
+        await actor.updateCustomerRegistration(id, category, paymentMethod, router);
+      } catch (error: any) {
+        throw new Error(error?.message || 'Failed to update registration');
       }
     },
-    onSuccess: (_, deletedId) => {
-      // Invalidate registrations list to refresh the list view
+    onSuccess: (_, variables) => {
+      // Invalidate both the list and the specific registration
       queryClient.invalidateQueries({ queryKey: ['registrations'] });
-      // Invalidate the specific registration detail query
-      queryClient.invalidateQueries({ queryKey: ['registration', deletedId, 'withReceipt'] });
+      queryClient.invalidateQueries({ queryKey: ['registration', variables.id] });
     },
   });
-
-  return {
-    isAdminQuery,
-    userRoleQuery,
-    claimAdminMutation,
-    registrationsQuery,
-    useRegistrationWithReceiptQuery,
-    updateRegistrationMutation,
-    deleteRegistrationMutation,
-  };
 }

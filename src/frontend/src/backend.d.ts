@@ -20,10 +20,18 @@ export interface Registration {
     documents: Array<ExternalBlob>;
     paymentMethod: string;
     receipt?: ExternalBlob;
-    name: string;
     category: string;
     phone: string;
     router: string;
+    personalInfo: PersonalInfo;
+}
+export interface PersonalInfo {
+    emailId: string;
+    dateOfBirth: string;
+    surname: string;
+    middleName: string;
+    address: string;
+    firstName: string;
 }
 export interface UserProfile {
     name: string;
@@ -36,12 +44,19 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    checkIsAdmin(): Promise<{
+        isAdmin: boolean;
+    }>;
+    checkUserRole(): Promise<{
+        role: UserRole;
+    }>;
     deleteCustomerRegistration(id: string): Promise<void>;
     generateOTP(phone: string): Promise<string>;
     getAdminUsername(): Promise<string>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getRegistration(id: string): Promise<Registration | null>;
+    getRegistrationIds(): Promise<Array<string>>;
     getRegistrationWithReceiptInfo(id: string): Promise<[Registration, boolean]>;
     getRegistrations(): Promise<Array<[string, Registration]>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
@@ -49,8 +64,9 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     loginAdmin(username: string, password: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    submitRegistration(name: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>): Promise<string>;
+    submitRegistration(firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>): Promise<string>;
     updateAdminCredentials(newUsername: string, newPassword: string): Promise<void>;
-    updateCustomerRegistration(id: string, name: string, category: string, paymentMethod: string, router: string): Promise<void>;
+    updateCustomerPersonalInfo(id: string, firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string): Promise<void>;
+    updateCustomerRegistration(id: string, category: string, paymentMethod: string, router: string): Promise<void>;
     verifyOTP(phone: string, submittedOTP: string): Promise<boolean>;
 }

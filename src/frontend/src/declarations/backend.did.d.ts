@@ -11,15 +11,23 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export type ExternalBlob = Uint8Array;
+export interface PersonalInfo {
+  'emailId' : string,
+  'dateOfBirth' : string,
+  'surname' : string,
+  'middleName' : string,
+  'address' : string,
+  'firstName' : string,
+}
 export interface Registration {
   'termsAcceptedAt' : Time,
   'documents' : Array<ExternalBlob>,
   'paymentMethod' : string,
   'receipt' : [] | [ExternalBlob],
-  'name' : string,
   'category' : string,
   'phone' : string,
   'router' : string,
+  'personalInfo' : PersonalInfo,
 }
 export type Time = bigint;
 export interface UserProfile {
@@ -58,12 +66,15 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'checkIsAdmin' : ActorMethod<[], { 'isAdmin' : boolean }>,
+  'checkUserRole' : ActorMethod<[], { 'role' : UserRole }>,
   'deleteCustomerRegistration' : ActorMethod<[string], undefined>,
   'generateOTP' : ActorMethod<[string], string>,
   'getAdminUsername' : ActorMethod<[], string>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getRegistration' : ActorMethod<[string], [] | [Registration]>,
+  'getRegistrationIds' : ActorMethod<[], Array<string>>,
   'getRegistrationWithReceiptInfo' : ActorMethod<
     [string],
     [Registration, boolean]
@@ -81,6 +92,11 @@ export interface _SERVICE {
       string,
       string,
       string,
+      string,
+      string,
+      string,
+      string,
+      string,
       Time,
       [] | [ExternalBlob],
       Array<ExternalBlob>,
@@ -88,8 +104,12 @@ export interface _SERVICE {
     string
   >,
   'updateAdminCredentials' : ActorMethod<[string, string], undefined>,
+  'updateCustomerPersonalInfo' : ActorMethod<
+    [string, string, string, string, string, string, string],
+    undefined
+  >,
   'updateCustomerRegistration' : ActorMethod<
-    [string, string, string, string, string],
+    [string, string, string, string],
     undefined
   >,
   'verifyOTP' : ActorMethod<[string, string], boolean>,

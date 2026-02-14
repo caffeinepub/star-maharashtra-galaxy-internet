@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 99,
+  "projectStateVersion": 113,
   "summary": "Build a customer registration app for Star Maharashtra Galaxy Internet with multi-step registration, document verification, terms acceptance, and OTP verification.",
   "architectural_notes": [
     "Registration is a 4-step flow: Details -> Document Upload -> Terms -> OTP Verification",
@@ -851,6 +851,142 @@
         "REQ-122"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-delete-action-so-that-when-an-authorized-admin-confirms-deletion-in-the-registration-details-panel-the-selected-customer-registration-is-actually-deleted-and-removed-from-the-admin-registrations-list",
+      "title": "Fix the Admin Panel “Delete” action so that when an authorized admin confirms deletion in the Registration Details panel, the selected customer registration is actually deleted and removed from the admin registrations list.",
+      "reqIds": [
+        "REQ-123"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-panel-delete-flow-updates-frontend-state-reliably-after-a-successful-delete-without-depending-on-stale-react-query-data-and-prevent-double-delete-actions-while-a-delete-is-in-progress",
+      "title": "Ensure the Admin Panel delete flow updates frontend state reliably after a successful delete, without depending on stale React Query data, and prevent double-delete actions while a delete is in progress.",
+      "reqIds": [
+        "REQ-124"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-access-flow-so-it-never-shows-a-blank-screen-when-admin-checks-registrations-list-fetch-or-selected-registration-fetch-fails-including-actor-not-available-authorization-errors-or-unexpected-runtime-render-errors-the-ui-must-show-a-clear-english-error-state-with-a-retry-action-and-must-keep-the-rest-of-the-admin-panel-usable-e-g-list-area-still-visible-when-possible",
+      "title": "Fix the Admin Panel access flow so it never shows a blank screen: when admin checks, registrations list fetch, or selected-registration fetch fails (including actor not available, authorization errors, or unexpected runtime/render errors), the UI must show a clear English error state with a Retry action and must keep the rest of the Admin Panel usable (e.g., list area still visible when possible).",
+      "reqIds": [
+        "REQ-125"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-delete-flow-so-that-when-an-authorized-admin-clicks-delete-and-confirms-the-selected-customer-registration-is-actually-deleted-in-the-backend-and-is-removed-from-the-left-side-registrations-list-after-deletion-the-detail-panel-must-transition-to-a-valid-state-auto-select-the-first-remaining-registration-if-any-otherwise-show-the-existing-no-registration-selected-no-customer-submissions-states-without-becoming-blank",
+      "title": "Fix the Admin Panel delete flow so that when an authorized admin clicks Delete (and confirms), the selected customer registration is actually deleted in the backend and is removed from the left-side registrations list; after deletion, the detail panel must transition to a valid state (auto-select the first remaining registration if any, otherwise show the existing “No Registration Selected” / “No Customer Submissions” states) without becoming blank.",
+      "reqIds": [
+        "REQ-126"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-edit-flow-so-that-when-an-admin-opens-edit-for-a-selected-registration-the-edit-form-reliably-shows-an-explicit-save-button-and-back-cancel-every-time-the-save-button-must-be-visible-even-when-no-changes-have-been-made-it-may-be-disabled-until-changes-are-detected-so-the-admin-never-thinks-the-save-option-is-missing",
+      "title": "Fix the Admin Panel edit flow so that when an admin opens \"Edit\" for a selected registration, the edit form reliably shows an explicit \"Save\" button (and \"Back\"/\"Cancel\") every time. The Save button must be visible even when no changes have been made (it may be disabled until changes are detected), so the admin never thinks the Save option is missing.",
+      "reqIds": [
+        "REQ-127"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-delete-flow-so-that-deleting-a-selected-registration-never-results-in-a-blank-screen-after-confirming-deletion-the-ui-must-remain-in-a-valid-readable-state-and-the-registrations-list-detail-area-must-recover-deterministically-select-the-next-available-registration-when-possible-otherwise-show-the-existing-empty-states",
+      "title": "Fix the Admin Panel delete flow so that deleting a selected registration never results in a blank screen. After confirming deletion, the UI must remain in a valid, readable state and the registrations list + detail area must recover deterministically (select the next available registration when possible, otherwise show the existing empty states).",
+      "reqIds": [
+        "REQ-128"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-status-and-user-role-react-query-calls-in-frontend-src-features-admin-hooks-useadminqueries-ts-to-treat-unauthorized-errors-from-iscalleradmin-getcalleruserrole-as-non-fatal-expected-outcomes-return-false-for-admin-status-and-guest-for-role-so-the-admin-panel-can-continue-rendering-the-recovery-flow",
+      "title": "Update the admin-status and user-role React Query calls in `frontend/src/features/admin/hooks/useAdminQueries.ts` to treat \"Unauthorized\" errors from `isCallerAdmin()` / `getCallerUserRole()` as non-fatal expected outcomes (return `false` for admin status and `guest` for role) so the Admin Panel can continue rendering the recovery flow.",
+      "reqIds": [
+        "REQ-130"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-customer-registration-delete-flow-so-that-clicking-the-delete-button-and-confirming-never-results-in-a-blank-screen-or-a-hung-ui-after-a-successful-deletion-the-left-registrations-list-must-update-and-the-right-detail-panel-must-deterministically-transition-to-a-valid-state-auto-select-another-available-registration-when-possible-otherwise-show-the-existing-empty-states",
+      "title": "Fix the Admin Panel customer-registration delete flow so that clicking the Delete button (and confirming) never results in a blank screen or a hung UI. After a successful deletion, the left registrations list must update, and the right detail panel must deterministically transition to a valid state (auto-select another available registration when possible; otherwise show the existing empty states).",
+      "reqIds": [
+        "REQ-132"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-frontend-react-query-cache-selection-state-remain-consistent-during-and-after-deletion-so-the-selected-registration-details-query-cannot-get-stuck-in-an-invalid-state-after-optimistic-list-updates-e-g-selected-id-pointing-to-a-deleted-entry",
+      "title": "Ensure the frontend React Query cache + selection state remain consistent during and after deletion, so the selected registration details query cannot get stuck in an invalid state after optimistic list updates (e.g., selected ID pointing to a deleted entry).",
+      "reqIds": [
+        "REQ-133"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-registration-submission-wiring-frontend-src-features-registration-hooks-useregistrationmutations-ts-so-it-passes-the-step-1-fields-firstname-middlename-surname-dateofbirth-email-address-to-the-updated-backend-submitregistration-method-while-keeping-the-existing-document-upload-and-optional-receipt-logic-intact",
+      "title": "Update the frontend registration submission wiring (`frontend/src/features/registration/hooks/useRegistrationMutations.ts`) so it passes the Step 1 fields (firstName, middleName, surname, dateOfBirth, email, address) to the updated backend `submitRegistration(...)` method, while keeping the existing document upload and optional receipt logic intact.",
+      "reqIds": [
+        "REQ-136"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-panel-registration-detail-view-frontend-src-features-admin-components-registrationdetailpanel-tsx-to-display-the-full-customer-details-first-name-middle-name-surname-date-of-birth-email-id-address-in-a-readable-layout-along-with-the-existing-fields-phone-category-payment-method-router-terms-acceptance-timestamp",
+      "title": "Update the Admin Panel registration detail view (`frontend/src/features/admin/components/RegistrationDetailPanel.tsx`) to display the full customer details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address) in a readable layout along with the existing fields (phone, category, payment method, router, terms acceptance timestamp).",
+      "reqIds": [
+        "REQ-137"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-terms-and-conditions-section-to-the-admin-panel-registration-detail-view-that-a-shows-the-stored-termsacceptedat-timestamp-and-b-displays-the-same-terms-conditions-text-that-customers-see-during-registration-from-frontend-src-features-registration-terms-ts-so-the-admin-can-review-what-was-accepted",
+      "title": "Add a dedicated “Terms and Conditions” section to the Admin Panel registration detail view that (a) shows the stored `termsAcceptedAt` timestamp and (b) displays the same Terms & Conditions text that customers see during registration (from `frontend/src/features/registration/terms.ts`) so the admin can review what was accepted.",
+      "reqIds": [
+        "REQ-138"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-panel-registration-detail-view-continues-to-show-the-uploaded-verification-document-photos-aadhaar-card-pan-card-and-the-optional-payment-receipt-photo-when-present-alongside-the-rest-of-the-customer-profile-details-with-clear-labels-for-each-document-type",
+      "title": "Ensure the Admin Panel registration detail view continues to show the uploaded verification document photos (Aadhaar Card, PAN Card) and the optional payment receipt photo (when present) alongside the rest of the customer profile details, with clear labels for each document type.",
+      "reqIds": [
+        "REQ-139"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-registration-details-view-so-it-reliably-displays-the-submitted-customer-details-first-name-middle-name-surname-date-of-birth-email-id-address-phone-for-every-registration-where-those-fields-exist-in-stored-data-instead-of-showing-only-n-a-or-appearing-missing",
+      "title": "Fix the Admin Panel Registration Details view so it reliably displays the submitted customer details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address, Phone) for every registration where those fields exist in stored data, instead of showing only “N/A” or appearing missing.",
+      "reqIds": [
+        "REQ-140"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-registration-details-view-so-it-reliably-displays-the-terms-conditions-information-for-the-selected-registration-including-a-the-stored-terms-acceptance-timestamp-and-b-the-same-terms-conditions-text-that-customers-see-during-registration",
+      "title": "Fix the Admin Panel Registration Details view so it reliably displays the Terms & Conditions information for the selected registration, including (a) the stored terms acceptance timestamp and (b) the same Terms & Conditions text that customers see during registration.",
+      "reqIds": [
+        "REQ-141"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-admin-panel-document-visibility-so-uploaded-verification-documents-aadhaar-card-pan-card-and-the-optional-payment-receipt-image-when-present-reliably-render-as-image-previews-in-the-registration-details-view-for-authorized-admins",
+      "title": "Fix Admin Panel document visibility so uploaded verification documents (Aadhaar Card, PAN Card) and the optional payment receipt image (when present) reliably render as image previews in the Registration Details view for authorized admins.",
+      "reqIds": [
+        "REQ-142"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-admin-panel-diagnostics-friendly-user-visible-non-sensitive-warning-when-the-selected-registration-data-is-incomplete-or-in-an-unexpected-legacy-shape-without-exposing-document-contents-or-secrets",
+      "title": "Add an Admin Panel diagnostics-friendly, user-visible non-sensitive warning when the selected registration data is incomplete or in an unexpected/legacy shape, without exposing document contents or secrets.",
+      "reqIds": [
+        "REQ-143"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -1191,6 +1327,44 @@
       "summary": "Ensure the backend admin username/password credentials are configured as username `PrabhaPerkar@6` and password `Prabha@1991` after canister upgrades as well as fresh deployments (add conditional state migration if existing persisted credentials would otherwise override the intended values).",
       "reqIds": [
         "REQ-120"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-61",
+      "summary": "Fix the Admin Panel access check so that after a user signs in with Internet Identity, the app does not get stuck on the \"Error Loading Admin Panel\" screen due to authorization-related traps from admin/role checks; instead it must proceed to the normal Access Denied / recovery UI when the caller is simply not an admin.",
+      "reqIds": [
+        "REQ-129"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-63",
+      "summary": "Add backend-safe admin/role check endpoints (or adjust existing behavior) so that the frontend can always determine admin status and user role for any authenticated Internet Identity principal without trapping; these checks must not require prior admin permissions.",
+      "reqIds": [
+        "REQ-131"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-64",
+      "summary": "Admin Panel: show full customer profile view including all submitted form fields, uploaded documents, and Terms & Conditions acceptance/proof details in a single readable detail screen.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-65",
+      "summary": "Extend the backend `Registration` record so that it stores the full customer details captured in Step 1 (First Name, Middle Name, Surname, Date of Birth, Email ID, Address) in addition to the existing fields (phone, category, paymentMethod, router/routerProvision, termsAcceptedAt, documents, optional receipt).",
+      "reqIds": [
+        "REQ-134"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-66",
+      "summary": "Update the backend `submitRegistration(...)` API to accept and persist the additional Step 1 customer details fields (First Name, Middle Name, Surname, Date of Birth, Email ID, Address) while preserving existing behavior for documents, optional receipt, and `termsAcceptedAt`.",
+      "reqIds": [
+        "REQ-135"
       ],
       "status": "pending"
     }

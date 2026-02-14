@@ -30,15 +30,23 @@ export const UserProfile = IDL.Record({
 });
 export const Time = IDL.Int;
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const PersonalInfo = IDL.Record({
+  'emailId' : IDL.Text,
+  'dateOfBirth' : IDL.Text,
+  'surname' : IDL.Text,
+  'middleName' : IDL.Text,
+  'address' : IDL.Text,
+  'firstName' : IDL.Text,
+});
 export const Registration = IDL.Record({
   'termsAcceptedAt' : Time,
   'documents' : IDL.Vec(ExternalBlob),
   'paymentMethod' : IDL.Text,
   'receipt' : IDL.Opt(ExternalBlob),
-  'name' : IDL.Text,
   'category' : IDL.Text,
   'phone' : IDL.Text,
   'router' : IDL.Text,
+  'personalInfo' : PersonalInfo,
 });
 
 export const idlService = IDL.Service({
@@ -70,12 +78,23 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'checkIsAdmin' : IDL.Func(
+      [],
+      [IDL.Record({ 'isAdmin' : IDL.Bool })],
+      ['query'],
+    ),
+  'checkUserRole' : IDL.Func(
+      [],
+      [IDL.Record({ 'role' : UserRole })],
+      ['query'],
+    ),
   'deleteCustomerRegistration' : IDL.Func([IDL.Text], [], []),
   'generateOTP' : IDL.Func([IDL.Text], [IDL.Text], []),
   'getAdminUsername' : IDL.Func([], [IDL.Text], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getRegistration' : IDL.Func([IDL.Text], [IDL.Opt(Registration)], ['query']),
+  'getRegistrationIds' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getRegistrationWithReceiptInfo' : IDL.Func(
       [IDL.Text],
       [Registration, IDL.Bool],
@@ -102,6 +121,11 @@ export const idlService = IDL.Service({
         IDL.Text,
         IDL.Text,
         IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
         Time,
         IDL.Opt(ExternalBlob),
         IDL.Vec(ExternalBlob),
@@ -110,8 +134,13 @@ export const idlService = IDL.Service({
       [],
     ),
   'updateAdminCredentials' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'updateCustomerPersonalInfo' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [],
+      [],
+    ),
   'updateCustomerRegistration' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [],
       [],
     ),
@@ -143,15 +172,23 @@ export const idlFactory = ({ IDL }) => {
   });
   const Time = IDL.Int;
   const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const PersonalInfo = IDL.Record({
+    'emailId' : IDL.Text,
+    'dateOfBirth' : IDL.Text,
+    'surname' : IDL.Text,
+    'middleName' : IDL.Text,
+    'address' : IDL.Text,
+    'firstName' : IDL.Text,
+  });
   const Registration = IDL.Record({
     'termsAcceptedAt' : Time,
     'documents' : IDL.Vec(ExternalBlob),
     'paymentMethod' : IDL.Text,
     'receipt' : IDL.Opt(ExternalBlob),
-    'name' : IDL.Text,
     'category' : IDL.Text,
     'phone' : IDL.Text,
     'router' : IDL.Text,
+    'personalInfo' : PersonalInfo,
   });
   
   return IDL.Service({
@@ -183,6 +220,16 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'checkIsAdmin' : IDL.Func(
+        [],
+        [IDL.Record({ 'isAdmin' : IDL.Bool })],
+        ['query'],
+      ),
+    'checkUserRole' : IDL.Func(
+        [],
+        [IDL.Record({ 'role' : UserRole })],
+        ['query'],
+      ),
     'deleteCustomerRegistration' : IDL.Func([IDL.Text], [], []),
     'generateOTP' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAdminUsername' : IDL.Func([], [IDL.Text], ['query']),
@@ -193,6 +240,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(Registration)],
         ['query'],
       ),
+    'getRegistrationIds' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getRegistrationWithReceiptInfo' : IDL.Func(
         [IDL.Text],
         [Registration, IDL.Bool],
@@ -219,6 +267,11 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           IDL.Text,
           IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
           Time,
           IDL.Opt(ExternalBlob),
           IDL.Vec(ExternalBlob),
@@ -227,8 +280,13 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'updateAdminCredentials' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'updateCustomerPersonalInfo' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
     'updateCustomerRegistration' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],
         [],
       ),

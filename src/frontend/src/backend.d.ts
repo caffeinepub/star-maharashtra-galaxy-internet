@@ -19,6 +19,7 @@ export interface Registration {
     termsAcceptedAt: Time;
     documents: Array<ExternalBlob>;
     paymentMethod: string;
+    applicantPhoto?: ExternalBlob;
     receipt?: ExternalBlob;
     category: string;
     phone: string;
@@ -64,7 +65,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     loginAdmin(username: string, password: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    submitRegistration(firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>): Promise<string>;
+    submitRegistration(firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>, applicantPhoto: ExternalBlob | null): Promise<string>;
     updateAdminCredentials(newUsername: string, newPassword: string): Promise<void>;
     updateCustomerPersonalInfo(id: string, firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string): Promise<void>;
     updateCustomerRegistration(id: string, category: string, paymentMethod: string, router: string): Promise<void>;

@@ -6,10 +6,13 @@ import Time "mo:core/Time";
 import Iter "mo:core/Iter";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+// Apply data migration on upgrade (via with clause)
+(with migration = Migration.run)
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();
@@ -40,6 +43,7 @@ actor {
     termsAcceptedAt : Time.Time;
     receipt : ?ExternalBlob.ExternalBlob;
     documents : [ExternalBlob.ExternalBlob];
+    applicantPhoto : ?ExternalBlob.ExternalBlob;
   };
 
   type OTPEntry = {
@@ -98,6 +102,7 @@ actor {
     termsAcceptedAt : Time.Time,
     receipt : ?ExternalBlob.ExternalBlob,
     documents : [ExternalBlob.ExternalBlob],
+    applicantPhoto : ?ExternalBlob.ExternalBlob,
   ) : async Text {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can submit registrations");
@@ -123,6 +128,7 @@ actor {
       termsAcceptedAt;
       receipt;
       documents;
+      applicantPhoto;
     };
 
     registrations.add(registrationId, registration);
@@ -361,4 +367,3 @@ actor {
     { role = AccessControl.getUserRole(accessControlState, caller) };
   };
 };
-

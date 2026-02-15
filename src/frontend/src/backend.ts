@@ -97,6 +97,7 @@ export interface Registration {
     termsAcceptedAt: Time;
     documents: Array<ExternalBlob>;
     paymentMethod: string;
+    applicantPhoto?: ExternalBlob;
     receipt?: ExternalBlob;
     category: string;
     phone: string;
@@ -157,7 +158,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     loginAdmin(username: string, password: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    submitRegistration(firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>): Promise<string>;
+    submitRegistration(firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string, phone: string, category: string, paymentMethod: string, router: string, termsAcceptedAt: Time, receipt: ExternalBlob | null, documents: Array<ExternalBlob>, applicantPhoto: ExternalBlob | null): Promise<string>;
     updateAdminCredentials(newUsername: string, newPassword: string): Promise<void>;
     updateCustomerPersonalInfo(id: string, firstName: string, middleName: string, surname: string, dateOfBirth: string, emailId: string, address: string): Promise<void>;
     updateCustomerRegistration(id: string, category: string, paymentMethod: string, router: string): Promise<void>;
@@ -512,17 +513,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async submitRegistration(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string, arg6: string, arg7: string, arg8: string, arg9: string, arg10: Time, arg11: ExternalBlob | null, arg12: Array<ExternalBlob>): Promise<string> {
+    async submitRegistration(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string, arg6: string, arg7: string, arg8: string, arg9: string, arg10: Time, arg11: ExternalBlob | null, arg12: Array<ExternalBlob>, arg13: ExternalBlob | null): Promise<string> {
         if (this.processError) {
             try {
-                const result = await this.actor.submitRegistration(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, await to_candid_opt_n22(this._uploadFile, this._downloadFile, arg11), await to_candid_vec_n24(this._uploadFile, this._downloadFile, arg12));
+                const result = await this.actor.submitRegistration(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, await to_candid_opt_n22(this._uploadFile, this._downloadFile, arg11), await to_candid_vec_n24(this._uploadFile, this._downloadFile, arg12), await to_candid_opt_n22(this._uploadFile, this._downloadFile, arg13));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.submitRegistration(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, await to_candid_opt_n22(this._uploadFile, this._downloadFile, arg11), await to_candid_vec_n24(this._uploadFile, this._downloadFile, arg12));
+            const result = await this.actor.submitRegistration(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, await to_candid_opt_n22(this._uploadFile, this._downloadFile, arg11), await to_candid_vec_n24(this._uploadFile, this._downloadFile, arg12), await to_candid_opt_n22(this._uploadFile, this._downloadFile, arg13));
             return result;
         }
     }
@@ -623,6 +624,7 @@ async function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promi
     termsAcceptedAt: _Time;
     documents: Array<_ExternalBlob>;
     paymentMethod: string;
+    applicantPhoto: [] | [_ExternalBlob];
     receipt: [] | [_ExternalBlob];
     category: string;
     phone: string;
@@ -632,6 +634,7 @@ async function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promi
     termsAcceptedAt: Time;
     documents: Array<ExternalBlob>;
     paymentMethod: string;
+    applicantPhoto?: ExternalBlob;
     receipt?: ExternalBlob;
     category: string;
     phone: string;
@@ -642,6 +645,7 @@ async function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promi
         termsAcceptedAt: value.termsAcceptedAt,
         documents: await from_candid_vec_n17(_uploadFile, _downloadFile, value.documents),
         paymentMethod: value.paymentMethod,
+        applicantPhoto: record_opt_to_undefined(await from_candid_opt_n19(_uploadFile, _downloadFile, value.applicantPhoto)),
         receipt: record_opt_to_undefined(await from_candid_opt_n19(_uploadFile, _downloadFile, value.receipt)),
         category: value.category,
         phone: value.phone,

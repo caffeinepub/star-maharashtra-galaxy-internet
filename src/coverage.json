@@ -1,31 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T06:30:13.788Z",
+  "generatedAt": "2026-02-15T07:49:16.153Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
+    "total": 5,
     "implemented": 4,
     "items": [
       {
-        "id": "REQ-140",
-        "summary": "Fix the Admin Panel Registration Details view so it reliably displays the submitted customer details (First Name, Middle Name, Surname, Date of Birth, Email ID, Address, Phone) for every registration where those fields exist in stored data, instead of showing only “N/A” or appearing missing.",
+        "id": "REQ-1",
+        "summary": "Add a new image upload field named \"Applicant Photo\" (passport-size photo) to the Verification Document step in the customer registration flow, placed on the same page as Aadhaar/PAN/Payment Receipt uploads, and include it in step validation + submission payload.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/utils/registrationDetails.ts"
+          "frontend/src/features/registration/types.ts",
+          "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
+          "frontend/src/features/registration/RegistrationFlow.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/utils/registrationDetails.ts"
+          "frontend/src/features/registration/types.ts",
+          "frontend/src/features/registration/steps/StepVerificationDocuments.tsx"
         ]
       },
       {
-        "id": "REQ-141",
-        "summary": "Fix the Admin Panel Registration Details view so it reliably displays the Terms & Conditions information for the selected registration, including (a) the stored terms acceptance timestamp and (b) the same Terms & Conditions text that customers see during registration.",
+        "id": "REQ-2",
+        "summary": "Persist the new Applicant Photo in backend registration storage by extending the backend Registration model and submitRegistration API to store an optional Applicant Photo ExternalBlob, and update frontend registration submission code to send it.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/registration/hooks/useRegistrationMutations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/registration/hooks/useRegistrationMutations.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Display the Applicant Photo in the admin panel registration detail view (alongside Aadhaar/PAN/Receipt) with an image preview and appropriate empty-state messaging.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
@@ -35,50 +47,46 @@
         ]
       },
       {
-        "id": "REQ-142",
-        "summary": "Fix Admin Panel document visibility so uploaded verification documents (Aadhaar Card, PAN Card) and the optional payment receipt image (when present) reliably render as image previews in the Registration Details view for authorized admins.",
+        "id": "REQ-4",
+        "summary": "Add admin actions in the registration detail view to (a) download all uploaded documents for the selected customer (Aadhaar, PAN, optional payment receipt, optional Applicant Photo) and (b) print the full customer form (all captured customer fields + document presence).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "frontend/src/features/admin/utils/registrationDetails.ts"
+          "frontend/src/features/admin/utils/adminDownloads.ts",
+          "frontend/src/features/admin/utils/adminPrint.ts",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "frontend/src/features/admin/utils/registrationDetails.ts"
+          "frontend/src/features/admin/utils/adminDownloads.ts",
+          "frontend/src/features/admin/utils/adminPrint.ts",
+          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
         ]
       },
       {
-        "id": "REQ-143",
-        "summary": "Add an Admin Panel diagnostics-friendly, user-visible non-sensitive warning when the selected registration data is incomplete or in an unexpected/legacy shape, without exposing document contents or secrets.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/utils/registrationDetails.ts",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/admin/AdminPanel.tsx",
-          "frontend/src/features/admin/utils/registrationDetails.ts",
-          "frontend/src/features/admin/components/RegistrationDetailPanel.tsx"
-        ]
+        "id": "REQ-5",
+        "summary": "Fix the issue where customer data appears in draft/admin preview but is missing after publishing (e.g., missing 2 customers in live Version 56) by ensuring registrations are persisted across canister upgrades/redeployments and reliably returned by admin queries.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/features/admin/AdminPanel.tsx",
-    "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-    "frontend/src/features/admin/components/EditRegistrationDetailsForm.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-    "frontend/src/features/admin/hooks/useAdminQueries.ts",
-    "frontend/src/features/admin/utils/registrationDetails.ts",
+    "frontend/src/features/admin/utils/adminDownloads.ts",
+    "frontend/src/features/admin/utils/adminPrint.ts",
+    "frontend/src/features/registration/hooks/useRegistrationMutations.ts",
+    "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
+    "frontend/src/features/registration/types.ts",
     "frontend/src/utils/urlParams.ts",
     "project_state.json",
     "scratch/component-selection.json",

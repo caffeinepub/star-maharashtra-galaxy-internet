@@ -46,6 +46,13 @@ export function useRegistrationMutations() {
         receiptBlob = ExternalBlob.fromBytes(receiptBytes);
       }
 
+      // Handle applicant photo (optional)
+      let applicantPhotoBlob: ExternalBlob | null = null;
+      if (documents.applicantPhoto) {
+        const photoBytes = new Uint8Array(await documents.applicantPhoto.arrayBuffer());
+        applicantPhotoBlob = ExternalBlob.fromBytes(photoBytes);
+      }
+
       // Submit registration with individual personal info fields
       return await actor.submitRegistration(
         customerDetails.firstName,
@@ -60,7 +67,8 @@ export function useRegistrationMutations() {
         customerDetails.routerProvision,
         termsAcceptedAt,
         receiptBlob,
-        [aadhaarBlob, panBlob]
+        [aadhaarBlob, panBlob],
+        applicantPhotoBlob
       );
     },
   });

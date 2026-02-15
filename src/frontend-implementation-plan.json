@@ -1,94 +1,89 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Panel Registration Details: fix missing personal info, documents, and Terms visibility",
+  "title": "Applicant Photo upload + admin preview/download/print (frontend wiring)",
   "requirements": [
     {
-      "id": "REQ-140",
-      "summary": "Ensure Admin Panel Registration Details reliably renders stored customer personal details with clear English fallbacks for legacy/incomplete records.",
+      "id": "REQ-1",
+      "summary": "Add optional \"Applicant Photo\" image upload to Verification Document step, included in step validation data and registration submission payload.",
       "acceptanceCriteria": [
-        "When an admin selects a registration in the Admin Panel, the Registration Details view shows the actual stored values for the customer’s personal details when present in the canister record.",
-        "If a registration is in a legacy/older format where some fields were not collected/stored, the UI still renders the section and shows a clear English fallback value (e.g., “Not provided”) rather than appearing blank or broken.",
-        "No runtime errors or blank panels occur when opening Registration Details for any registration in the list."
+        "The Verification Document step UI shows an additional upload control labeled exactly \"Applicant Photo\" and accepts image files.",
+        "The step validation and collected DocumentsData include the Applicant Photo file when selected (in addition to existing Aadhaar/PAN/conditional receipt validation).",
+        "Submitting the registration persists the Applicant Photo to the backend alongside the existing document blobs without breaking existing submissions that omit Applicant Photo (treat it as optional unless explicitly made required)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/registration/types.ts",
+          "operation": "modify",
+          "description": "Extend DocumentsData to include an optional applicantPhoto: File field so the registration flow can carry the new \"Applicant Photo\" upload through validation/submission."
+        },
+        {
+          "path": "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
+          "operation": "modify",
+          "description": "Add a new optional image upload control labeled exactly \"Applicant Photo\" on the same page as Aadhaar/PAN/Receipt, using the existing upload UI pattern (Input/Label/Button). Ensure accept=\"image/*\", maintain preview/remove/replace behavior, and include applicantPhoto in the data passed to onValidationChange when selected while keeping overall step validity rules unchanged (Applicant Photo optional)."
+        },
+        {
+          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
+          "operation": "modify",
+          "description": "Ensure the step-2 validation callback stores the updated DocumentsData shape (including optional applicantPhoto) without breaking navigation gating for step completion."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Send optional Applicant Photo to submitRegistration from the frontend by converting it to ExternalBlob and passing it as the applicantPhoto argument.",
+      "acceptanceCriteria": [
+        "backend/main.mo Registration type includes an optional field for Applicant Photo (e.g., applicantPhoto : ?ExternalBlob.ExternalBlob) or an equivalent explicit representation, and it is populated on submitRegistration.",
+        "The submitRegistration canister method signature is updated to accept Applicant Photo (optional) without breaking compilation of the frontend actor bindings.",
+        "frontend/src/features/registration/hooks/useRegistrationMutations.ts converts the Applicant Photo File to ExternalBlob and passes it to submitRegistration when present."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/registration/hooks/useRegistrationMutations.ts",
+          "operation": "modify",
+          "description": "Update submitRegistrationMutation to (1) convert documents.applicantPhoto (if provided) into an ExternalBlob and (2) pass it as the final submitRegistration argument (ExternalBlob | null). Use the blob-storage ExternalBlob API (from frontend backend bindings) for conversion; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Show Applicant Photo in admin registration detail view with preview and clear empty-state messaging.",
+      "acceptanceCriteria": [
+        "When an admin selects a registration that has an Applicant Photo, the detail panel shows a preview labeled \"Applicant Photo\" using the existing DocumentImagePreview pattern.",
+        "When a registration has no Applicant Photo, the admin UI shows a clear placeholder/alert indicating the Applicant Photo is not available, without crashing the detail view."
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
           "operation": "modify",
-          "description": "Harden Personal Information rendering to use safe accessors (no assumptions about presence of personalInfo) and replace “N/A”/hidden rows with consistent English fallbacks like “Not provided”; ensure phone/address/email/DOB/name fields render reliably even for legacy/incomplete shapes. Verify the component's usage instructions before implementing."
-        },
+          "description": "Extend the Documents section to include an \"Applicant Photo\" block. When registration.applicantPhoto exists, render it via the existing DocumentImagePreview (which uses direct URL rendering). When absent, render a clear placeholder/empty-state message (e.g., using DocumentImagePreviewPlaceholder or an Alert) without impacting the rest of the detail view. Verify the blob-storage component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add admin buttons to download all available customer documents and print a full, English, print-friendly customer form.",
+      "acceptanceCriteria": [
+        "The admin registration detail view includes a \"Download All Documents\" button that downloads each available document for the selected customer (skipping any missing optional documents) using client-side downloads.",
+        "The admin registration detail view includes a \"Print Full Form\" button that opens a print-friendly layout for the selected customer and triggers the browser print dialog (window.print).",
+        "The print output includes personal info, phone, category, payment method, router, termsAcceptedAt (formatted), and a clear list/section indicating which documents are present (and which are missing).",
+        "All user-facing button labels and print text are in English."
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/features/admin/utils/registrationDetails.ts",
+          "path": "frontend/src/features/admin/utils/adminDownloads.ts",
           "operation": "create",
-          "description": "Add small helpers to normalize/format registration fields for display (e.g., value-or-fallback, display-name builder, and safe reads) to keep RegistrationDetailPanel resilient to missing/legacy shapes. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-141",
-      "summary": "Show a clearly labeled Terms and Conditions section with stored acceptance timestamp and the same terms text used in the customer registration flow.",
-      "acceptanceCriteria": [
-        "The Registration Details view contains a clearly labeled “Terms and Conditions” section.",
-        "The section displays the stored `termsAcceptedAt` timestamp for the selected registration in a readable format.",
-        "The section displays the Terms & Conditions content from `frontend/src/features/registration/terms.ts` (same wording/sections as customer flow)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "operation": "modify",
-          "description": "Render a dedicated “Terms and Conditions” section within Registration Details that (1) shows `termsAcceptedAt` using the provided formatter and (2) renders the TERMS_AND_CONDITIONS content from the shared registration module (same text as customer flow). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-142",
-      "summary": "Reliably render Aadhaar, PAN, and optional receipt as image previews in Registration Details with clear placeholders and retryable error states.",
-      "acceptanceCriteria": [
-        "For a registration that has Aadhaar and PAN blobs stored, the Admin Panel shows both document previews under a clearly labeled “Verification Documents” section.",
-        "If a registration includes an optional receipt blob, the receipt preview is shown; if it does not, the UI shows an English placeholder (e.g., “Receipt not provided”) without errors.",
-        "If a document preview cannot be loaded, the UI shows a clear English error state and a Retry action (no silent failures, no blank area).",
-        "Blob/document access works for authorized admins (i.e., admin can fetch/render the same stored blobs that were uploaded during registration)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "operation": "modify",
-          "description": "Make document mapping resilient and explicit: always show a “Verification Documents” section with Aadhaar + PAN slots (using fallbacks when missing) and an optional Receipt slot using receipt presence; avoid brittle assumptions that cause blank areas. Continue composing the existing DocumentImagePreview component for previews. Verify the component's usage instructions before implementing."
+          "description": "Create client-side helpers to download ExternalBlob documents: derive filename labels (Aadhaar, PAN, Payment Receipt, Applicant Photo), fetch bytes via ExternalBlob.getBytes(), and trigger browser downloads. Use the blob-storage ExternalBlob API; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/features/admin/components/DocumentImagePreview.tsx",
-          "operation": "modify",
-          "description": "Improve placeholders and error copy to match requirements (e.g., “Receipt not provided” when receipt is absent) while continuing to use blob-storage ExternalBlob direct URL rendering via `getDirectURL()` for cached/streamed previews; keep the retry flow and ensure failures never render blank. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/utils/registrationDetails.ts",
-          "operation": "modify",
-          "description": "Add helpers for picking Aadhaar/PAN blobs from `registration.documents` defensively (e.g., safe indexing and clear missing-doc messages) and for deciding which placeholders to show without throwing. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-143",
-      "summary": "Show a non-sensitive, user-visible warning when selected registration data is incomplete or in an unexpected/legacy shape.",
-      "acceptanceCriteria": [
-        "If the selected registration is missing expected fields (e.g., missing `personalInfo` or missing `documents` entries), the detail panel shows a concise English warning (e.g., “This submission was created with an older version and may not include all fields.”).",
-        "The warning does not include sensitive data (no tokens, no raw blob IDs/URLs if they are sensitive, no stack traces in normal mode)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/AdminPanel.tsx",
-          "operation": "modify",
-          "description": "Compute a diagnostics-friendly warning string for the selected registration when required sections/fields are missing (legacy/incomplete shape) and pass it to RegistrationDetailPanel via the existing `dataWarning` prop without including sensitive details. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/features/admin/utils/registrationDetails.ts",
-          "operation": "modify",
-          "description": "Add a pure helper that inspects a Registration object and returns a concise, non-sensitive warning message when expected fields are missing (e.g., missing personalInfo, insufficient documents, missing receipt when expected), suitable for display in the admin UI. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/features/admin/utils/adminPrint.ts",
+          "operation": "create",
+          "description": "Create a utility to build a print-friendly HTML layout for a registration (personal info, phone, category, payment method, router, formatted termsAcceptedAt, and a document presence checklist) and open it in a new window/tab that calls window.print. Ensure all labels/content are English."
         },
         {
           "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
           "operation": "modify",
-          "description": "Ensure the warning UI renders consistently and safely (already uses an Alert), and confirm it is shown for missing/legacy shapes (not only for query errors) with English-only text and no sensitive content. Verify the component's usage instructions before implementing."
+          "description": "Add two admin actions (English labels): \"Download All Documents\" and \"Print Full Form\". Wire \"Download All Documents\" to the new download utility to download Aadhaar/PAN and any available optional documents (receipt, applicantPhoto), skipping missing ones. Wire \"Print Full Form\" to the print utility and ensure it includes all requested fields and document presence state. Verify the blob-storage component's usage instructions before implementing."
         }
       ]
     }

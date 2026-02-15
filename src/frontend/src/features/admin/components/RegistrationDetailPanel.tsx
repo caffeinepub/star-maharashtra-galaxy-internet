@@ -34,6 +34,9 @@ import {
   Calendar,
   MapPin,
   FileCheck,
+  Download,
+  Printer,
+  UserCircle,
 } from 'lucide-react';
 import type { Registration } from '../../../backend';
 import { DocumentImagePreview, DocumentImagePreviewPlaceholder } from './DocumentImagePreview';
@@ -44,6 +47,10 @@ import {
   formatTimestamp as formatTimestampUtil,
   getDocumentByIndex,
 } from '../utils/registrationDetails';
+import { downloadAllDocuments } from '../utils/adminDownloads';
+import { printRegistrationForm } from '../utils/adminPrint';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface RegistrationDetailPanelProps {
   selectedRegistrationId: string | null;
@@ -88,6 +95,8 @@ export function RegistrationDetailPanel({
   selectedRegistrationName,
   selectedRegistrationPhone,
 }: RegistrationDetailPanelProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   // Empty state when no registrations exist
   if (totalRegistrations === 0) {
     return (
@@ -133,104 +142,26 @@ export function RegistrationDetailPanel({
         <CardContent className="flex items-center justify-center py-24">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading registration details...</p>
+            <p className="text-sm text-muted-foreground">Loading registration details...</p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  // Error state - but still show Delete option
-  if (isError) {
+  // Error state
+  if (isError || !registration) {
     return (
       <Card className="admin-card shadow-lg border">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle>Error Loading Details</CardTitle>
-              <CardDescription>
-                ID: {selectedRegistrationId}
-              </CardDescription>
-            </div>
-            {isAdmin && !isEditMode && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="gap-2"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </>
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Registration</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this customer registration? This action cannot be undone.
-                      <div className="mt-4 p-3 bg-muted rounded-md">
-                        <p className="text-sm font-medium">ID: {selectedRegistrationId}</p>
-                        {selectedRegistrationName && (
-                          <p className="text-sm text-muted-foreground">Name: {selectedRegistrationName}</p>
-                        )}
-                        {selectedRegistrationPhone && (
-                          <p className="text-sm text-muted-foreground">Phone: {selectedRegistrationPhone}</p>
-                        )}
-                      </div>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={onDelete}
-                      disabled={isDeleting}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Deleting...
-                        </>
-                      ) : (
-                        'Delete Registration'
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-          {deleteError && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Delete Failed</AlertTitle>
-              <AlertDescription>{deleteError}</AlertDescription>
-            </Alert>
-          )}
-        </CardHeader>
         <CardContent className="py-12">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error Loading Registration</AlertTitle>
             <AlertDescription className="mt-2">
-              {error instanceof Error ? error.message : 'Failed to load registration details'}
-              <div className="mt-3 text-sm">
-                The registration data may be corrupted or in a legacy format. You can still delete this entry using the Delete button above.
-              </div>
+              {error?.message || 'Failed to load registration details. The registration may have been deleted.'}
             </AlertDescription>
           </Alert>
-          <div className="flex justify-center mt-6">
+          <div className="flex gap-2 mt-4">
             <Button onClick={onRefetch} variant="outline" className="gap-2">
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -241,261 +172,130 @@ export function RegistrationDetailPanel({
     );
   }
 
-  // No data state - but still show Delete option
-  if (!registration) {
-    return (
-      <Card className="admin-card shadow-lg border">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle>Registration Not Found</CardTitle>
-              <CardDescription>
-                ID: {selectedRegistrationId}
-              </CardDescription>
-            </div>
-            {isAdmin && !isEditMode && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="gap-2"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </>
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Registration</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this customer registration? This action cannot be undone.
-                      <div className="mt-4 p-3 bg-muted rounded-md">
-                        <p className="text-sm font-medium">ID: {selectedRegistrationId}</p>
-                        {selectedRegistrationName && (
-                          <p className="text-sm text-muted-foreground">Name: {selectedRegistrationName}</p>
-                        )}
-                        {selectedRegistrationPhone && (
-                          <p className="text-sm text-muted-foreground">Phone: {selectedRegistrationPhone}</p>
-                        )}
-                      </div>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={onDelete}
-                      disabled={isDeleting}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Deleting...
-                        </>
-                      ) : (
-                        'Delete Registration'
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-          {deleteError && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Delete Failed</AlertTitle>
-              <AlertDescription>{deleteError}</AlertDescription>
-            </Alert>
-          )}
-        </CardHeader>
-        <CardContent className="py-12">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Registration Not Found</AlertTitle>
-            <AlertDescription>
-              The selected registration could not be found. It may have been deleted or the ID is invalid.
-            </AlertDescription>
-          </Alert>
-          <div className="flex justify-center mt-6">
-            <Button onClick={onRefetch} variant="outline" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Retry
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const customerName = selectedRegistrationName || buildDisplayName(registration);
+  const customerPhone = selectedRegistrationPhone || selectedRegistrationId;
 
-  // Normal state: Display registration details
-  const aadhaarDoc = getDocumentByIndex(registration, 0);
-  const panDoc = getDocumentByIndex(registration, 1);
-  const receiptDoc = registration.receipt;
+  const handleDownloadAll = async () => {
+    if (!registration) return;
+    
+    setIsDownloading(true);
+    try {
+      await downloadAllDocuments(registration, customerName);
+      toast.success('All documents downloaded successfully');
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download some documents. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
-  // Build display name from personalInfo
-  const displayName = buildDisplayName(registration);
-
-  // Extract personal info with fallbacks
-  const firstName = getValueOrFallback(registration.personalInfo?.firstName);
-  const middleName = getValueOrFallback(registration.personalInfo?.middleName);
-  const surname = getValueOrFallback(registration.personalInfo?.surname);
-  const dateOfBirth = getValueOrFallback(registration.personalInfo?.dateOfBirth);
-  const emailId = getValueOrFallback(registration.personalInfo?.emailId);
-  const address = getValueOrFallback(registration.personalInfo?.address);
-  const phone = getValueOrFallback(registration.phone);
+  const handlePrint = () => {
+    if (!registration) return;
+    printRegistrationForm(registration, customerName, customerPhone);
+  };
 
   return (
     <Card className="admin-card shadow-lg border">
-      <CardHeader>
+      <CardHeader className="border-b bg-muted/30">
         <div className="flex items-start justify-between">
-          <div>
-            <CardTitle>Registration Details</CardTitle>
-            <CardDescription>
-              ID: {selectedRegistrationId}
+          <div className="flex-1">
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <User className="w-6 h-6" />
+              {customerName}
+            </CardTitle>
+            <CardDescription className="mt-1 flex items-center gap-2">
+              <Phone className="w-4 h-4" />
+              {customerPhone}
             </CardDescription>
           </div>
-          {isAdmin && !isEditMode && (
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onEditClick}
-                className="gap-2"
-              >
+          <div className="flex gap-2">
+            <Button
+              onClick={handleDownloadAll}
+              variant="outline"
+              size="sm"
+              disabled={isDownloading}
+              className="gap-2"
+            >
+              {isDownloading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              Download All
+            </Button>
+            <Button
+              onClick={handlePrint}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Printer className="w-4 h-4" />
+              Print Form
+            </Button>
+            {!isEditMode && (
+              <Button onClick={onEditClick} variant="default" size="sm" className="gap-2">
                 <Edit className="w-4 h-4" />
                 Edit
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="gap-2"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </>
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Registration</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this customer registration? This action cannot be undone.
-                      <div className="mt-4 p-3 bg-muted rounded-md">
-                        <p className="text-sm font-medium">Customer: {displayName}</p>
-                        <p className="text-sm text-muted-foreground">Phone: {phone}</p>
-                        <p className="text-sm text-muted-foreground">ID: {selectedRegistrationId}</p>
-                      </div>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={onDelete}
-                      disabled={isDeleting}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Deleting...
-                        </>
-                      ) : (
-                        'Delete Registration'
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-        {deleteError && (
-          <Alert variant="destructive" className="mt-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Delete Failed</AlertTitle>
-            <AlertDescription>{deleteError}</AlertDescription>
-          </Alert>
-        )}
         {dataWarning && (
-          <Alert className="mt-4">
+          <Alert variant="default" className="mt-4">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Data Warning</AlertTitle>
-            <AlertDescription>{dataWarning}</AlertDescription>
+            <AlertDescription className="text-sm">{dataWarning}</AlertDescription>
           </Alert>
         )}
       </CardHeader>
-      <ScrollArea className="h-[calc(100vh-16rem)]">
-        <CardContent className="space-y-6 pb-6">
-          {/* Personal Information Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <User className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">Personal Information</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
+
+      <ScrollArea className="h-[calc(100vh-280px)]">
+        <CardContent className="p-6 space-y-6">
+          {/* Personal Information */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Personal Information
+            </h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-sm text-muted-foreground">First Name</p>
-                <p className="font-medium">{firstName}</p>
+                <p className="text-muted-foreground">First Name</p>
+                <p className="font-medium">{getValueOrFallback(registration.personalInfo?.firstName)}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Surname</p>
-                <p className="font-medium">{surname}</p>
+                <p className="text-muted-foreground">Middle Name</p>
+                <p className="font-medium">{getValueOrFallback(registration.personalInfo?.middleName, 'N/A')}</p>
               </div>
-              {middleName !== 'Not provided' && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Middle Name</p>
-                  <p className="font-medium">{middleName}</p>
-                </div>
-              )}
+              <div>
+                <p className="text-muted-foreground">Surname</p>
+                <p className="font-medium">{getValueOrFallback(registration.personalInfo?.surname)}</p>
+              </div>
               <div className="flex items-start gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Date of Birth</p>
-                  <p className="font-medium">{dateOfBirth}</p>
+                  <p className="text-muted-foreground">Date of Birth</p>
+                  <p className="font-medium">{getValueOrFallback(registration.personalInfo?.dateOfBirth)}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <Mail className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <Mail className="w-4 h-4 mt-0.5 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Email ID</p>
-                  <p className="font-medium break-all">{emailId}</p>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium break-all">{getValueOrFallback(registration.personalInfo?.emailId)}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <Phone className="w-4 h-4 mt-0.5 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium">{phone}</p>
+                  <p className="text-muted-foreground">Phone</p>
+                  <p className="font-medium">{customerPhone}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-2 md:col-span-2">
-                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Address</p>
-                  <p className="font-medium">{address}</p>
+              <div className="col-span-2 flex items-start gap-2">
+                <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-muted-foreground">Address</p>
+                  <p className="font-medium">{getValueOrFallback(registration.personalInfo?.address)}</p>
                 </div>
               </div>
             </div>
@@ -503,57 +303,58 @@ export function RegistrationDetailPanel({
 
           <Separator />
 
-          {/* Service Details Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Wifi className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">Service Details</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
+          {/* Service Details */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Wifi className="w-5 h-5" />
+              Service Details
+            </h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-sm text-muted-foreground">Category</p>
+                <p className="text-muted-foreground">Category</p>
                 <Badge variant="outline" className="mt-1">
                   {registration.category}
                 </Badge>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Payment Method</p>
-                <Badge variant="outline" className="mt-1">
-                  {registration.paymentMethod}
-                </Badge>
+              <div className="flex items-start gap-2">
+                <CreditCard className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                <div>
+                  <p className="text-muted-foreground">Payment Method</p>
+                  <p className="font-medium">{registration.paymentMethod}</p>
+                </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Router Provision</p>
-                <Badge variant="outline" className="mt-1">
-                  {registration.router}
-                </Badge>
+                <p className="text-muted-foreground">Router</p>
+                <p className="font-medium">{registration.router}</p>
               </div>
             </div>
           </div>
 
           <Separator />
 
-          {/* Terms and Conditions Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <FileCheck className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">Terms and Conditions</h3>
-            </div>
-            <div className="pl-7 space-y-4">
-              <div className="flex items-center gap-2">
+          {/* Terms & Conditions */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FileCheck className="w-5 h-5" />
+              Terms & Conditions
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Accepted At</p>
-                  <p className="font-medium">{formatTimestamp(registration.termsAcceptedAt)}</p>
-                </div>
+                <span className="font-medium">Accepted on:</span>
+                <span className="text-muted-foreground">
+                  {formatTimestamp(registration.termsAcceptedAt)}
+                </span>
               </div>
-              <div className="mt-4">
-                <p className="text-sm font-medium mb-2">Terms Content:</p>
-                <div className="bg-muted/50 rounded-lg p-4 space-y-4 max-h-96 overflow-y-auto">
+              <details className="text-sm">
+                <summary className="cursor-pointer font-medium hover:text-primary">
+                  View Full Terms
+                </summary>
+                <div className="mt-3 p-4 bg-muted rounded-lg space-y-4 max-h-64 overflow-y-auto">
                   {TERMS_AND_CONDITIONS.map((section, idx) => (
                     <div key={idx}>
-                      <h4 className="font-semibold text-sm mb-2">{section.title}</h4>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                      <h4 className="font-semibold mb-2">{section.title}</h4>
+                      <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                         {section.items.map((item, itemIdx) => (
                           <li key={itemIdx}>{item}</li>
                         ))}
@@ -561,62 +362,128 @@ export function RegistrationDetailPanel({
                     </div>
                   ))}
                 </div>
+              </details>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Verification Documents */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Verification Documents
+            </h3>
+            <div className="space-y-6">
+              {/* Aadhaar Card */}
+              <div>
+                <h4 className="font-medium mb-2">Aadhaar Card</h4>
+                <DocumentImagePreview
+                  document={getDocumentByIndex(registration, 0)}
+                  label="Aadhaar Card"
+                  onRefetch={onRefetch}
+                />
+              </div>
+
+              {/* PAN Card */}
+              <div>
+                <h4 className="font-medium mb-2">PAN Card</h4>
+                <DocumentImagePreview
+                  document={getDocumentByIndex(registration, 1)}
+                  label="PAN Card"
+                  onRefetch={onRefetch}
+                />
+              </div>
+
+              {/* Payment Receipt (conditional) */}
+              {registration.paymentMethod === 'UPI' && (
+                <div>
+                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                    <Receipt className="w-4 h-4" />
+                    Payment Receipt
+                  </h4>
+                  {hasReceipt ? (
+                    <DocumentImagePreview
+                      document={registration.receipt}
+                      label="Payment Receipt"
+                      onRefetch={onRefetch}
+                    />
+                  ) : (
+                    <DocumentImagePreviewPlaceholder message="Payment receipt not available" />
+                  )}
+                </div>
+              )}
+
+              {/* Applicant Photo */}
+              <div>
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <UserCircle className="w-4 h-4" />
+                  Applicant Photo
+                </h4>
+                {registration.applicantPhoto ? (
+                  <DocumentImagePreview
+                    document={registration.applicantPhoto}
+                    label="Applicant Photo"
+                    onRefetch={onRefetch}
+                  />
+                ) : (
+                  <DocumentImagePreviewPlaceholder message="Applicant photo not provided" />
+                )}
               </div>
             </div>
           </div>
 
           <Separator />
 
-          {/* Verification Documents Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">Verification Documents</h3>
+          {/* Delete Section */}
+          {isAdmin && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-destructive">
+                <AlertTriangle className="w-5 h-5" />
+                Danger Zone
+              </h3>
+              {deleteError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{deleteError}</AlertDescription>
+                </Alert>
+              )}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    className="gap-2"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                    Delete Registration
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete the registration for <strong>{customerName}</strong> (Phone: {customerPhone}).
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={onDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
-              {/* Aadhaar Card */}
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Aadhaar Card</p>
-                {aadhaarDoc ? (
-                  <DocumentImagePreview
-                    document={aadhaarDoc}
-                    label="Aadhaar Card"
-                    onRefetch={onRefetch}
-                  />
-                ) : (
-                  <DocumentImagePreviewPlaceholder message="Aadhaar card not provided" />
-                )}
-              </div>
-
-              {/* PAN Card */}
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">PAN Card</p>
-                {panDoc ? (
-                  <DocumentImagePreview
-                    document={panDoc}
-                    label="PAN Card"
-                    onRefetch={onRefetch}
-                  />
-                ) : (
-                  <DocumentImagePreviewPlaceholder message="PAN card not provided" />
-                )}
-              </div>
-
-              {/* Payment Receipt (Optional) */}
-              <div className="md:col-span-2">
-                <p className="text-sm text-muted-foreground mb-2">Payment Receipt</p>
-                {receiptDoc ? (
-                  <DocumentImagePreview
-                    document={receiptDoc}
-                    label="Payment Receipt"
-                    onRefetch={onRefetch}
-                  />
-                ) : (
-                  <DocumentImagePreviewPlaceholder message="Receipt not provided" />
-                )}
-              </div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </ScrollArea>
     </Card>

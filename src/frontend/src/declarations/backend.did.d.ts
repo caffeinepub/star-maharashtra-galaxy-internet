@@ -23,6 +23,7 @@ export interface Registration {
   'termsAcceptedAt' : Time,
   'documents' : Array<ExternalBlob>,
   'paymentMethod' : string,
+  'applicantPhoto' : [] | [ExternalBlob],
   'receipt' : [] | [ExternalBlob],
   'category' : string,
   'phone' : string,
@@ -100,6 +101,7 @@ export interface _SERVICE {
       Time,
       [] | [ExternalBlob],
       Array<ExternalBlob>,
+      [] | [ExternalBlob],
     ],
     string
   >,

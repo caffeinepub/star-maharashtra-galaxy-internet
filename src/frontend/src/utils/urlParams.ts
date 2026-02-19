@@ -208,50 +208,89 @@ export function getSecretParameter(paramName: string): string | null {
 }
 
 /**
- * Sanitizes the current URL by removing sensitive parameters from both query string and hash
- * Returns a clean URL string suitable for printing or sharing
- * Removes parameters like admin tokens, setup codes, etc.
+ * Sanitizes the current URL by removing sensitive parameters before printing or generating PDFs
+ * This prevents admin tokens and other sensitive data from appearing in printed documents
  *
- * @returns A sanitized URL string without sensitive parameters
+ * Removes the following sensitive parameters:
+ * - caffeineAdminToken
+ * - adminToken
+ * - token
+ * - secret
+ * - Any parameter containing 'admin', 'token', or 'secret' (case-insensitive)
+ *
+ * @returns The sanitized URL string
+ *
+ * @example
+ * // URL: https://app.com/#/page?caffeineAdminToken=xxx&other=value
+ * // Returns: https://app.com/#/page?other=value
  */
 export function sanitizeUrlForPrint(): string {
-    const sensitiveParams = ['caffeineAdminToken', 'adminSetupCode', 'token', 'secret'];
-    
-    // Clean query string
+    const sensitiveParams = [
+        'caffeineAdminToken',
+        'adminToken',
+        'token',
+        'secret',
+        'admin',
+        'password',
+        'key',
+    ];
+
+    // Handle regular query string
     const urlParams = new URLSearchParams(window.location.search);
-    sensitiveParams.forEach(param => urlParams.delete(param));
-    const cleanQuery = urlParams.toString();
-    
-    // Clean hash
+    const cleanedParams = new URLSearchParams();
+
+    urlParams.forEach((value, key) => {
+        const keyLower = key.toLowerCase();
+        const isSensitive = sensitiveParams.some(param => keyLower.includes(param.toLowerCase()));
+        if (!isSensitive) {
+            cleanedParams.set(key, value);
+        }
+    });
+
+    // Handle hash-based routing
     const hash = window.location.hash;
-    let cleanHash = '';
-    
+    let cleanedHash = '';
+
     if (hash && hash.length > 1) {
         const hashContent = hash.substring(1);
         const queryStartIndex = hashContent.indexOf('?');
-        
+
         if (queryStartIndex !== -1) {
             const routePath = hashContent.substring(0, queryStartIndex);
             const queryString = hashContent.substring(queryStartIndex + 1);
             const hashParams = new URLSearchParams(queryString);
-            
-            sensitiveParams.forEach(param => hashParams.delete(param));
-            const cleanHashQuery = hashParams.toString();
-            
-            cleanHash = routePath + (cleanHashQuery ? '?' + cleanHashQuery : '');
+            const cleanedHashParams = new URLSearchParams();
+
+            hashParams.forEach((value, key) => {
+                const keyLower = key.toLowerCase();
+                const isSensitive = sensitiveParams.some(param => keyLower.includes(param.toLowerCase()));
+                if (!isSensitive) {
+                    cleanedHashParams.set(key, value);
+                }
+            });
+
+            cleanedHash = routePath;
+            const cleanedHashQuery = cleanedHashParams.toString();
+            if (cleanedHashQuery) {
+                cleanedHash += '?' + cleanedHashQuery;
+            }
         } else {
-            cleanHash = hashContent;
+            // No query string in hash, keep as is
+            cleanedHash = hashContent;
         }
     }
-    
-    // Reconstruct URL
+
+    // Reconstruct the URL
     let sanitizedUrl = window.location.pathname;
-    if (cleanQuery) {
-        sanitizedUrl += '?' + cleanQuery;
+
+    const cleanedQuery = cleanedParams.toString();
+    if (cleanedQuery) {
+        sanitizedUrl += '?' + cleanedQuery;
     }
-    if (cleanHash) {
-        sanitizedUrl += '#' + cleanHash;
+
+    if (cleanedHash) {
+        sanitizedUrl += '#' + cleanedHash;
     }
-    
+
     return sanitizedUrl;
 }

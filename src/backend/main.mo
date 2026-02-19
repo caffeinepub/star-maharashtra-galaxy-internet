@@ -4,15 +4,13 @@ import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Iter "mo:core/Iter";
+import Random "mo:core/Random";
+import Nat "mo:core/Nat";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
-import Migration "migration";
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-// Apply data migration on upgrade (via with clause)
-(with migration = Migration.run)
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();
@@ -140,16 +138,17 @@ actor {
       Runtime.trap("Unauthorized: Only users can generate OTP");
     };
 
-    let otp = "123456";
+    let random = Random.crypto();
+    let randomNat = (await* random.natRange(0, 1_000_000)).toText();
     let expiresAt = Time.now() + 300_000_000_000;
 
     let otpEntry : OTPEntry = {
-      otp;
+      otp = randomNat;
       expiresAt;
     };
 
     otpEntries.add(phone, otpEntry);
-    otp;
+    randomNat;
   };
 
   public shared ({ caller }) func verifyOTP(phone : Text, submittedOTP : Text) : async Bool {
@@ -365,5 +364,15 @@ actor {
 
   public query ({ caller }) func checkUserRole() : async { role : AccessControl.UserRole } {
     { role = AccessControl.getUserRole(accessControlState, caller) };
+  };
+
+  //-----------------------------------------
+  //    Grant User Role After Sign-In
+  //-----------------------------------------
+  public shared ({ caller }) func grantUserRole() : async () {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Anonymous caller cannot have user role assigned");
+    };
+    AccessControl.assignRole(accessControlState, caller, caller, #user);
   };
 };

@@ -1,89 +1,31 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Applicant Photo upload + admin preview/download/print (frontend wiring)",
+  "title": "Set user as admin and rebuild application",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add optional \"Applicant Photo\" image upload to Verification Document step, included in step validation data and registration submission payload.",
-      "acceptanceCriteria": [
-        "The Verification Document step UI shows an additional upload control labeled exactly \"Applicant Photo\" and accepts image files.",
-        "The step validation and collected DocumentsData include the Applicant Photo file when selected (in addition to existing Aadhaar/PAN/conditional receipt validation).",
-        "Submitting the registration persists the Applicant Photo to the backend alongside the existing document blobs without breaking existing submissions that omit Applicant Photo (treat it as optional unless explicitly made required)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/registration/types.ts",
-          "operation": "modify",
-          "description": "Extend DocumentsData to include an optional applicantPhoto: File field so the registration flow can carry the new \"Applicant Photo\" upload through validation/submission."
-        },
-        {
-          "path": "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
-          "operation": "modify",
-          "description": "Add a new optional image upload control labeled exactly \"Applicant Photo\" on the same page as Aadhaar/PAN/Receipt, using the existing upload UI pattern (Input/Label/Button). Ensure accept=\"image/*\", maintain preview/remove/replace behavior, and include applicantPhoto in the data passed to onValidationChange when selected while keeping overall step validity rules unchanged (Applicant Photo optional)."
-        },
-        {
-          "path": "frontend/src/features/registration/RegistrationFlow.tsx",
-          "operation": "modify",
-          "description": "Ensure the step-2 validation callback stores the updated DocumentsData shape (including optional applicantPhoto) without breaking navigation gating for step completion."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Send optional Applicant Photo to submitRegistration from the frontend by converting it to ExternalBlob and passing it as the applicantPhoto argument.",
+      "summary": "Verify admin access displays correctly in the frontend after backend whitelist update",
       "acceptanceCriteria": [
-        "backend/main.mo Registration type includes an optional field for Applicant Photo (e.g., applicantPhoto : ?ExternalBlob.ExternalBlob) or an equivalent explicit representation, and it is populated on submitRegistration.",
-        "The submitRegistration canister method signature is updated to accept Applicant Photo (optional) without breaking compilation of the frontend actor bindings.",
-        "frontend/src/features/registration/hooks/useRegistrationMutations.ts converts the Applicant Photo File to ExternalBlob and passes it to submitRegistration when present."
+        "The application is successfully redeployed with all existing functionality intact",
+        "The admin access changes take effect immediately after deployment",
+        "No existing features or user data are affected by the redeployment"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/registration/hooks/useRegistrationMutations.ts",
+          "path": "frontend/src/features/admin/AdminPanel.tsx",
           "operation": "modify",
-          "description": "Update submitRegistrationMutation to (1) convert documents.applicantPhoto (if provided) into an ExternalBlob and (2) pass it as the final submitRegistration argument (ExternalBlob | null). Use the blob-storage ExternalBlob API (from frontend backend bindings) for conversion; verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Show Applicant Photo in admin registration detail view with preview and clear empty-state messaging.",
-      "acceptanceCriteria": [
-        "When an admin selects a registration that has an Applicant Photo, the detail panel shows a preview labeled \"Applicant Photo\" using the existing DocumentImagePreview pattern.",
-        "When a registration has no Applicant Photo, the admin UI shows a clear placeholder/alert indicating the Applicant Photo is not available, without crashing the detail view."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-          "operation": "modify",
-          "description": "Extend the Documents section to include an \"Applicant Photo\" block. When registration.applicantPhoto exists, render it via the existing DocumentImagePreview (which uses direct URL rendering). When absent, render a clear placeholder/empty-state message (e.g., using DocumentImagePreviewPlaceholder or an Alert) without impacting the rest of the detail view. Verify the blob-storage component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add admin buttons to download all available customer documents and print a full, English, print-friendly customer form.",
-      "acceptanceCriteria": [
-        "The admin registration detail view includes a \"Download All Documents\" button that downloads each available document for the selected customer (skipping any missing optional documents) using client-side downloads.",
-        "The admin registration detail view includes a \"Print Full Form\" button that opens a print-friendly layout for the selected customer and triggers the browser print dialog (window.print).",
-        "The print output includes personal info, phone, category, payment method, router, termsAcceptedAt (formatted), and a clear list/section indicating which documents are present (and which are missing).",
-        "All user-facing button labels and print text are in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/utils/adminDownloads.ts",
-          "operation": "create",
-          "description": "Create client-side helpers to download ExternalBlob documents: derive filename labels (Aadhaar, PAN, Payment Receipt, Applicant Photo), fetch bytes via ExternalBlob.getBytes(), and trigger browser downloads. Use the blob-storage ExternalBlob API; verify the component's usage instructions before implementing."
+          "description": "Verify that the admin panel correctly displays 'Admin: Yes' for the whitelisted principal 'p-3sib2-hfxnj-zit4w-kqyca-3r66g' when they log in. Ensure the checkIsAdmin query properly reflects the backend whitelist change and that all admin functionality (viewing, editing, deleting registrations) remains accessible. No code changes should be needed; this is a verification step to confirm the frontend correctly consumes the updated backend admin status."
         },
         {
-          "path": "frontend/src/features/admin/utils/adminPrint.ts",
-          "operation": "create",
-          "description": "Create a utility to build a print-friendly HTML layout for a registration (personal info, phone, category, payment method, router, formatted termsAcceptedAt, and a document presence checklist) and open it in a new window/tab that calls window.print. Ensure all labels/content are English."
+          "path": "frontend/src/features/admin/hooks/useAdminQueries.ts",
+          "operation": "modify",
+          "description": "Verify that the useCheckIsAdmin hook correctly queries the backend's checkIsAdmin method and properly handles the admin status for the newly whitelisted principal. Ensure query invalidation and refetching work correctly after the backend deployment. No code changes should be needed; this is a verification step to confirm proper integration with the updated backend."
         },
         {
-          "path": "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add two admin actions (English labels): \"Download All Documents\" and \"Print Full Form\". Wire \"Download All Documents\" to the new download utility to download Aadhaar/PAN and any available optional documents (receipt, applicantPhoto), skipping missing ones. Wire \"Print Full Form\" to the print utility and ensure it includes all requested fields and document presence state. Verify the blob-storage component's usage instructions before implementing."
+          "description": "Verify that the root application component correctly routes authenticated users with admin privileges to the AdminPanel. Ensure the authentication flow with Internet Identity works seamlessly with the updated backend admin whitelist. Test that the newly whitelisted principal can access the admin interface immediately after login. No code changes should be needed; this is a verification step."
         }
       ]
     }

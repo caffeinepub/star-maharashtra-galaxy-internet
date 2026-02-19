@@ -82,6 +82,7 @@ export interface _SERVICE {
   >,
   'getRegistrations' : ActorMethod<[], Array<[string, Registration]>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'grantUserRole' : ActorMethod<[], undefined>,
   'hasReceipt' : ActorMethod<[string], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'loginAdmin' : ActorMethod<[string, string], undefined>,

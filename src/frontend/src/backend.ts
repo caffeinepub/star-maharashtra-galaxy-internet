@@ -154,6 +154,7 @@ export interface backendInterface {
     getRegistrationWithReceiptInfo(id: string): Promise<[Registration, boolean]>;
     getRegistrations(): Promise<Array<[string, Registration]>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    grantUserRole(): Promise<void>;
     hasReceipt(id: string): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     loginAdmin(username: string, password: string): Promise<void>;
@@ -455,6 +456,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async grantUserRole(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.grantUserRole();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.grantUserRole();
+            return result;
         }
     }
     async hasReceipt(arg0: string): Promise<boolean> {

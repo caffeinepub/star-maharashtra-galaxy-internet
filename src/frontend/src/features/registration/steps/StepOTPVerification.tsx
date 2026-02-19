@@ -4,9 +4,11 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { CheckCircle2, AlertCircle, Loader2, Send } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, Send, LogIn } from 'lucide-react';
 import type { StepProps } from '../types';
 import { useRegistrationMutations } from '../hooks/useRegistrationMutations';
+import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
+import { useActor } from '../../../hooks/useActor';
 
 export function StepOTPVerification({
   onValidationChange,
@@ -17,6 +19,11 @@ export function StepOTPVerification({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [generatedOTP, setGeneratedOTP] = useState<string | null>(null);
+  const [otpPhoneNumber, setOtpPhoneNumber] = useState<string | null>(null);
+
+  const { identity, login, isLoggingIn } = useInternetIdentity();
+  const { actor } = useActor();
+  const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
 
   const { generateOTPMutation, verifyOTPMutation, submitRegistrationMutation } =
     useRegistrationMutations();
@@ -27,22 +34,44 @@ export function StepOTPVerification({
     }
   }, [customerDetails]);
 
+  // Reset OTP state when phone number changes
+  useEffect(() => {
+    if (otpPhoneNumber && phoneNumber !== otpPhoneNumber) {
+      setGeneratedOTP(null);
+      setOtp('');
+      setOtpPhoneNumber(null);
+      // Reset mutation states
+      generateOTPMutation.reset();
+      verifyOTPMutation.reset();
+    }
+  }, [phoneNumber, otpPhoneNumber, generateOTPMutation, verifyOTPMutation]);
+
   const handleGenerateOTP = async () => {
     if (!phoneNumber || phoneNumber.length !== 10) {
+      return;
+    }
+
+    if (!isAuthenticated || !actor) {
       return;
     }
 
     try {
       const generatedCode = await generateOTPMutation.mutateAsync(phoneNumber);
       setGeneratedOTP(generatedCode);
+      setOtpPhoneNumber(phoneNumber);
       setOtp('');
     } catch (error) {
+      // Error is already normalized and will be displayed below
       console.error('Failed to generate OTP:', error);
     }
   };
 
   const handleVerifyOTP = async () => {
-    if (!phoneNumber || !otp || otp.length !== 6) {
+    if (!phoneNumber || !otp || otp.length !== 6 || !generatedOTP || phoneNumber !== otpPhoneNumber) {
+      return;
+    }
+
+    if (!isAuthenticated || !actor) {
       return;
     }
 
@@ -61,6 +90,7 @@ export function StepOTPVerification({
         });
       }
     } catch (error) {
+      // Error is already normalized and will be displayed below
       console.error('Failed to verify OTP:', error);
     }
   };
@@ -68,6 +98,11 @@ export function StepOTPVerification({
   const isGenerating = generateOTPMutation.isPending;
   const isVerifying = verifyOTPMutation.isPending || submitRegistrationMutation.isPending;
   const isSuccess = submitRegistrationMutation.isSuccess;
+
+  // Extract user-friendly error messages
+  const generateError = generateOTPMutation.error?.message.replace('[Registration] ', '');
+  const verifyError = verifyOTPMutation.error?.message.replace('[Registration] ', '');
+  const submitError = submitRegistrationMutation.error?.message.replace('[Registration] ', '');
 
   if (isSuccess) {
     return (
@@ -91,6 +126,39 @@ export function StepOTPVerification({
     );
   }
 
+  // Show sign-in prompt if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="space-y-6">
+        <Alert className="bg-primary/10 border-primary/20">
+          <LogIn className="w-4 h-4 text-primary" />
+          <AlertDescription className="text-primary">
+            <strong>Sign in required</strong>
+            <br />
+            <span className="text-sm">
+              Please sign in with Internet Identity to complete your registration and generate OTP.
+            </span>
+          </AlertDescription>
+        </Alert>
+        <div className="flex justify-center">
+          <Button onClick={login} disabled={isLoggingIn} size="lg" className="gap-2">
+            {isLoggingIn ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              <>
+                <LogIn className="w-4 h-4" />
+                Sign in with Internet Identity
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Step 1: Mobile Number */}
@@ -107,10 +175,11 @@ export function StepOTPVerification({
             placeholder="Enter 10-digit mobile number"
             maxLength={10}
             className="flex-1"
+            disabled={!isAuthenticated}
           />
           <Button
             onClick={handleGenerateOTP}
-            disabled={phoneNumber.length !== 10 || isGenerating}
+            disabled={phoneNumber.length !== 10 || isGenerating || !isAuthenticated || !actor}
             className="gap-2"
           >
             {isGenerating ? (
@@ -129,7 +198,7 @@ export function StepOTPVerification({
       </div>
 
       {/* Generated OTP Display (Simulated) */}
-      {generatedOTP && !verifyOTPMutation.isSuccess && (
+      {generatedOTP && phoneNumber === otpPhoneNumber && !verifyOTPMutation.isSuccess && (
         <Alert className="bg-primary/10 border-primary/20">
           <AlertCircle className="w-4 h-4 text-primary" />
           <AlertDescription className="text-primary">
@@ -143,7 +212,7 @@ export function StepOTPVerification({
       )}
 
       {/* Step 2: Enter OTP */}
-      {generatedOTP && (
+      {generatedOTP && phoneNumber === otpPhoneNumber && (
         <div className="space-y-3">
           <Label className="text-base font-semibold">Step 2: Enter the OTP received</Label>
           <div className="flex flex-col items-center gap-4">
@@ -159,7 +228,7 @@ export function StepOTPVerification({
             </InputOTP>
             <Button
               onClick={handleVerifyOTP}
-              disabled={otp.length !== 6 || isVerifying}
+              disabled={otp.length !== 6 || isVerifying || !generatedOTP || phoneNumber !== otpPhoneNumber || !isAuthenticated || !actor}
               size="lg"
               className="w-full max-w-xs gap-2"
             >
@@ -180,36 +249,24 @@ export function StepOTPVerification({
       )}
 
       {/* Error Messages */}
-      {generateOTPMutation.isError && (
+      {generateError && (
         <Alert variant="destructive">
           <AlertCircle className="w-4 h-4" />
-          <AlertDescription>
-            {generateOTPMutation.error instanceof Error
-              ? generateOTPMutation.error.message
-              : 'Failed to generate OTP. Please try again.'}
-          </AlertDescription>
+          <AlertDescription>{generateError}</AlertDescription>
         </Alert>
       )}
 
-      {verifyOTPMutation.isError && (
+      {verifyError && (
         <Alert variant="destructive">
           <AlertCircle className="w-4 h-4" />
-          <AlertDescription>
-            {verifyOTPMutation.error instanceof Error
-              ? verifyOTPMutation.error.message
-              : 'Invalid OTP. Please check and try again.'}
-          </AlertDescription>
+          <AlertDescription>{verifyError}</AlertDescription>
         </Alert>
       )}
 
-      {submitRegistrationMutation.isError && (
+      {submitError && (
         <Alert variant="destructive">
           <AlertCircle className="w-4 h-4" />
-          <AlertDescription>
-            {submitRegistrationMutation.error instanceof Error
-              ? submitRegistrationMutation.error.message
-              : 'Failed to complete registration. Please try again.'}
-          </AlertDescription>
+          <AlertDescription>{submitError}</AlertDescription>
         </Alert>
       )}
     </div>

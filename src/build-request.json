@@ -1,133 +1,61 @@
 {
   "kind": "build_request",
-  "title": "Add Applicant Photo upload, admin download/print, and fix missing customer data after publish",
-  "priority": "normal",
+  "title": "Set user as admin and rebuild application",
+  "projectName": "Router Registration",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a new image upload field named \"Applicant Photo\" (passport-size photo) to the Verification Document step in the customer registration flow, placed on the same page as Aadhaar/PAN/Payment Receipt uploads, and include it in step validation + submission payload.",
-      "target": "both",
+      "text": "Add the principal ID 'p-3sib2-hfxnj-zit4w-kqyca-3r66g' to the backend admin whitelist so this user has admin access",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-7",
-          "msg-12"
+          "msg-16"
         ],
         "quotes": [
-          "On the Verification Document page, I need an additional field for uploading a passport-size photo. And the name is Applicant Photo",
-          "Please add an image upload field (passport-size photo) and ensure it is visible in the admin panel as well",
-          "yes appliacnt photo upload field on same page"
+          "ha bro principle ko admin kar do",
+          "Principal ID: p-3sib2-hfxnj-zit4w-kqyca-3r66g"
         ]
       },
       "acceptanceCriteria": [
-        "The Verification Document step UI shows an additional upload control labeled exactly \"Applicant Photo\" and accepts image files.",
-        "The step validation and collected DocumentsData include the Applicant Photo file when selected (in addition to existing Aadhaar/PAN/conditional receipt validation).",
-        "Submitting the registration persists the Applicant Photo to the backend alongside the existing document blobs without breaking existing submissions that omit Applicant Photo (treat it as optional unless explicitly made required)."
+        "The principal 'p-3sib2-hfxnj-zit4w-kqyca-3r66g' is added to the admin whitelist in backend/main.mo",
+        "When this user logs in, the admin panel displays 'Admin: Yes'",
+        "The user can access all admin functionality including viewing, editing, and deleting registrations"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Persist the new Applicant Photo in backend registration storage by extending the backend Registration model and submitRegistration API to store an optional Applicant Photo ExternalBlob, and update frontend registration submission code to send it.",
+      "text": "Redeploy the existing draft application with the updated admin configuration",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-7"
+          "msg-16"
         ],
         "quotes": [
-          "On the Verification Document page, I need an additional field for uploading a passport-size photo. And the name is Applicant Photo",
-          "Please add an image upload field (passport-size photo) and ensure it is visible in the admin panel as well"
+          "ha bro dono he chize kar do",
+          "yes rebuild"
         ]
       },
       "acceptanceCriteria": [
-        "backend/main.mo Registration type includes an optional field for Applicant Photo (e.g., applicantPhoto : ?ExternalBlob.ExternalBlob) or an equivalent explicit representation, and it is populated on submitRegistration.",
-        "The submitRegistration canister method signature is updated to accept Applicant Photo (optional) without breaking compilation of the frontend actor bindings.",
-        "frontend/src/features/registration/hooks/useRegistrationMutations.ts converts the Applicant Photo File to ExternalBlob and passes it to submitRegistration when present."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Display the Applicant Photo in the admin panel registration detail view (alongside Aadhaar/PAN/Receipt) with an image preview and appropriate empty-state messaging.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-7"
-        ],
-        "quotes": [
-          "ensure it is visible in the admin panel as well"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When an admin selects a registration that has an Applicant Photo, the detail panel shows a preview labeled \"Applicant Photo\" using the existing DocumentImagePreview pattern.",
-        "When a registration has no Applicant Photo, the admin UI shows a clear placeholder/alert indicating the Applicant Photo is not available, without crashing the detail view."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Add admin actions in the registration detail view to (a) download all uploaded documents for the selected customer (Aadhaar, PAN, optional payment receipt, optional Applicant Photo) and (b) print the full customer form (all captured customer fields + document presence).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-12"
-        ],
-        "quotes": [
-          "download all documents and  and print full form of customer",
-          "print button add on admin panel mai chahe ye taki customer ke full information mai download kar saku"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The admin registration detail view includes a \"Download All Documents\" button that downloads each available document for the selected customer (skipping any missing optional documents) using client-side downloads.",
-        "The admin registration detail view includes a \"Print Full Form\" button that opens a print-friendly layout for the selected customer and triggers the browser print dialog (window.print).",
-        "The print output includes personal info, phone, category, payment method, router, termsAcceptedAt (formatted), and a clear list/section indicating which documents are present (and which are missing).",
-        "All user-facing button labels and print text are in English."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Fix the issue where customer data appears in draft/admin preview but is missing after publishing (e.g., missing 2 customers in live Version 56) by ensuring registrations are persisted across canister upgrades/redeployments and reliably returned by admin queries.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-2",
-          "msg-4"
-        ],
-        "quotes": [
-          "current verson mai customer data mussing hai bro 2 customer ka data missing hai",
-          "are ye drft ke admin panel mai customer ke full details dekh rahi hai par publish karne ke bad verson 56 mai live app web page open keya to kyu nhi dekh raha hai?"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Registrations stored in backend/main.mo survive canister upgrade/redeploy (implement stable persistence via preupgrade/postupgrade and stable structures).",
-        "After upgrading/deploying, admin getRegistrations returns the same set of registrations that existed before the upgrade (no unexpected loss for previously submitted customers).",
-        "If a state schema change is required due to adding Applicant Photo, provide a conditional backend/migration.mo that safely migrates existing registrations to the new structure without trapping."
+        "The application is successfully redeployed with all existing functionality intact",
+        "The admin access changes take effect immediately after deployment",
+        "No existing features or user data are affected by the redeployment"
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
-    "Only generate backend/migration.mo when an upgrade requires state migration; follow the platform's conditional migration policy.",
-    "Do not edit frontend files under immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose these components instead).",
-    "Use English for any user-facing text."
+    "Do not modify any existing registration data or user profiles",
+    "Preserve all current authentication flows and Internet Identity integration",
+    "Do not change the frontend UI or user experience"
   ],
   "nonGoals": [
-    "Do not add third-party authentication providers (only Internet Identity is supported).",
-    "Do not add external databases or external file storage services; use existing canister/blob storage approach.",
-    "Do not add real-time features such as WebSockets or push notifications."
+    "Creating a new admin management interface",
+    "Implementing anchor number recovery features",
+    "Modifying the Internet Identity authentication mechanism",
+    "Adding new admin roles or permission levels"
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

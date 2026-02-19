@@ -61,6 +61,7 @@ export interface backendInterface {
     getRegistrationWithReceiptInfo(id: string): Promise<[Registration, boolean]>;
     getRegistrations(): Promise<Array<[string, Registration]>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    grantUserRole(): Promise<void>;
     hasReceipt(id: string): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     loginAdmin(username: string, password: string): Promise<void>;

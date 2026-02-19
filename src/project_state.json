@@ -1,83 +1,38 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Customer verification/admin app enhancements and data consistency fixes: add Applicant Photo upload on Verification Document page, expose it in admin, add admin actions to download all documents and print full customer form, and address missing customer data in live vs draft/published versions.",
+  "summary": "New project",
   "architectural_notes": [
-    "Draft/admin preview data may differ from published/live stored data; ensure form submissions persist to the live/published datastore so live app and admin reflect the same records."
+    "Admin authentication uses Internet Identity principal IDs",
+    "Admin principal IDs are stored in backend and validated on each admin panel access",
+    "System supports multiple admin accounts via principal ID whitelist"
   ],
   "known_issues": [
-    "Build/app creation encountered an error during rebuild/deploy attempt."
+    "User lost original admin Internet Identity anchor number, requiring backend admin principal update",
+    "Admin panel shows 'Admin: No' when current principal is not in admin whitelist",
+    "Internet Identity passkey recovery not available without anchor number or recovery phrase"
   ],
   "isFixRequest": true,
-  "existing_features": [
-    {
-      "id": "feature-add-a-new-image-upload-field-named-applicant-photo-passport-size-photo-to-the-verification-document-step-in-the-customer-registration-flow-placed-on-the-same-page-as-aadhaar-pan-payment-receipt-uploads-and-include-it-in-step-validation-submission-payload",
-      "title": "Add a new image upload field named \"Applicant Photo\" (passport-size photo) to the Verification Document step in the customer registration flow, placed on the same page as Aadhaar/PAN/Payment Receipt uploads, and include it in step validation + submission payload.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-persist-the-new-applicant-photo-in-backend-registration-storage-by-extending-the-backend-registration-model-and-submitregistration-api-to-store-an-optional-applicant-photo-externalblob-and-update-frontend-registration-submission-code-to-send-it",
-      "title": "Persist the new Applicant Photo in backend registration storage by extending the backend Registration model and submitRegistration API to store an optional Applicant Photo ExternalBlob, and update frontend registration submission code to send it.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-display-the-applicant-photo-in-the-admin-panel-registration-detail-view-alongside-aadhaar-pan-receipt-with-an-image-preview-and-appropriate-empty-state-messaging",
-      "title": "Display the Applicant Photo in the admin panel registration detail view (alongside Aadhaar/PAN/Receipt) with an image preview and appropriate empty-state messaging.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-admin-actions-in-the-registration-detail-view-to-a-download-all-uploaded-documents-for-the-selected-customer-aadhaar-pan-optional-payment-receipt-optional-applicant-photo-and-b-print-the-full-customer-form-all-captured-customer-fields-document-presence",
-      "title": "Add admin actions in the registration detail view to (a) download all uploaded documents for the selected customer (Aadhaar, PAN, optional payment receipt, optional Applicant Photo) and (b) print the full customer form (all captured customer fields + document presence).",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    }
-  ],
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add 'Applicant Photo' (passport-size) image upload field on the Verification Document page and display it in the admin panel.",
-      "reqIds": [],
+      "summary": "Add the principal ID 'p-3sib2-hfxnj-zit4w-kqyca-3r66g' to the backend admin whitelist so this user has admin access",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add admin option to download all uploaded customer documents.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add admin option to print full customer form/details.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Fix issue where some customer data appears in admin draft but is missing in live/published Version 56 (ensure submissions persist to live/published database).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Fix the issue where customer data appears in draft/admin preview but is missing after publishing (e.g., missing 2 customers in live Version 56) by ensuring registrations are persisted across canister upgrades/redeployments and reliably returned by admin queries.",
+      "summary": "Redeploy the existing draft application with the updated admin configuration",
       "reqIds": [
-        "REQ-5"
+        "REQ-2"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Add Applicant Photo upload, admin download/print, and fix missing customer data after publish",
+  "projectName": "Router Registration",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

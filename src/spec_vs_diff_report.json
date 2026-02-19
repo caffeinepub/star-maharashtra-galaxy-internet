@@ -1,65 +1,28 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T07:49:16.151Z",
-  "summary": "Diff implements Applicant Photo optional upload through registration payload/storage and adds admin-side utilities for downloading documents and generating print HTML, plus a backend migration module. However, evidence is insufficient to confirm the admin UI actually displays Applicant Photo and provides the required Download/Print buttons, and the backend persistence-across-upgrade fix (stable storage via preupgrade/postupgrade) is not evidenced; some extra unrelated frontend utilities/UX changes appear added.",
+  "generatedAt": "2026-02-19T03:12:57.694Z",
+  "summary": "The diff does not contain evidence that REQ-1 (adding the specific principal ID to the admin whitelist) was implemented. The backend/main.mo file is truncated, and the visible portion does not show the admin whitelist modification. REQ-2 (redeployment) is a deployment task that cannot be verified from code changes alone. No hallucinated features were detected in the visible diff.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Display the Applicant Photo in the admin panel registration detail view (alongside Aadhaar/PAN/Receipt) with an image preview and appropriate empty-state messaging.",
-      "reason": "The diff shows backend supports applicantPhoto and admin utilities reference registration.applicantPhoto, but the provided truncated RegistrationDetailPanel.tsx snippet does not show any Applicant Photo preview/placeholder rendering, so implementation cannot be confirmed from the evidence.",
+      "id": "REQ-1",
+      "requirement": "Add the principal ID 'p-3sib2-hfxnj-zit4w-kqyca-3r66g' to the backend admin whitelist so this user has admin access",
+      "reason": "The backend/main.mo file is truncated and does not show any code adding the principal 'p-3sib2-hfxnj-zit4w-kqyca-3r66g' to an admin whitelist. The visible portions show access control initialization and user profile management, but no specific principal ID addition is evident.",
       "evidence": [
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated)",
-        "frontend/src/features/admin/utils/adminDownloads.ts"
+        "backend/main.mo"
       ]
     },
     {
-      "id": "REQ-4",
-      "requirement": "Add admin actions in the registration detail view to download all uploaded documents and print the full customer form (with required fields and document presence list), triggering browser print.",
-      "reason": "Utility modules for download and print were added and imported by RegistrationDetailPanel, but the truncated panel code does not show the presence of \"Download All Documents\" and \"Print Full Form\" buttons, nor does the truncated print utility show window.print being invoked.",
-      "evidence": [
-        "frontend/src/features/admin/components/RegistrationDetailPanel.tsx (truncated)",
-        "frontend/src/features/admin/utils/adminDownloads.ts",
-        "frontend/src/features/admin/utils/adminPrint.ts (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "requirement": "Ensure registrations persist across canister upgrades/redeployments and are reliably returned by admin queries (stable persistence via preupgrade/postupgrade and stable structures; conditional migration if needed).",
-      "reason": "backend/main.mo shows an upgrade migration hook (with migration = Migration.run) and a migration module was added, but there is no evidence of stable variables or explicit preupgrade/postupgrade logic to persist registrations across upgrades. The registrations map is declared with Map.empty (non-stable) in the shown snippet.",
-      "evidence": [
-        "backend/main.mo (truncated)",
-        "backend/migration.mo"
-      ]
+      "id": "REQ-2",
+      "requirement": "Redeploy the existing draft application with the updated admin configuration",
+      "reason": "Redeployment is an operational task that cannot be verified from code diffs alone. No deployment scripts, configuration files, or deployment evidence are present in the diff.",
+      "evidence": []
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Added URL/session parameter utilities for persisting parameters across navigation (hash/query parsing, sessionStorage helpers).",
-      "reason": "Not requested by any REQ; appears unrelated to Applicant Photo upload, admin download/print, or backend persistence fix.",
-      "evidence": [
-        "frontend/src/utils/urlParams.ts"
-      ]
-    },
-    {
-      "description": "Registration flow UX changes (e.g., icon-only Admin Panel navigation requiring double-click/double-tap with hint text, remounting behavior, styling/print CSS tweaks).",
-      "reason": "Not requested by any REQ; these are additional UI/UX changes beyond the specified Applicant Photo/admin actions/persistence fix scope.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    }
-  ],
-  "confidence": 0.64,
+  "hallucinated_features": [],
+  "confidence": 0.6,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
-    "frontend-file-summaries.txt",
-    "frontend/src/features/admin/components/RegistrationDetailPanel.tsx",
-    "frontend/src/features/admin/utils/adminDownloads.ts",
-    "frontend/src/features/admin/utils/adminPrint.ts",
-    "frontend/src/features/registration/hooks/useRegistrationMutations.ts",
-    "frontend/src/features/registration/steps/StepVerificationDocuments.tsx",
-    "frontend/src/features/registration/types.ts",
     "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]

@@ -244,7 +244,7 @@ export function StepCustomerDetails({ onValidationChange }: StepProps) {
           <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
             <RadioGroupItem value="Free" id="free" />
             <Label htmlFor="free" className="flex-1 cursor-pointer">
-              Provided Free of Cost
+              Provided free to use
             </Label>
           </div>
           <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
